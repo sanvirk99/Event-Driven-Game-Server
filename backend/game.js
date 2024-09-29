@@ -1,1 +1,35 @@
 
+/*
+
+player that want to play place their bets , dealer has count down to lock the bets once first bet is placed allowing any 
+other player to also place the bet
+
+- buy in minimun bet, these are integer dollars -> for the mvp all players get same amount
+    -  state is local to the game session , dealer has unlimited money
+    -  players money is tracked , as players run out of money they become inactive but still get game informtion broadcasted
+
+- all players get a card  one by one those who placed the bet, this deck is 52 cards, each new iteration of bets gets a fresh deck,
+    - this allows players to use some probaility as a strategy based on what cards other users have as cards
+    - front end can simulate the suffling of the deck and add animation such as removing the joker
+
+- first card of dealer is face down so it is not send to other player but second card is shown to players
+
+
+- order of card distribution is determined by the order in which the players join for mvp
+
+- once players have all cards, game expects stay or hit messages
+
+    - hit -> players can go up to 21, auto lose if over 21 , take their money
+    - stay -> players can choose not to obtain new cars, then goin in waiting state unitl everyone else finished hitting
+
+- dealer card is broadcasted to players , if total of both cards is lower then 17 they have to hit 
+    - if dealer gets 21 then all players lose who dont also have 21
+    - any players who have same total as dealer get their money back
+    - if 21 and dealer does not have 21 then 3 chips for 2 chips
+
+- payout is the same amount you bet
+
+
+- card complexity, splitting , doubling down after seeing one card credits anohter hit
+
+*/
