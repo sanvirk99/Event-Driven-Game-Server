@@ -1,35 +1,67 @@
 
-/*
+const utils = require('./utils/helper')
 
-player that want to play place their bets , dealer has count down to lock the bets once first bet is placed allowing any 
-other player to also place the bet
+class Card{
 
-- buy in minimun bet, these are integer dollars -> for the mvp all players get same amount
-    -  state is local to the game session , dealer has unlimited money
-    -  players money is tracked , as players run out of money they become inactive but still get game informtion broadcasted
-
-- all players get a card  one by one those who placed the bet, this deck is 52 cards, each new iteration of bets gets a fresh deck,
-    - this allows players to use some probaility as a strategy based on what cards other users have as cards
-    - front end can simulate the suffling of the deck and add animation such as removing the joker
-
-- first card of dealer is face down so it is not send to other player but second card is shown to players
-
-
-- order of card distribution is determined by the order in which the players join for mvp
-
-- once players have all cards, game expects stay or hit messages
-
-    - hit -> players can go up to 21, auto lose if over 21 , take their money
-    - stay -> players can choose not to obtain new cars, then goin in waiting state unitl everyone else finished hitting
-
-- dealer card is broadcasted to players , if total of both cards is lower then 17 they have to hit 
-    - if dealer gets 21 then all players lose who dont also have 21
-    - any players who have same total as dealer get their money back
-    - if 21 and dealer does not have 21 then 3 chips for 2 chips
-
-- payout is the same amount you bet
+    constructor(suit,face,value){
+        this.suit=suit
+        this.face=face
+        this.value=value
+        if(face === "A"){
+            this.isAce=true
+        }else{
+            this.isAce=false
+        }
+    }
+    
+}
 
 
-- card complexity, splitting , doubling down after seeing one card credits anohter hit
 
-*/
+class Deck {
+
+    #shuffle_count
+    #card_index
+    constructor(cards){
+        this.cards=cards
+        this.size=cards.length
+        this.#shuffle_count=this.size*10
+        this.#card_index=0
+        
+    }
+
+
+
+    shuffle(){
+
+        let index1=0
+        let index2=0
+        let temp=null
+        for(let i=0; i < this.#shuffle_count ;i++){
+            index1=utils.getRandomInt(0,this.size-1)
+            index2=utils.getRandomInt(0,this.size-1)
+            temp=this.cards[index1]
+            this.cards[index1]=this.cards[index2]
+            this.cards[index2]=temp
+            
+        }
+
+        this.#card_index=0
+
+    }
+
+
+    getCard(){
+        let card=this.cards[this.#card_index]
+        this.#card_index++
+        if(this.#card_index >= this.size){
+            this.#card_index=0
+        }
+        return card
+    }
+}
+
+module.exports = {
+    Card,
+    Deck
+}

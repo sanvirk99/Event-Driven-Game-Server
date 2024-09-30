@@ -1,0 +1,27 @@
+
+1st iteration
+
+game:
+    deck_size #use determine when to shuffle
+    deck
+    dealer
+    player_count=x
+    players
+
+player:
+    player_money -> intilized to default amount
+    willPlay?-> asumme bet is minimun
+
+
+card:
+    value
+    suit
+    face
+
+deck:
+    composed of cards 
+    gives unique card
+    shuffle method
+
+
+         

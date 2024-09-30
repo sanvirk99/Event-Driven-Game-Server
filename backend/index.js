@@ -1,5 +1,6 @@
-const {WebSocket,WebSocketServer} = require('ws')
+import {WebSocket,WebSocketServer} from 'ws'
 
+console.log('wsrunning on port 8080')
 const wss = new WebSocketServer({ port: 8080 });
 
 wss.on('connection', function connection(ws) {
