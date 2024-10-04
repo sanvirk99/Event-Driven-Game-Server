@@ -98,8 +98,52 @@ const machine = {
 
 }
 
+class Machine {
+    constructor() {
+        this.state = "BET";
+        this.transitions = {
+            BET: {
+                lock: (bet) => {
+                    if (bet.value < 1) {
+                        // player did not bet
+                        return;
+                    }
+                    this.changeState("CARD_INT");
+                }
+                // if you don't bet, kick rocks
+            },
+            CARD_INT: {
+                card: (card) => {
+                    // evaluate
+                }
+            }
+          
+        };
+    }
+
+    dispatch(actionName, ...payload) {
+        const actions = this.transitions[this.state];
+        const action = actions[actionName];
+
+        if (action) {
+            action.apply(this, payload);
+        } else {
+            // action is not valid for current state
+        }
+    }
+
+    changeState(newState) {
+        // validate that newState actually exists
+        if (this.transitions[newState]) {
+            this.state = newState;
+        } else {
+            throw new Error(`Invalid state: ${newState}`);
+        }
+    }
+}
 
 
 module.exports = {
-    machine
+    machine,
+    Machine
 }

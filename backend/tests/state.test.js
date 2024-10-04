@@ -1,6 +1,6 @@
 const {test, beforeEach, describe} = require('node:test')
 const assert = require('assert')
-const {machine} = require('../state')
+const {machine, Machine} = require('../state')
 const {Hand} = require('../hand')
 
 
@@ -25,4 +25,21 @@ test('testing player state', () => {
 
     assert.strictEqual(bob.state,"CARD_INT")
 
+})
+
+
+test('using class object instead of Object.Create',() => {
+
+
+    class Player extends Machine {
+        constructor(name, hand) {
+            super();
+            this.name = name;
+            this.hand = hand;
+        }
+    }
+    
+    let bob = new Player("bob", new Hand());
+    bob.dispatch("lock", [{ value: 2 }]);
+    assert.strictEqual(bob.state, "CARD_INT");
 })
