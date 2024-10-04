@@ -4,129 +4,86 @@
 //state machine implementation 
 //https://gist.github.com/prof3ssorSt3v3/9eb833677b8aa05282d72f0b3c120f03
 
-const machine = {
-
-    state: "BET",
-    transitions: {
-
-        BET: {
-
-            lock: function(bet){
-
-                if(bet.value<1){
-                    // player did not bet
-                    return
-                }
-                
-                this.changeState("CARD_INT")
-            }
-
-            //if you dont bet kick rocks
-        },
-
-        CARD_INT : {
-
-            card: function(card){
-
-                
-                //evaluate
-            }
-        },
-
-        // UNDER,
-
-        // BLACKJACK,
-
-        // BUSTED,
-
-        // GET: {
-
-        //     card: function(card){
-
-        //     }
-
-        // }
-
-
-        // ,
-        // UNDER21:{  
-            
-        //     hit: function(){
-
-        //     },
-
-        //     stand: function() {
-
-        //     }
-            
-        // },
-
-        // BUSTED: {
-
-        //     //lock the money 
-
-        //     card : function(card){
-
-        //         console.log(`player recieved card ${card.toString()}`)
-
-        //         // once two cards transition 
-        //         //to descion
-        //     }
-        // }
-
-        
-    },
-    dispatch(actionName, ...payload){
-
-        const actions = this.transitions[this.state];
-        const action = this.transitions[this.state][actionName];
-        
-        if (action) {
-          action.apply(machine, ...payload);
-          
-        } else {
-          //action is not valid for current state
-        }
-
-    },
-    changeState(newState){
-
-          //validate that newState actually exists
-        this.state = newState;
-
-    }
-
-}
 
 class Machine {
-    constructor() {
-        this.state = "BET";
+    constructor(player,hand) {
+        this.player=player
+        this.hand=hand
+        this.state = "BET"
         this.transitions = {
             BET: {
-                lock: (bet) => {
+                bet: (bet) => {
                     if (bet.value < 1) {
                         // player did not bet
                         return;
                     }
-                    this.changeState("CARD_INT");
+                    this.changeState("CARD_WAIT");
                 }
                 // if you don't bet, kick rocks
             },
-            CARD_INT: {
+            CARD_WAIT: {
                 card: (card) => {
                     // evaluate
+                    this.hand.handCard(card)
+                    let numCards=this.hand.size()
+                    if (numCards < 2 ){
+                        return
+                    }
+                    let sum = this.hand.evaluate()
+                    switch(sum){
+                        case 21:
+                            this.changeState("BLACKJACK")
+                            break
+                        case sum < 21:
+                            this.changeState("PLAY")
+                            break
+                        default:
+                            this.changeState("BUSTED")
+                            break
+                    }
+                    
                 }
-            }
+            },
+
+            BLACKJACK: {
+
+            },
+
+            BUSTED: {
+
+            },
+
+            PLAY: {
+
+                hit: function(){
+                    
+                    this.changeState("CARD_WAIT")
+                },
+
+                stand: function() {
+
+                    this.changeState("LOCKED")
+                }
+
+                
+            },
+
+            LOCKED: {
+
+            },
+
+
+
+        
           
-        };
+        }
     }
 
-    dispatch(actionName, ...payload) {
+    dispatch(actionName, payload) {
         const actions = this.transitions[this.state];
         const action = actions[actionName];
-
         if (action) {
-            action.apply(this, payload);
+            action(payload);
         } else {
             // action is not valid for current state
         }
@@ -144,6 +101,5 @@ class Machine {
 
 
 module.exports = {
-    machine,
     Machine
 }

@@ -2,44 +2,37 @@ const {test, beforeEach, describe} = require('node:test')
 const assert = require('assert')
 const {machine, Machine} = require('../state')
 const {Hand} = require('../hand')
+const {getCard} = require('../utils/cards')
 
 
-test('testing player state', () => {
 
-    let bob = Object.create(machine, {
-        name: {
-            value: "bob",
-            writable: true,
-            enumerable: true,
-            configurable: false
-        },
-        hand: {
-            value: new Hand(),
-            writable: true,
-            enumerable: true,
-            configurable: false
-        }
-    })
+//machine is composed of player object and hand and contains state
+test('Player Stages to black jack',() => {
+    const playerHand = new Hand();
+    let bob = new Machine("bob", playerHand);
 
-    bob.dispatch("lock",[{value: 2}]) //bet amount
+    assert.strictEqual(bob.state,"BET")
 
-    assert.strictEqual(bob.state,"CARD_INT")
+    bob.dispatch("bet", { value: 2 });
+    assert.strictEqual(bob.state, "CARD_WAIT");
+
+    let ace=getCard(11)
+    let ten=getCard(10)
+    assert.strictEqual(ace.value,11)
+    assert.strictEqual(ten.value,10)
+
+    bob.dispatch("card", getCard(10)) // 10 of spades
+
+    assert.strictEqual(playerHand.size(),1)
+
+    bob.dispatch("card", getCard(11))
+
+    assert.strictEqual(playerHand.size(),2)
+
+    assert.strictEqual(playerHand.evaluate(),21)
+
+    assert.strictEqual(bob.state, "BLACKJACK");
 
 })
 
 
-test('using class object instead of Object.Create',() => {
-
-
-    class Player extends Machine {
-        constructor(name, hand) {
-            super();
-            this.name = name;
-            this.hand = hand;
-        }
-    }
-    
-    let bob = new Player("bob", new Hand());
-    bob.dispatch("lock", [{ value: 2 }]);
-    assert.strictEqual(bob.state, "CARD_INT");
-})

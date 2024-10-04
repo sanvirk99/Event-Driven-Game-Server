@@ -5,9 +5,13 @@ class Hand {
         this.cards=[]
     }
     handCard(card){
+    
         this.cards.push(card)
     }
     
+    size(){
+        return this.cards.length
+    }
 
     evaluate(){
 
@@ -31,8 +35,6 @@ class Hand {
            }
             
         }
-
-
         return sum
 
     }
