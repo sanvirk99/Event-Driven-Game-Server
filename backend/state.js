@@ -30,16 +30,12 @@ class Machine {
                         return
                     }
                     let sum = this.hand.evaluate()
-                    switch(sum){
-                        case 21:
-                            this.changeState("BLACKJACK")
-                            break
-                        case sum < 21:
-                            this.changeState("PLAY")
-                            break
-                        default:
-                            this.changeState("BUSTED")
-                            break
+                    if (sum === 21) {
+                        this.changeState("BLACKJACK");
+                    } else if (sum < 21) {
+                        this.changeState("PLAY");
+                    } else {
+                        this.changeState("BUSTED");
                     }
                     
                 }
@@ -47,34 +43,33 @@ class Machine {
 
             BLACKJACK: {
 
+                //waiting for dealer action, payout or dealer cant take money
+
             },
 
             BUSTED: {
+
+                //waiting for dealer action, delaer will collect the money
 
             },
 
             PLAY: {
 
-                hit: function(){
+                hit: () => {
                     
                     this.changeState("CARD_WAIT")
                 },
 
-                stand: function() {
+                stand: () => {
 
                     this.changeState("LOCKED")
-                }
-
-                
+                }       
             },
 
             LOCKED: {
+                //wating for dealer action evaluate cards, take money or payout
 
             },
-
-
-
-        
           
         }
     }
@@ -83,7 +78,7 @@ class Machine {
         const actions = this.transitions[this.state];
         const action = actions[actionName];
         if (action) {
-            action(payload);
+            action(payload)
         } else {
             // action is not valid for current state
         }
