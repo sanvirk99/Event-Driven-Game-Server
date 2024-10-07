@@ -1,7 +1,7 @@
 
 class DealerState {
     constructor(dealer,hand) {
-        this.dealer=dealer
+        this.name=dealer
         this.hand=hand
         this.state = "WAITING"
         this.transitions = {

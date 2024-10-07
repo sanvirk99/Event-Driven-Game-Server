@@ -1,0 +1,7 @@
+
+
+#testing only specfic file 
+    npm test -- tests/file.test.js
+
+#testing based on test name 
+    npm test -- --test-name-pattern="game state object testing"

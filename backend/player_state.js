@@ -6,9 +6,10 @@
 
 
 class PlayerState {
-    constructor(player,hand) {
-        this.player=player
+    constructor(player,hand,game) {
+        this.name=player
         this.hand=hand
+        this.game=game
         this.state = "WATCHING"
         this.transitions = {
             WATCHING: {

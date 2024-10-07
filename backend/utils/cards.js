@@ -13,7 +13,13 @@ values.forEach((value,index)=> {
 
 //value and suit 
 function getCard(value){
-    return new Card(suits[0],valueFaceMap[value],value)
+
+    if(values.includes(value)){
+        return new Card(suits[0],valueFaceMap[value],value)
+    }
+
+    throw new Error("value is not valid")
+    
 }
 
 

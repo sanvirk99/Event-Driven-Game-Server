@@ -39,6 +39,11 @@ class Hand {
 
     }
 
+    clear(){ 
+
+        this.cards=[]
+    }
+
 
 
 }

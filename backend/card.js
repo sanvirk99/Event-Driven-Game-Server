@@ -36,7 +36,7 @@ class Card{
     toString() {
 
         if(this.#card_up){
-            return `${this.face} of ${this.suit} (Value: ${this.value}, Ace: ${this.isAce}, Face Up: ${this.#card_up})`
+            return `${this.face} of ${this.suit} (Value: ${this.value})`
         }
 
         return "Face Down"
