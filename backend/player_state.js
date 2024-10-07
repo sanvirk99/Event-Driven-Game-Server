@@ -5,21 +5,20 @@
 //https://gist.github.com/prof3ssorSt3v3/9eb833677b8aa05282d72f0b3c120f03
 
 
-class Machine {
+class PlayerState {
     constructor(player,hand) {
         this.player=player
         this.hand=hand
-        this.state = "BET"
+        this.state = "WATCHING"
         this.transitions = {
-            BET: {
+            WATCHING: {
                 bet: (bet) => {
                     if (bet.value < 1) {
-                        // player did not bet
+                        // remain watching
                         return;
                     }
                     this.changeState("CARD_WAIT");
                 }
-                // if you don't bet, kick rocks
             },
             CARD_WAIT: {
                 card: (card) => {
@@ -96,5 +95,5 @@ class Machine {
 
 
 module.exports = {
-    Machine
+    PlayerState
 }

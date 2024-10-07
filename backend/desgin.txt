@@ -14,11 +14,14 @@ deck:
 
 
 hand:
-
     pass cards
     evalutes card total and factors in ace value
 
 describe player states within the game
+
+
+game which is dependent on player action will await of player action for a certian time
+if not proceed with default actions
 
 
          

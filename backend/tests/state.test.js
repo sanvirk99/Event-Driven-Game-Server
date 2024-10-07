@@ -1,6 +1,7 @@
 const {test, beforeEach, describe} = require('node:test')
 const assert = require('assert')
-const {machine, Machine} = require('../state')
+const {PlayerState} = require('../player_state')
+const {DealerState} = require('../dealer_state')
 const {Hand} = require('../hand')
 const {getCard} = require('../utils/cards')
 
@@ -9,9 +10,9 @@ const {getCard} = require('../utils/cards')
 //machine is composed of player object and hand and contains state
 test('Player Stages to black jack',() => {
     const playerHand = new Hand();
-    let bob = new Machine("bob", playerHand);
+    let bob = new PlayerState("bob", playerHand);
 
-    assert.strictEqual(bob.state,"BET")
+    assert.strictEqual(bob.state,"WATCHING")
 
     bob.dispatch("bet", { value: 2 });
     assert.strictEqual(bob.state, "CARD_WAIT");
@@ -37,9 +38,9 @@ test('Player Stages to black jack',() => {
 
 test('Player Stages to bust with hit',() => {
     const playerHand = new Hand();
-    let bob = new Machine("bob", playerHand);
+    let bob = new PlayerState("bob", playerHand);
 
-    assert.strictEqual(bob.state,"BET")
+    assert.strictEqual(bob.state,"WATCHING")
 
     bob.dispatch("bet", { value: 2 });
     assert.strictEqual(bob.state, "CARD_WAIT");
@@ -69,9 +70,9 @@ test('Player Stages to bust with hit',() => {
 
 test('Player Stages to stand',() => {
     const playerHand = new Hand();
-    let bob = new Machine("bob", playerHand);
+    let bob = new PlayerState("bob", playerHand);
 
-    assert.strictEqual(bob.state,"BET")
+    assert.strictEqual(bob.state,"WATCHING")
 
     bob.dispatch("bet", { value: 2 });
     assert.strictEqual(bob.state, "CARD_WAIT");
@@ -90,4 +91,62 @@ test('Player Stages to stand',() => {
 
 })
 
+
+describe("dealer states  ", () => {
+
+
+    let dealer=undefined;
+    let dealerHand=undefined
+
+    beforeEach(()=>{
+        dealerHand = new Hand();
+        dealer = new DealerState("dealer", dealerHand);
+    
+        assert.strictEqual(dealer.state,"WAITING")
+        let player_count=1
+        dealer.dispatch('start',player_count) // one player ready and bet
+    })
+
+    test('dealer state under over', () => {
+    
+        assert.strictEqual(dealer.state,"DISTRIBUTE")
+        dealer.dispatch("card", getCard(10)) 
+        assert.strictEqual(dealer.state,"DISTRIBUTE")
+        dealer.dispatch("card", getCard(6))
+        assert.strictEqual(dealerHand.evaluate(),16)
+        assert.strictEqual(dealer.state,"UNDER17")
+        dealer.dispatch("card",getCard(3))
+        assert.strictEqual(dealer.state,"OVER17")
+        
+    })
+    
+    
+    test('dealer state under blackjack', () => {
+    
+        //has provided all players with cards and taking one for self
+        dealer.dispatch("card", getCard(10)) 
+        assert.strictEqual(dealer.state,"DISTRIBUTE")
+        dealer.dispatch("card", getCard(6))
+        assert.strictEqual(dealer.state,"UNDER17")
+        dealer.dispatch("card",getCard(5))
+        assert.strictEqual(dealer.state,"BLACKJACK")
+        
+    })
+    
+    
+    test('dealer state under busted', () => {
+    
+         assert.strictEqual(dealer.state,"DISTRIBUTE")
+        //has provided all players with cards and taking one for self
+        dealer.dispatch("card", getCard(10)) 
+        dealer.dispatch("card", getCard(6))
+        assert.strictEqual(dealer.state,"UNDER17")
+        dealer.dispatch("card",getCard(6))
+        assert.strictEqual(dealerHand.evaluate(),22)
+        assert.strictEqual(dealer.state,"BUSTED")
+        
+    })
+
+
+})
 
