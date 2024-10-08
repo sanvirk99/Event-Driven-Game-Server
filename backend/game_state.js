@@ -59,11 +59,10 @@ class GameState {
                     for (const player of this.que){
 
                         //wait for player to finish their descion making in the same order cards were handed 
-                        await game.decision(player)
+                        await game.waitDecision(player)
 
                     }
-                    //draw own cards and broadcast result
-                    game.handCard(this.dealer)
+            
                     this.changeState("RESULT")
 
                 }
@@ -72,7 +71,7 @@ class GameState {
 
             RESULT: {
 
-
+                //now dealer will evaluate draw a card
                 run: () => {
 
 
