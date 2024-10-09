@@ -7,7 +7,7 @@ class GameState {
         this.dealer=game.dealer
         this.que=game.que
         this.state = "WAITING"
-        this.transitions = {
+        this.transitions = { //can make them async in order to call gamestate run
             WAITING: {
                 run: () => {
 
@@ -81,15 +81,7 @@ class GameState {
 
                     //dealer draws second card 
                     //dealer can be busted , many things
-                    
-
-                    for (const player in this.que){ // 
-
-                        //based on evaluation distribute money or collect, async and await 
-
-                    }
-
-                    
+                    this.game.dealerPlay();
                     //go back to waitng 
                     this.changeState("WAITING")
 

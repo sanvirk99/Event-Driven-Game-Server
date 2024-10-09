@@ -10,7 +10,7 @@ class Logger {
 
     getMessages(){
 
-        return this.messages()
+        return this.messages
     }
 
     getMostRecent(){

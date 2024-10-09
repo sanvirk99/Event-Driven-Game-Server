@@ -8,6 +8,8 @@ const {Logger} = require('../utils/logger')
 const { GameState } = require('../game_state')
 const {Queue} = require("../utils/que")
 const { clearInterval } = require('timers')
+const { get } = require('http')
+const { lookup } = require('dns')
 
 
 const resolveStates=["BLACKJACK","BUSTED","LOCKED"]
@@ -27,6 +29,67 @@ class MockGame {
     activateDealer(){
 
         this.dealer.dispatch('start',this.que.length)
+
+    }
+
+    dealerPlay(){
+
+        let card=undefined
+        while(this.dealer.state==='UNDER17'){
+            card=getCard(3)
+            this.dealer.dispatch("card",card)
+            this.logger.log(`dealer handed ${card.value}`)
+        }
+        this.logger.log(`dealer is ${this.dealer.state}`)
+        const dealerSum=this.dealer.hand.evaluate()
+        this.logger.log(`dealer count is ${this.dealer.hand.evaluate()}`)
+        for(const player of this.players){
+
+            this.resultPlayer(player,dealerSum)
+        }
+
+    }
+
+    resultPlayer(player,dealerSum){
+
+        if(this.dealer.state==="BUSTED"){
+
+            this.logger(`${player.name} payout`)
+        }
+
+
+        switch(player.state){
+
+            case "BUSTED": {
+
+                this.logger.log(`${player.name} is busted`)
+                this.logger(`${player.name} collect bet`)
+
+            }
+
+            case "BLACKJACK": {
+
+                this.logger.log(`${player.name} is blackjack`)
+                //no money taken if dealer is also black jack
+            }
+
+
+            default: {
+                const playerSum=player.hand.evaluate()
+                this.logger.log(`player count is ${player.hand.evaluate()}`)
+
+                if(playerSum == dealerSum){
+                    this.logger.log(`${player.name} bet returned0`)
+                }else if (playerSum > dealerSum){
+                    this.logger.log(`${player.name} bet paid out`)
+                }else{
+                    this.logger.log(`${player.name} collect bet`)
+                }
+
+            }
+
+
+        }
 
     }
 
@@ -51,12 +114,6 @@ class MockGame {
 
     }
    
-    dealerPlay(){
-
-        //broadcast face down card
-
-
-    }
     
     handCard(player){
 
@@ -174,14 +231,14 @@ describe("game state object testing",()=>{
         
 
         assert.strictEqual(gameState.state,"EVALUATE")
-
+        
         gameState.dispatch('run')
 
         assert.strictEqual(gameState.state,"EVALUATE")
         
         async function wait() {
             console.log('Waiting for 1 seconds...');
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise(resolve => setTimeout(resolve, 200));
             
         }
         
@@ -189,13 +246,47 @@ describe("game state object testing",()=>{
 
         assert.strictEqual(gameState.state,"RESULT")
         assert.strictEqual(bob.state,"LOCKED")
-
-
         //dealer 
-        console.log(dealer.state)
+        assert.strictEqual(dealer.state,"UNDER17")
+        
 
-        console.log(logger)
+        gameState.dispatch("run")
 
+        // console.log(dealer.state)
+        // console.log(logger)
+
+        let messages=  [
+            'bob handed 3',
+            'dealer handed 4',
+            'bob handed 10',
+            'dealer handed 3',
+            'dealer handed 3',
+            'dealer handed 3',
+            'dealer handed 3',
+            'dealer handed 3',
+            'dealer is OVER17',
+            'dealer count is 19',
+            'player count is 13',
+            'bob collect bet'
+          ]
+
+          const allMessages=logger.getMessages() 
+
+          let p=0
+
+          for(const msg of allMessages){
+
+            if(msg === messages[p]){
+                p++
+            }
+          }
+
+          assert.strictEqual(p,messages.length)
+          
+          
+
+
+        
 
         //dealer takes their turn
         //dealer reveals card

@@ -6,11 +6,8 @@ class DealerState {
         this.state = "WAITING"
         this.transitions = {
             WAITING: {
-                start: (player_count) => {
-                    if (player_count >= 1) {
-                        this.changeState("DISTRIBUTE")
-                        return;
-                    }
+                start: () => {
+                    this.changeState('DISTRIBUTE')
                 }
             },
 
