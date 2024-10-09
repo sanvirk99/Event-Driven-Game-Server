@@ -2,6 +2,7 @@
 //watches player states and acts accordingly
 class GameState {
     constructor(game) {
+        this.game=game
         this.players=game.players
         this.dealer=game.dealer
         this.que=game.que
@@ -19,6 +20,8 @@ class GameState {
                     }  
                     if(this.que.size()>=1){
                         this.changeState("HAND_CARDS")
+                        this.game.activateDealer()
+                        
                     }
                 }
                 
@@ -34,18 +37,20 @@ class GameState {
 
                         //send/hand first card // -> make this async proceed after player achnoweldes recieving card
                         //can add delay to simulate real casino table
-                        game.handCard(player)
+                        this.game.handCard(player)
                     }
 
                     //face up card dealer -> broadcast to all players
-                    game.handCard(this.dealer)
+                    this.game.handCardDealer()
 
                     for (const player of this.que ){
 
                         //send/hand second card // -> make this async proceed after player achnoweldes recieving card
-                        game.handCard(player)
+                        this.game.handCard(player)
                     }
-
+                    
+                    //
+                    this.game.handCardDealer()
 
                     //finally after handing cards -> evaluate
                     this.changeState('EVALUATE')
@@ -59,7 +64,7 @@ class GameState {
                     for (const player of this.que){
 
                         //wait for player to finish their descion making in the same order cards were handed 
-                        await game.waitDecision(player)
+                        await this.game.waitDecision(player)
 
                     }
             
@@ -74,8 +79,9 @@ class GameState {
                 //now dealer will evaluate draw a card
                 run: () => {
 
-
+                    //dealer draws second card 
                     //dealer can be busted , many things
+                    
 
                     for (const player in this.que){ // 
 

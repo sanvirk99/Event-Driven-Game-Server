@@ -17,11 +17,11 @@ class Card{
     }
 
     setFaceDown(){
-        this.#card_up=true
+        this.#card_up=false
     }
 
     setFaceUp(){
-        this.#card_up=false
+        this.#card_up=true
     }
 
     visable(){

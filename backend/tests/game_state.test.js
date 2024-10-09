@@ -24,6 +24,39 @@ class MockGame {
         this.pollPeriodMs=10 //kept small for testing
     }
 
+    activateDealer(){
+
+        this.dealer.dispatch('start',this.que.length)
+
+    }
+
+    //this should 
+    handCardDealer(){
+
+        let card = undefined
+        if(this.cardQue.size()==0){
+            // choose default
+            card=getCard(2)
+        }else{
+            card=this.cardQue.dequeue()
+        }
+
+        if(this.dealer.hand.size() == 1){
+            card.setFaceDown()
+        }
+
+        this.dealer.dispatch('card',card)
+
+        this.logger.log(`dealer handed ${card.value}`)
+
+    }
+   
+    dealerPlay(){
+
+        //broadcast face down card
+
+
+    }
     
     handCard(player){
 
@@ -115,7 +148,7 @@ describe("game state object testing",()=>{
     })
 
 
-    test("mocking the game", async () => {
+    test("mocking the game round, no response from player after bettting yet game proceeds", async () => {
 
         const game=new MockGame([bob],dealer,logger,que,cardQue)
         const gameState=new GameState(game)
@@ -136,6 +169,7 @@ describe("game state object testing",()=>{
         cardQue.enqueue(getCard(3))
         cardQue.enqueue(getCard(4))
         cardQue.enqueue(getCard(10))
+        cardQue.enqueue(getCard(3))
         gameState.dispatch('run')
         
 
@@ -155,8 +189,16 @@ describe("game state object testing",()=>{
 
         assert.strictEqual(gameState.state,"RESULT")
         assert.strictEqual(bob.state,"LOCKED")
-    
 
+
+        //dealer 
+        console.log(dealer.state)
+
+        console.log(logger)
+
+
+        //dealer takes their turn
+        //dealer reveals card
 
 
 
