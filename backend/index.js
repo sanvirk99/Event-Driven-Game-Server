@@ -1,38 +1,51 @@
-import {WebSocket,WebSocketServer} from 'ws'
+const {WebSocketServer, WebSocket} = require('ws')
+const express = require('express')
+const app = express()
+const server = require('http').createServer(app)
+const crypto = require('node:crypto')
 
-console.log('wsrunning on port 8080')
-const wss = new WebSocketServer({ port: 8080 });
+
+//comminicate via json format
+
+server.listen(8080, ()  => {
+  console.log('server listiening on port 8080')
+})
+
+const wss = new WebSocketServer({server});
+
+
+wss.on('request', request => {
+
+  const connection = request.accept(null,request.origin);
+  console.log(connection, 'accepeted connection')
+
+})
 
 wss.on('connection', function connection(ws) {
-
+  ws.uuid=crypto.randomUUID()
+  //add uuid here 
   ws.on('error', console.error);
 
-  ws.on('message', function message(data) {
+  ws.on('message', (data) => {
 
-    const unicodeString = Buffer.from(data).toString('utf-8');
+    console.log("recieved",data.toString(), "from ", ws.uuid)
 
-    console.log(unicodeString);
-
-    wss.clients.forEach(function each(client) {
-        if (client.readyState === WebSocket.OPEN) {
-          client.send(unicodeString);
-        }
-      });
-
-    if(unicodeString.includes("close")){
-        console.log("called")
-        shutdownServer()
-    }
-    
   });
+
+
+  const res = {
+
+    action: "connect",
+    clientId: ws.uuid
+
+  }
+
+  ws.send(JSON.stringify(res))
+
 
   
 });
 
 
-function shutdownServer() {
-    console.log('Shutting down WebSocket server...');
-    wss.close(function() {
-      console.log('WebSocket server closed.');
-    });
-}
+app.use(express.static('../frontend/'))
+app.get('/ping',(req,res) => res.send('hello World'))

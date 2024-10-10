@@ -1,8 +1,8 @@
 const {test, beforeEach, describe} = require('node:test')
 const assert = require('assert')
-const {PlayerState} = require('../player_state')
-const {DealerState} = require('../dealer_state')
-const {Hand} = require('../hand')
+const {PlayerState} = require('../gameEngine/player_state')
+const {DealerState} = require('../gameEngine/dealer_state')
+const {Hand} = require('../gameEngine/hand')
 const {getCard} = require('../utils/cards')
 
 

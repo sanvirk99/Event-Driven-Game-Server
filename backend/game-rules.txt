@@ -1,6 +1,6 @@
 
 
-
+logic 
 player that want to play place their bets , dealer has count down to lock the bets once first bet is placed allowing any 
 other player to also place the bet
 

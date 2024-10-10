@@ -1,5 +1,5 @@
 
-const utils = require('./utils/helper')
+const utils = require('../utils/helper')
 
 
 class Deck {

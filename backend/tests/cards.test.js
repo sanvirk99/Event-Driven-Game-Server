@@ -1,7 +1,7 @@
 
 const {test} = require('node:test')
-const {Card} = require('../card')
-const {Deck} = require('../deck')
+const {Card} = require('../gameEngine/card')
+const {Deck} = require('../gameEngine/deck')
 const assert = require('assert')
 
 const suits = ["S","C","H","D"]

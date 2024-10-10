@@ -1,11 +1,11 @@
 const {test, beforeEach, describe, before} = require('node:test')
 const assert = require('assert')
-const {PlayerState} = require('../player_state')
-const {DealerState} = require('../dealer_state')
-const {Hand} = require('../hand')
+const {PlayerState} = require('../gameEngine/player_state')
+const {DealerState} = require('../gameEngine/dealer_state')
+const {Hand} = require('../gameEngine/hand')
 const {getCard} = require('../utils/cards')
 const {Logger} = require('../utils/logger')
-const { GameState } = require('../game_state')
+const { GameState } = require('../gameEngine/game_state')
 const {Queue} = require("../utils/que")
 const { clearInterval } = require('timers')
 const { get } = require('http')
@@ -79,7 +79,7 @@ class MockGame {
                 this.logger.log(`player count is ${player.hand.evaluate()}`)
 
                 if(playerSum == dealerSum){
-                    this.logger.log(`${player.name} bet returned0`)
+                    this.logger.log(`${player.name} bet returned`)
                 }else if (playerSum > dealerSum){
                     this.logger.log(`${player.name} bet paid out`)
                 }else{
@@ -151,10 +151,10 @@ class MockGame {
                     //reset poll atempts
                 }
 
-                for(const state of resolveStates){
+                for(const state of resolveStates){ //player responded
 
                     if(state===player.state){
-                        clearInterval(po)
+                        clearInterval(pollingId)
                         resolve(state)
                         return
 
@@ -283,10 +283,6 @@ describe("game state object testing",()=>{
 
           assert.strictEqual(p,messages.length)
           
-          
-
-
-        
 
         //dealer takes their turn
         //dealer reveals card

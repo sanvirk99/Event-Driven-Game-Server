@@ -17,11 +17,56 @@ hand:
     pass cards
     evalutes card total and factors in ace value
 
-describe player states within the game
+
+game object is the mediator between the player state, dealer state and gamestate, 
+all the object call methods on the game object
 
 
-game which is dependent on player action will await of player action for a certian time
-if not proceed with default actions
+
+# web client integration 
+
+request
+
+{
+    action: create
+    client: uid
+}
 
 
-         
+{ //only valid if player created game
+    action: bet
+    client: uid
+}
+
+
+{
+    action: join
+    client: uid
+    game : uid
+}
+
+
+
+response
+{
+    action: create
+    game: {
+        id: uid
+        PlayerCount: 1 (included urself)
+        chips
+    }
+}
+
+{
+    action: join
+    game : {
+        id: uid
+        PlayerCount:
+        chips
+    }
+}
+
+
+
+ //after first player sends bet request then give some time for other to bet if not proceed with game
+ //if another player allow them to bet but process them next round        

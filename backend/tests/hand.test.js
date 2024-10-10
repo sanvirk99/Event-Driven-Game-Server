@@ -1,7 +1,7 @@
 const {test, beforeEach, describe} = require('node:test')
 const assert = require('assert')
-const { Hand } = require('../hand')
-const { Card } = require('../card')
+const { Hand } = require('../gameEngine/hand')
+const { Card } = require('../gameEngine/card')
 
 
 
