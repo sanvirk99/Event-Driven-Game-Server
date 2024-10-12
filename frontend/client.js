@@ -1,5 +1,7 @@
 
 const socket=new WebSocket("ws://localhost:8080")
+let myId=undefined
+let myGameId=undefined
 
 const displayMsg=(msg) => {
 
@@ -17,6 +19,7 @@ const displayMsg=(msg) => {
 
 socket.onopen = function(event) {
     console.log('WebSocket is open now.');
+    console.log(event)
 };
 
 socket.onmessage = function(event) {
@@ -24,7 +27,27 @@ socket.onmessage = function(event) {
     if (event.data === "close"){
         //socket.close()
     }
-    displayMsg(event.data)
+    let response = JSON.parse(event.data)
+   
+
+    if(response.method === "connect"){
+
+        myId=response.clientId
+        displayMsg(response.method)
+        displayMsg(`id : ${myId}`)
+    }
+
+    if(response.method === "create"){
+
+        myGameId=response.gameId
+        displayMsg(response.method)
+        displayMsg(`gameId : ${myId}`)
+    }
+
+    
+
+
+
 };
 
 socket.onclose = function(event) {
@@ -36,10 +59,6 @@ socket.onerror = function(error) {
 };
 
 
-
-
-
-
 document.getElementById('send-button').addEventListener('click', function() {
     const messageInput = document.getElementById('message-input');
     const messageText = messageInput.value.trim();
@@ -48,7 +67,17 @@ document.getElementById('send-button').addEventListener('click', function() {
 
     if (messageText) {
         //displayMsg(messageText)
-        socket.send(messageText)
+        let request = {
+
+            method: 'chat',
+            clientId : myId,
+            chatMsg: messageText
+        }
+
+        let str = JSON.stringify(request)
+
+        socket.send(str)
+        displayMsg(messageText)
     }
 });
 
@@ -58,3 +87,18 @@ document.getElementById('message-input').addEventListener('keypress', function(e
         document.getElementById('send-button').click();
     }
 });
+
+document.getElementById("create-game").addEventListener('click', () => {
+
+    let request = {
+
+        clientId: myId,
+        method: "create",
+
+    }
+
+    socket.send(JSON.stringify(request))
+
+
+
+})
