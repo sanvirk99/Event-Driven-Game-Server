@@ -1,4 +1,4 @@
-const {WebSocketServer, WebSocket} = require('ws')
+const { WebSocketServer, WebSocket } = require('ws')
 const express = require('express')
 const app = express()
 const server = require('http').createServer(app)
@@ -6,46 +6,92 @@ const crypto = require('node:crypto')
 
 
 //comminicate via json format
+const clients = {}
 
-server.listen(8080, ()  => {
+server.listen(8080, () => {
   console.log('server listiening on port 8080')
 })
 
-const wss = new WebSocketServer({server});
+const wss = new WebSocketServer({ server });
 
 
-wss.on('request', request => {
+function connection(ws) {
 
-  const connection = request.accept(null,request.origin);
-  console.log(connection, 'accepeted connection')
 
-})
-
-wss.on('connection', function connection(ws) {
-  ws.uuid=crypto.randomUUID()
+  ws.uuid = crypto.randomUUID()
+  ws.gameId=undefined
   //add uuid here 
   ws.on('error', console.error);
 
   ws.on('message', (data) => {
+    let request = JSON.parse(data)
 
-    console.log("recieved",data.toString(), "from ", ws.uuid)
+    if (request.method === 'chat') {
+      console.log(request)
+      //brodcast to others
+    }
+
+    if (request.method === 'create') {
+      console.log(request)
+
+      //generate game id
+      let uuidGame=crypto.randomUUID()
+      ws.gameId=uuidGame
+
+
+      //create game and use game id to map it
+      const res = {
+        method : 'create',
+        clientId : ws.uuid,
+        gameId : uuidGame,
+      } 
+
+
+      ws.send(JSON.stringify(res))
+
+    }
+
+
+    if (request.method === 'join') {
+
+      //client will join the game and then proceed to play
+
+    }
+
+
+    if (request.method === 'game-action'){
+
+
+      //let the game object take care of the msg 
+    }
+
+
+
+
+
+
 
   });
 
 
   const res = {
-
-    action: "connect",
+    method: "connect",
     clientId: ws.uuid
 
   }
-
   ws.send(JSON.stringify(res))
 
-
-  
-});
+}
 
 
-app.use(express.static('../frontend/'))
-app.get('/ping',(req,res) => res.send('hello World'))
+wss.on('connection',connection);
+
+
+
+
+
+
+
+
+//app.use(express.static('../frontend/'))
+app.get('/ping', (req, res) => res.send('hello World'))
