@@ -83,7 +83,7 @@ class MockGame {
                 }else if (playerSum > dealerSum){
                     this.logger.log(`${player.name} bet paid out`)
                 }else{
-                    this.logger.log(`${player.name} collect bet`)
+                    this.logger.log(`dealer collect bet`)
                 }
 
             }
@@ -267,7 +267,7 @@ describe("game state object testing",()=>{
             'dealer is OVER17',
             'dealer count is 19',
             'player count is 13',
-            'bob collect bet'
+            'dealer collect bet'
           ]
 
           const allMessages=logger.getMessages() 

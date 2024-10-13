@@ -13,6 +13,18 @@ const displayMsg=(msg) => {
     const messagesContainer = document.getElementById('messages');
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
+}
+
+
+const displayGameMsg=(msg) => {
+
+    const messageElement = document.createElement('div');
+    messageElement.textContent = msg;
+    document.getElementById('game-messages').appendChild(messageElement);
+
+    // Scroll to the bottom of the messages
+    const messagesContainer = document.getElementById('messages');
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
 }
 
@@ -98,7 +110,26 @@ document.getElementById("create-game").addEventListener('click', () => {
     }
 
     socket.send(JSON.stringify(request))
+})
 
+
+document.getElementById("hit").addEventListener('click', () => {
 
 
 })
+
+document.getElementById("stand").addEventListener('click', () => {
+
+
+})
+
+
+document.getElementById("bet").addEventListener('click', () => {
+
+
+})
+
+
+
+
+

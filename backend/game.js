@@ -1,1 +1,18 @@
 
+
+
+class Game {
+
+
+    constructor(){
+
+
+
+
+
+        
+    }
+
+
+
+}
