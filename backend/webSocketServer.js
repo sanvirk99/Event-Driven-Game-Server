@@ -1,14 +1,14 @@
 
 const crypto = require('node:crypto');
-const { WebSocketServer } = require('ws');
+
 
 
 //comminicate via json format
-const clients = {}
-const games = {}
+
 
 function createWebSocketServer(wss) {
-
+    const clients = {}
+    const games = {}
     wss.on('connection', (ws) => {
         ws.uuid = crypto.randomUUID()
         clients[ws.uuid] = ws
@@ -19,10 +19,16 @@ function createWebSocketServer(wss) {
 
         ws.on('message', (data) => {
             let request = JSON.parse(data)
+            let response = JSON.stringify(request)
 
             if (request.method === 'chat') {
-                console.log(request)
+                console.log(request) // global chat 
                 //brodcast to others
+                for(const client of Object.values(clients)){
+
+                    client.send(response)
+                }
+
             }
 
             if (request.method === 'create') {

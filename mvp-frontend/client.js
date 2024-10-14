@@ -49,6 +49,12 @@ socket.onmessage = function(event) {
         displayMsg(`id : ${myId}`)
     }
 
+    if(response.method === "chat"){
+
+        let clientId=response.clientId
+        displayMsg(response.method + ' ' +clientId+' :' + response.chatMsg)
+    }
+
     if(response.method === "create"){
 
         myGameId=response.gameId
@@ -108,7 +114,7 @@ document.getElementById('send-button').addEventListener('click', function() {
         let str = JSON.stringify(request)
 
         socket.send(str)
-        displayMsg(messageText)
+       // displayMsg(messageText)
     }
 });
 
