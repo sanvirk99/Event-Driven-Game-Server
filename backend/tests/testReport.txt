@@ -1,0 +1,154 @@
+
+> backend@1.0.0 test-report
+> node --test --experimental-test-coverage
+
+TAP version 13
+# Subtest: instantiate cards
+ok 1 - instantiate cards
+  ---
+  duration_ms: 1.233084
+  ...
+# Subtest: build deck, get cards and shuffle
+ok 2 - build deck, get cards and shuffle
+  ---
+  duration_ms: 0.481583
+  ...
+# Waiting for 1 seconds...
+# Subtest: game state object testing
+    # Subtest: mocking the game round, no response from player after bettting yet game proceeds
+    ok 1 - mocking the game round, no response from player after bettting yet game proceeds
+      ---
+      duration_ms: 205.522375
+      ...
+    1..1
+ok 3 - game state object testing
+  ---
+  duration_ms: 206.407
+  type: 'suite'
+  ...
+# Subtest: hand intilization
+    # Subtest: deal cards and evaluate total accouting value of ace
+    ok 1 - deal cards and evaluate total accouting value of ace
+      ---
+      duration_ms: 1.800416
+      ...
+    # Subtest: only one ace decreases in value after other cards exceed 21
+    ok 2 - only one ace decreases in value after other cards exceed 21
+      ---
+      duration_ms: 0.171375
+      ...
+    # Subtest: combination cosisting of only one ace
+    ok 3 - combination cosisting of only one ace
+      ---
+      duration_ms: 0.165166
+      ...
+    # Subtest: combination cosisting of only one ace
+    ok 4 - combination cosisting of only one ace
+      ---
+      duration_ms: 0.130583
+      ...
+    1..4
+ok 4 - hand intilization
+  ---
+  duration_ms: 4.27275
+  type: 'suite'
+  ...
+# Subtest: random integer range test
+ok 5 - random integer range test
+  ---
+  duration_ms: 1.102583
+  ...
+# Subtest: Player Stages to black jack
+ok 6 - Player Stages to black jack
+  ---
+  duration_ms: 1.074541
+  ...
+# Subtest: Player Stages to bust with hit
+ok 7 - Player Stages to bust with hit
+  ---
+  duration_ms: 0.15425
+  ...
+# Subtest: Player Stages to stand
+ok 8 - Player Stages to stand
+  ---
+  duration_ms: 0.147875
+  ...
+# Subtest: dealer states  
+    # Subtest: dealer state under over
+    ok 1 - dealer state under over
+      ---
+      duration_ms: 0.398833
+      ...
+    # Subtest: dealer state under blackjack
+    ok 2 - dealer state under blackjack
+      ---
+      duration_ms: 0.122084
+      ...
+    # Subtest: dealer state under busted
+    ok 3 - dealer state under busted
+      ---
+      duration_ms: 0.114542
+      ...
+    1..3
+ok 9 - dealer states  
+  ---
+  duration_ms: 0.813542
+  type: 'suite'
+  ...
+# { method: 'create', clientId: 'b37f14df-f8e1-4953-910d-f603946465e4' }
+# {
+#   method: 'chat',
+#   clientId: 'b37f14df-f8e1-4953-910d-f603946465e4',
+#   chatMsg: 'hello people'
+# }
+# Subtest: mocking server and clients 
+    # Subtest: check server responds to newly connected client   \\n        client 1 is able to send a create request -> auto join the game \\n        client 2 can join the game given he includes game id to join the game in the request
+    ok 1 - check server responds to newly connected client   \\n        client 1 is able to send a create request -> auto join the game \\n        client 2 can join the game given he includes game id to join the game in the request
+      ---
+      duration_ms: 7.449042
+      ...
+    # Subtest: broadcast chat msgs to other connected clients and back to self 
+    ok 2 - broadcast chat msgs to other connected clients and back to self 
+      ---
+      duration_ms: 0.337167
+      ...
+    1..2
+ok 10 - mocking server and clients 
+  ---
+  duration_ms: 8.60175
+  type: 'suite'
+  ...
+1..10
+# tests 16
+# suites 4
+# pass 16
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 314.381416
+# start of coverage report
+# ------------------------------------------------------------------------------------------------------------------------------
+# file                          | line % | branch % | funcs % | uncovered lines
+# ------------------------------------------------------------------------------------------------------------------------------
+# gameEngine/card.js            |  55.84 |   100.00 |   50.00 | 24-25 28-29 37-44 48-69
+# gameEngine/dealer_state.js    |  90.82 |    80.00 |  100.00 | 28-32 80-81 89-90
+# gameEngine/deck.js            | 100.00 |   100.00 |  100.00 | 
+# gameEngine/game_state.js      |  96.75 |    83.33 |  100.00 | 104-105 113-114
+# gameEngine/hand.js            |  94.44 |   100.00 |   83.33 | 43-45
+# gameEngine/player_state.js    |  93.00 |    83.33 |  100.00 | 18-20 83-84 92-93
+# tests/cards.test.js           | 100.00 |   100.00 |  100.00 | 
+# tests/game_state.test.js      |  89.90 |    66.67 |  100.00 | 56-58 64-68 71-74 82 84 101-102 122-123 141-142 148-152 157-161
+# tests/hand.test.js            | 100.00 |   100.00 |  100.00 | 
+# tests/helper.test.js          | 100.00 |   100.00 |  100.00 | 
+# tests/state.test.js           | 100.00 |   100.00 |  100.00 | 
+# tests/webSocketServer.test.js | 100.00 |   100.00 |  100.00 | 
+# utils/cards.js                |  90.32 |    75.00 |  100.00 | 20-22
+# utils/helper.js               | 100.00 |   100.00 |  100.00 | 
+# utils/logger.js               |  78.38 |   100.00 |   60.00 | 17-22 29-30
+# utils/que.js                  |  82.35 |    87.50 |   75.00 | 14-15 21-25 39-40
+# webSocketServer.js            |  98.10 |    88.89 |  100.00 | 83-84
+# ------------------------------------------------------------------------------------------------------------------------------
+# all files                     |  92.86 |    87.35 |   91.35 |
+# ------------------------------------------------------------------------------------------------------------------------------
+# end of coverage report
