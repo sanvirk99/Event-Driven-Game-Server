@@ -53,8 +53,27 @@ socket.onmessage = function(event) {
 
         myGameId=response.gameId
         displayMsg(response.method)
-        displayMsg(`gameId : ${myId}`)
+        displayMsg(`gameId : ${myGameId}`)
+
+        //can auto join when game is created
+        hideJoinGame()
+        showInGame()
+        displayGameMsg(`gameId : ${myGameId}`)
+    
     }
+
+    if(response.method === "join"){
+
+        myGameId=response.gameId
+        displayMsg(response.method)
+        displayMsg(`gameId : ${myGameId}`)
+        //can auto join when game is created
+        hideJoinGame()
+        showInGame()
+        displayGameMsg(`gameId : ${myGameId}`)
+    
+    }
+
 
     
 
@@ -93,6 +112,30 @@ document.getElementById('send-button').addEventListener('click', function() {
     }
 });
 
+
+document.getElementById("join-game-button").addEventListener('click', () => {
+    const input = document.getElementById('gameId-input');
+    const inputText = input.value.trim();
+    input.value = '';
+    input.focus();
+
+    if (inputText) {
+        //displayMsg(messageText)
+        let request = {
+
+            method: 'join',
+            clientId : myId,
+            gameId: inputText,
+        }
+
+        let str = JSON.stringify(request)
+
+        socket.send(str)
+    }
+    
+})
+
+
 // Optional: Allow sending messages with the Enter key
 document.getElementById('message-input').addEventListener('keypress', function(event) {
     if (event.key === 'Enter') {
@@ -111,6 +154,9 @@ document.getElementById("create-game").addEventListener('click', () => {
 
     socket.send(JSON.stringify(request))
 })
+
+
+
 
 
 document.getElementById("hit").addEventListener('click', () => {
