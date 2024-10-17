@@ -8,8 +8,7 @@ const {Logger} = require('../utils/logger')
 const { GameState } = require('../gameEngine/game_state')
 const {Queue} = require("../utils/que")
 const { clearInterval } = require('timers')
-const { get } = require('http')
-const { lookup } = require('dns')
+
 
 
 const resolveStates=["BLACKJACK","BUSTED","LOCKED"]
@@ -198,7 +197,7 @@ describe("game state object testing",()=>{
         playerHand=new Hand()
         dealerHand=new Hand()
         logger=new Logger()
-        bob = new PlayerState("bob",playerHand)
+        bob = new PlayerState({name: 'bob'},playerHand)
         dealer=new DealerState("dealer",dealerHand)
         que=new Queue()
         cardQue=new Queue() //need to control the order of cards for testing

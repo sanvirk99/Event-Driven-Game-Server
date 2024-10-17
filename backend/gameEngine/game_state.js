@@ -67,8 +67,10 @@ class GameState {
                         await this.game.waitDecision(player)
 
                     }
-            
+                    console.log('game state in result')
                     this.changeState("RESULT")
+
+                    
 
                 }
 
