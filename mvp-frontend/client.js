@@ -2,6 +2,7 @@
 const socket=new WebSocket("ws://localhost:8080")
 let myId=undefined
 let myGameId=undefined
+let myName='unnamed'
 
 const displayMsg=(msg) => {
 
@@ -46,20 +47,26 @@ socket.onmessage = function(event) {
 
         myId=response.clientId
         displayMsg(response.method)
-        displayMsg(`id : ${myId}`)
+        displayMsg(`myId : ${myId}`)
+    }
+
+    if(response.method === "set-name"){
+        myName=response.clientName
+        displayMsg(`myName : ${myName}`)
     }
 
     if(response.method === "chat"){
 
         let clientId=response.clientId
-        displayMsg(response.method + ' ' +clientId+' :' + response.chatMsg)
+        response.clientName ??= 'unnamed';
+        displayMsg(response.method + ' ' +response.clientName+' :' + response.chatMsg)
     }
 
     if(response.method === "create"){
 
         myGameId=response.gameId
         displayMsg(response.method)
-        displayMsg(`gameId : ${myGameId}`)
+        displayMsg(`myGameId : ${myGameId}`)
 
         //can auto join when game is created
         hideJoinGame()
@@ -102,7 +109,40 @@ document.getElementById('send-button').addEventListener('click', function() {
     messageInput.value = '';
     messageInput.focus();
 
-    if (messageText) {
+    if(messageText[0]==='#'){
+        console.log('game cmd')
+        const colenIndex = messageText.indexOf(':')
+        if (colenIndex !== -1) {
+            // Extract the command name and input
+            const commandName = messageText.slice(1, colenIndex).trim();
+            const commandInput = messageText.slice(colenIndex + 1).trim();
+
+            console.log('Command Name:', commandName);
+            console.log('Command Input:', commandInput);
+
+            // Process the command based on the command name
+            if (commandName === 'name') {
+                // Handle the 'name' command
+                console.log('Handling name command with input:', commandInput);
+                let request = {
+
+                    method: 'set-name',
+                    clientId : myId,
+                    clientName: commandInput
+                }
+
+                socket.send(JSON.stringify(request))
+                // Add your command handling logic here
+            }
+            // Add more command handling as needed
+        } else {
+            console.error('Invalid command format. Use #command-name-input');
+        }
+
+
+        
+        
+    }else if (messageText) {
         //displayMsg(messageText)
         let request = {
 

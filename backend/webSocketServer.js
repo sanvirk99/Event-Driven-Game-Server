@@ -19,10 +19,25 @@ function createWebSocketServer(wss) {
 
         ws.on('message', (data) => {
             let request = JSON.parse(data)
-            let response = JSON.stringify(request)
+            
+
+            if (request.method === 'set-name') {
+                
+                ws.clientName=request.clientName
+
+                let res = {
+                    method: 'set-name',
+                    clientName: ws.clientName
+                }
+
+                ws.send(JSON.stringify(res))
+
+            }
 
             if (request.method === 'chat') {
                 console.log(request) // global chat 
+                request.clientName=ws.clientName
+                let response = JSON.stringify(request)
                 //brodcast to others
                 for(const client of Object.values(clients)){
 
@@ -80,7 +95,7 @@ function createWebSocketServer(wss) {
 
 
             if (request.method === 'game-action') {
-                //let the game object take care of the msg 
+                //let the game object take care of the msg based on the game id 
             }
 
 
