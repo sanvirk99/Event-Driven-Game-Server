@@ -45,12 +45,13 @@ class Game {
 
     activateDealer(){
 
+        this.logger.log('distributing intial hand')
         this.dealer.dispatch('start',this.que.length)
 
     }
 
     dealerPlay(){
-
+        this.logger.log('dealer reveals his cards and evaluated')
         let card=undefined
         while(this.dealer.state==='UNDER17'){
             card=this.deck.getCard(3)
@@ -156,7 +157,7 @@ class Game {
     }
 
     waitDecision(player){
-        this.logger.log(`wating on ${player.name} descion`)
+        this.logger.log(`check ${player.name} descion`)
         //while player state does not change to BLACKJACK
         //player may already be in black jack
         //if player responds they hit and now deciding for hit or stand , how to increase wait

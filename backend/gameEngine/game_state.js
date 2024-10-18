@@ -85,10 +85,13 @@ class GameState {
                     //dealer can be busted , many things
                     this.game.dealerPlay();
                     //go back to waitng 
-                    this.changeState("WAITING")
+                    this.changeState("END")
 
                 }
 
+            },
+
+            END: {
 
 
             }
@@ -111,10 +114,12 @@ class GameState {
         // validate that newState actually exists
         if (this.transitions[newState]) {
             this.state = newState;
+            
         } else {
             throw new Error(`Invalid state: ${newState}`);
         }
     }
+
 
    
 }
