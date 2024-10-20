@@ -8,6 +8,7 @@
 class PlayerState {
     constructor(player,hand,game) {
         this.name=player.name
+        this.clientId=player.clientId
         this.hand=hand
         this.game=game
         this.state = "WATCHING"

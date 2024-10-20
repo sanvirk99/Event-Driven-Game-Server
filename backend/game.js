@@ -17,6 +17,10 @@ function createGameWithRandomDeck(){
 
 }
 
+
+
+
+
 //interation with game actions
 /**
  * bet,hit,stand,exit
@@ -139,14 +143,15 @@ class Game {
         let gameAction=request.gameAction
 
         for(const player of this.players){
-            
-            if(request.id === player.id){
+            if(request.clientId === player.clientId){
 
                 switch(gameAction){
                     case 'hit': player.dispatch('hit') 
                         break
-                    case 'bet': player.dispatch('bet', request.value)
+                    case 'bet': {
+                        player.dispatch('bet', request.value)
                         break
+                    }
                     case 'stand': player.dispatch('stand'); this.logger.log(`${player.name} stands`)
                         break
                 }
@@ -205,10 +210,20 @@ class Game {
 
         this.gameState.dispatch('run')
 
+
+        //return all game messages
+
     }
 
     getState(){
         return this.gameState.state
+    }
+
+    gameStateUpdate(){
+
+        
+
+
     }
 
 
