@@ -79,6 +79,29 @@ describe("hand intilization", () => {
         
     })
 
+    test('array of json card is returned for toJSON method', () => {
+
+        
+        let hand = new Hand()
+        hand.handCard(map[11][0]) //hand ace
+        assert.strictEqual(hand.evaluate(),11)
+        hand.handCard(map[7][0]) //hande ace auto decrease count as it exceeds 21
+        assert.strictEqual(hand.evaluate(),18)
+        hand.handCard(map[4][0]) //hand ace
+        assert.strictEqual(hand.evaluate(),12)
+
+
+        let jsonObj=hand.toJSON()
+
+        let str = JSON.stringify(jsonObj)
+        
+        let parsedObj=JSON.parse(str)
+
+        assert.deepStrictEqual(parsedObj, jsonObj);
+
+
+    })
+
 
 
 

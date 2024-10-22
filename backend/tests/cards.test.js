@@ -3,6 +3,7 @@ const {test} = require('node:test')
 const {Card} = require('../gameEngine/card')
 const {Deck} = require('../gameEngine/deck')
 const assert = require('assert')
+const { json } = require('body-parser')
 
 const suits = ["S","C","H","D"]
 const faces = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"]
@@ -76,6 +77,38 @@ test("build deck, get cards and shuffle", () => {
 
     assert(shuffleSeq.length=cardSeq.length)
     assert(cardSeq != shuffleSeq)
+
+
+})
+
+
+
+test("build deck, get cards jsonObjects", () => {
+
+    let cards=[]
+    suits.forEach(suit => {
+        
+        faces.forEach((face,index) => {
+
+            cards.push(new Card(suit,face,values[index]))
+
+        } )
+
+    });
+    
+    for(const card of cards){
+
+        let jsonObject = card.toJSON()
+
+        assert.strictEqual(jsonObject.suit, card.suit);
+        assert.strictEqual(jsonObject.face, card.face);
+        assert.strictEqual(jsonObject.value, card.value);
+        assert.strictEqual(jsonObject.isAce, card.isAce());
+        assert.strictEqual(jsonObject.cardUp,card.isVisable());
+
+        
+    }
+
 
 
 })

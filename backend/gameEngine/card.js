@@ -24,7 +24,7 @@ class Card{
         this.#card_up=true
     }
 
-    visable(){
+    isVisable(){
         return this.#card_up
     }
 

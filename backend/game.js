@@ -5,6 +5,7 @@ const {GameState} = require('./gameEngine/game_state')
 const {Hand} = require('./gameEngine/hand')
 const {Queue} = require("./utils/que")
 const {Deck} = require('./gameEngine/deck')
+const { json } = require('body-parser')
 
 
 function createGameWithCustomDeck(player,deck,logger){
@@ -51,6 +52,7 @@ class Game {
 
         this.logger.log('distributing intial hand')
         this.dealer.dispatch('start',this.que.length)
+        //lock bets and broadcast snapshot of game
 
     }
 
@@ -219,12 +221,37 @@ class Game {
         return this.gameState.state
     }
 
-    gameStateUpdate(){
 
-        
+    getGameSnapShot(){
+      
+        const info=[]
 
+        let dealer= {
+            clientId: 'dealer',
+            name: 'dealer',
+            cards: this.dealer.hand.toJSON()
+        }
+
+        info.push(dealer)
+
+        for(const player of this.players){
+            
+            if(player.state === 'WATCHING'){
+                continue
+            }
+
+            let json = {}
+            json['name'] = player.name
+            json['clientId'] = player.clientId
+            json['cards'] = player.hand.toJSON()
+            json['bet'] = player.betAmount
+            info.push(json)
+        }
+
+        return info
 
     }
+
 
 
 

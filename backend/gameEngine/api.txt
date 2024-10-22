@@ -1,0 +1,36 @@
+
+# game action request
+
+        const requestBet = {
+            method: 'game-action',
+            clientId: bob.clientId,
+            gameAction: 'bet',
+            value: 1
+        }
+
+        const requestStand = {
+            method: 'game-action',
+            clientId: bob.clientId,
+            gameAction: 'stand',
+        }
+
+
+# game action response , game snapshots and game events 
+
+        {
+            method: snapshot
+            snapshot: ..... 
+        }
+
+
+        {
+            method: game-event
+            game-event: 'card'
+            player = { name: ... , id: ..... , ..... }
+            card = { ..... }
+        }
+
+# game table snap shot broadcast for consistency 
+
+
+    all active players their hands and bet amount

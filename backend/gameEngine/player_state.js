@@ -6,19 +6,23 @@
 
 
 class PlayerState {
-    constructor(player,hand,game) {
-        this.name=player.name
-        this.clientId=player.clientId
+    constructor(connection,hand,game) {
+        this.ws=connection
+        this.name=connection.name
+        this.clientId=connection.clientId
         this.hand=hand
         this.game=game
         this.state = "WATCHING"
+        this.betAmount=0
         this.transitions = {
             WATCHING: {
                 bet: (bet) => {
-                    if (bet.value < 1) {
+                    if (bet < 1) {
                         // remain watching
                         return;
                     }
+
+                    this.betAmount=bet
                     this.changeState("CARD_WAIT");
                 }
             },

@@ -146,6 +146,9 @@ describe("game object interactions via game Action", () => {
             gameAction: 'stand',
         }
 
+
+      
+
         await new Promise(resolve => {
 
             const intervalId = setInterval(() => {
@@ -165,10 +168,13 @@ describe("game object interactions via game Action", () => {
                     count++
                 }
 
+                assert.strictEqual(game.getGameSnapShot().length,2)
 
             }, 500); // 500 milliseconds interval
 
         })
+
+       
 
 
 

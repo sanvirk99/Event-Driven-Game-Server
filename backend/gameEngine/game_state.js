@@ -93,6 +93,7 @@ class GameState {
 
             END: {
 
+                //clear the table 
 
             }
        
