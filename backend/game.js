@@ -143,11 +143,9 @@ class Game {
     }
 
     gameAction(request){
-
         let gameAction=request.gameAction
-        console.log(request.clientId)
         for(const player of this.players){
-            console.log(player.clientId)
+        
             if(request.clientId === player.clientId){
 
                 switch(gameAction){
@@ -155,6 +153,7 @@ class Game {
                         break
                     case 'bet': {
                         player.dispatch('bet', request.value)
+                        console.log('bet')
                         break
                     }
                     case 'stand': player.dispatch('stand'); this.logger.log(`${player.name} stands`)
@@ -190,7 +189,6 @@ class Game {
                 for(const state of resolveStates){ //player responded
 
                     if(state===player.state){
-                        console.log('resolved player descison')
                         clearInterval(pollingId)
                         resolve(state)
                         return

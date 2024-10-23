@@ -100,7 +100,7 @@ function createWebSocketServer(wss) {
 
             if (request.method === 'game-action') {
                 //let the game object take care of the msg based on the game id 
-                
+               
                if(request.gameId in games){
                     games[request.gameId].game.gameAction(request)
                     
@@ -134,7 +134,7 @@ function createWebSocketServer(wss) {
 
             }
 
-            console.log(game.getGameSnapShot())
+           // console.log(game.getGameSnapShot())
 
             for(const clientId of players ){
                 clients[clientId].send(JSON.stringify(response))
