@@ -174,22 +174,9 @@ describe("game object interactions via game Action", () => {
 
         })
 
-       
-
-
-
-        console.log(logger);
+        console.log(logger)
 
     })
-
-
-
-
-
-
-
-
-
 
 })
 

@@ -23,7 +23,6 @@ function createGameWithRandomDeck(player,logger){
 
 
 
-
 //interation with game actions
 /**
  * bet,hit,stand,exit
@@ -60,6 +59,7 @@ class Game {
 
     dealerPlay(){
         this.logger.log('dealer reveals his cards and evaluated')
+        this.dealer.hand.reveal()
         let card=undefined
         while(this.dealer.state==='UNDER17'){
             card=this.deck.getCard(3)
@@ -81,7 +81,7 @@ class Game {
 
         if(this.dealer.state==="BUSTED"){
 
-            this.logger(`${player.name} payout`)
+            this.logger.log(`${player.name} payout`)
         }
 
 
@@ -90,7 +90,7 @@ class Game {
             case "BUSTED": {
 
                 this.logger.log(`${player.name} is busted`)
-                this.logger(`${player.name} collect bet`)
+                this.logger.log(`${player.name} collect bet`)
 
             }
 
@@ -145,8 +145,9 @@ class Game {
     gameAction(request){
 
         let gameAction=request.gameAction
-
+        console.log(request.clientId)
         for(const player of this.players){
+            console.log(player.clientId)
             if(request.clientId === player.clientId){
 
                 switch(gameAction){
@@ -243,13 +244,13 @@ class Game {
             }
 
             let json = {}
-            json['name'] = player.name
+            json['name'] = player.ws.clientName
             json['clientId'] = player.clientId
             json['cards'] = player.hand.toJSON()
             json['bet'] = player.betAmount
             info.push(json)
         }
-
+        info.push(this.logger)
         return info
 
     }

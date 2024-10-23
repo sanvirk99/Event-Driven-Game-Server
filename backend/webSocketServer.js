@@ -12,6 +12,7 @@ function createWebSocketServer(wss) {
   
     wss.on('connection', (ws) => {
         ws.uuid = crypto.randomUUID()
+        ws.clientName = "unnamed"
         clients[ws.uuid] = ws
 
         ws.gameId = undefined
@@ -99,10 +100,9 @@ function createWebSocketServer(wss) {
 
             if (request.method === 'game-action') {
                 //let the game object take care of the msg based on the game id 
+                
                if(request.gameId in games){
-
                     games[request.gameId].game.gameAction(request)
-                    console.log(games[request.gameId].game. getGameSnapShot())
                     
                }
             }
@@ -120,8 +120,29 @@ function createWebSocketServer(wss) {
 
     });
 
+    //update all players in game of gamestate and run the game loop
+    const gamesInterval = setInterval(()=>{
 
+        for(const key in games){
+            const game=games[key].game
+            const players=games[key].players
+            game.run()
+            const response={
+                
+                method : 'snapshot',
+                snapshot: game.getGameSnapShot()
 
+            }
+
+            console.log(game.getGameSnapShot())
+
+            for(const clientId of players ){
+                clients[clientId].send(JSON.stringify(response))
+            }
+            
+        }
+
+    },1000)
 
 
     return wss

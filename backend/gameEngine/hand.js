@@ -8,6 +8,12 @@ class Hand {
     
         this.cards.push(card)
     }
+
+    reveal(){
+        for(const card of this.cards){
+            card.setFaceUp()
+        }
+    }
     
     size(){
         return this.cards.length
