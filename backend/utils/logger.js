@@ -23,6 +23,7 @@ class Logger {
 
     log(message){
         this.messages.push(message)
+        console.log(message)
     }
 
     toString(){

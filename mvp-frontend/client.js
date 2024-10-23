@@ -16,6 +16,14 @@ const displayMsg=(msg) => {
 
 }
 
+function displayGame(jsonObject){
+
+    const messageElement = document.createElement('div');
+    messageElement.textContent = msg;
+    document.getElementById('game-snapshot').appendChild(messageElement);
+
+}
+
 
 const displayGameMsg=(msg) => {
 
@@ -85,6 +93,11 @@ socket.onmessage = function(event) {
         showInGame()
         displayGameMsg(`gameId : ${myGameId}`)
     
+    }
+
+    if(response.method === 'snapshot'){
+
+        displayGame(response.snapshot)
     }
 
 
@@ -212,11 +225,31 @@ document.getElementById("hit").addEventListener('click', () => {
 
 document.getElementById("stand").addEventListener('click', () => {
 
+    const requestStand = {
+        method: 'game-action',
+        gameId: myGameId,
+        clientId: myId.clientId,
+        gameAction: 'stand',
+    }
+
+    socket.send(JSON.stringify(requestStand))
 
 })
 
 
 document.getElementById("bet").addEventListener('click', () => {
+
+    const requestBet = {
+        method: 'game-action',
+        myGameId: myGameId,
+        clientId: myId,
+        gameAction: 'bet',
+        value: 1
+    };
+
+ 
+
+    socket.send(JSON.stringify(requestBet))
 
 
 })

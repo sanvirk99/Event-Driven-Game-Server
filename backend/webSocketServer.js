@@ -1,7 +1,7 @@
 
 const crypto = require('node:crypto');
-
-
+const {Logger} = require('./utils/logger')
+const {createGameWithRandomDeck} = require('./game')
 
 //comminicate via json format
 
@@ -9,6 +9,7 @@ const crypto = require('node:crypto');
 function createWebSocketServer(wss) {
     const clients = {}
     const games = {}
+  
     wss.on('connection', (ws) => {
         ws.uuid = crypto.randomUUID()
         clients[ws.uuid] = ws
@@ -51,8 +52,10 @@ function createWebSocketServer(wss) {
 
                 //generate game id
                 let uuidGame = crypto.randomUUID()
+                const game = createGameWithRandomDeck(ws,new Logger())
                 games[uuidGame] = {
-                    players: [ws.uuid]
+                    players: [ws.uuid],
+                    game : game
                 }
 
 
@@ -96,6 +99,12 @@ function createWebSocketServer(wss) {
 
             if (request.method === 'game-action') {
                 //let the game object take care of the msg based on the game id 
+               if(request.gameId in games){
+
+                    games[request.gameId].game.gameAction(request)
+                    console.log(games[request.gameId].game. getGameSnapShot())
+                    
+               }
             }
 
 
@@ -110,6 +119,10 @@ function createWebSocketServer(wss) {
         ws.send(JSON.stringify(res))
 
     });
+
+
+
+
 
     return wss
 }

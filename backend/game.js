@@ -4,8 +4,8 @@ const {PlayerState} = require('./gameEngine/player_state')
 const {GameState} = require('./gameEngine/game_state')
 const {Hand} = require('./gameEngine/hand')
 const {Queue} = require("./utils/que")
-const {Deck} = require('./gameEngine/deck')
-const { json } = require('body-parser')
+const {Deck,createStandardDeck} = require('./gameEngine/deck')
+
 
 
 function createGameWithCustomDeck(player,deck,logger){
@@ -14,7 +14,9 @@ function createGameWithCustomDeck(player,deck,logger){
 
 }
 
-function createGameWithRandomDeck(){
+function createGameWithRandomDeck(player,logger){
+
+    return new Game(player,createStandardDeck(),logger)
 
 }
 
@@ -265,5 +267,6 @@ class Game {
 
 module.exports = {
 
-    createGameWithCustomDeck
+    createGameWithCustomDeck,
+    createGameWithRandomDeck
 }

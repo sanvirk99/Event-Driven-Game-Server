@@ -159,7 +159,7 @@ describe("game object interactions via game Action", () => {
                 }
 
                 if(game.getState() === 'EVALUATE'){
-                    game.gameAction(requestStand)
+                    game.gameAction(requestStand) //speed up not waiting 5 seconds for player
                 }
 
                 if (prev != game.getState()) {
