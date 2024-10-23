@@ -7,6 +7,7 @@ class GameState {
         this.dealer=game.dealer
         this.que=game.que
         this.state = "WAITING"
+        this.hasRun=false
         this.transitions = { //can make them async in order to call gamestate run
             WAITING: {
                 run: () => {
@@ -61,17 +62,18 @@ class GameState {
 
                 run: async () => {
 
+                    if (this.evaluating){
+                        return
+                    }
+                    this.evaluating = true
                     for (const player of this.que){
 
                         //wait for player to finish their descion making in the same order cards were handed 
                         await this.game.waitDecision(player)
 
                     }
-                    console.log('game state in result')
                     this.changeState("RESULT")
-
-                    
-
+                    this.evaluating=false
                 }
 
             },
@@ -104,8 +106,8 @@ class GameState {
         const actions = this.transitions[this.state];
         const action = actions[actionName];
         
-        if (action) {
-            action(payload)
+        if (action ) {
+            action(payload) 
         } else {
             // action is not valid for current state
         }
@@ -114,8 +116,7 @@ class GameState {
     changeState(newState) {
         // validate that newState actually exists
         if (this.transitions[newState]) {
-            this.state = newState;
-            
+            this.state = newState;         
         } else {
             throw new Error(`Invalid state: ${newState}`);
         }

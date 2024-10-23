@@ -127,13 +127,6 @@ describe('mocking server and clients ', () =>{
         assert.strictEqual(client.responseCount,3)
 
 
-
-
-    
-
-
-
-
     })
 
 
@@ -144,4 +137,17 @@ describe('mocking server and clients ', () =>{
 
 
 
+})
+
+
+
+describe('client names connectes names himself then creates a game ', () => {
+
+
+
+
+
+
+
+    
 })

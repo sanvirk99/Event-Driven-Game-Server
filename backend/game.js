@@ -4,8 +4,8 @@ const {PlayerState} = require('./gameEngine/player_state')
 const {GameState} = require('./gameEngine/game_state')
 const {Hand} = require('./gameEngine/hand')
 const {Queue} = require("./utils/que")
-const {Deck} = require('./gameEngine/deck')
-const { json } = require('body-parser')
+const {Deck,createStandardDeck} = require('./gameEngine/deck')
+
 
 
 function createGameWithCustomDeck(player,deck,logger){
@@ -14,10 +14,11 @@ function createGameWithCustomDeck(player,deck,logger){
 
 }
 
-function createGameWithRandomDeck(){
+function createGameWithRandomDeck(player,logger){
+
+    return new Game(player,createStandardDeck(),logger)
 
 }
-
 
 
 
@@ -58,6 +59,7 @@ class Game {
 
     dealerPlay(){
         this.logger.log('dealer reveals his cards and evaluated')
+        this.dealer.hand.reveal()
         let card=undefined
         while(this.dealer.state==='UNDER17'){
             card=this.deck.getCard(3)
@@ -79,7 +81,7 @@ class Game {
 
         if(this.dealer.state==="BUSTED"){
 
-            this.logger(`${player.name} payout`)
+            this.logger.log(`${player.name} payout`)
         }
 
 
@@ -88,7 +90,7 @@ class Game {
             case "BUSTED": {
 
                 this.logger.log(`${player.name} is busted`)
-                this.logger(`${player.name} collect bet`)
+                this.logger.log(`${player.name} collect bet`)
 
             }
 
@@ -141,10 +143,9 @@ class Game {
     }
 
     gameAction(request){
-
         let gameAction=request.gameAction
-
         for(const player of this.players){
+        
             if(request.clientId === player.clientId){
 
                 switch(gameAction){
@@ -152,6 +153,7 @@ class Game {
                         break
                     case 'bet': {
                         player.dispatch('bet', request.value)
+                        console.log('bet')
                         break
                     }
                     case 'stand': player.dispatch('stand'); this.logger.log(`${player.name} stands`)
@@ -187,7 +189,6 @@ class Game {
                 for(const state of resolveStates){ //player responded
 
                     if(state===player.state){
-                        console.log('resolved player descison')
                         clearInterval(pollingId)
                         resolve(state)
                         return
@@ -241,13 +242,13 @@ class Game {
             }
 
             let json = {}
-            json['name'] = player.name
+            json['name'] = player.ws.clientName
             json['clientId'] = player.clientId
             json['cards'] = player.hand.toJSON()
             json['bet'] = player.betAmount
             info.push(json)
         }
-
+        info.push(this.logger)
         return info
 
     }
@@ -265,5 +266,6 @@ class Game {
 
 module.exports = {
 
-    createGameWithCustomDeck
+    createGameWithCustomDeck,
+    createGameWithRandomDeck
 }

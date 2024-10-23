@@ -8,8 +8,8 @@
 class PlayerState {
     constructor(connection,hand,game) {
         this.ws=connection
-        this.name=connection.name
-        this.clientId=connection.clientId
+        this.name=connection.ClientName
+        this.clientId=connection.uuid
         this.hand=hand
         this.game=game
         this.state = "WATCHING"
