@@ -132,8 +132,7 @@ describe('mocking server and clients ', () =>{
 
 
 
-
-
+    server.stop()
 
 
 

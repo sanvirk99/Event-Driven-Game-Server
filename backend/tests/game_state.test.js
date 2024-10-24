@@ -197,7 +197,7 @@ describe("game state object testing",()=>{
         playerHand=new Hand()
         dealerHand=new Hand()
         logger=new Logger()
-        bob = new PlayerState({name: 'bob'},playerHand)
+        bob = new PlayerState({clientName: 'bob'},playerHand)
         dealer=new DealerState("dealer",dealerHand)
         que=new Queue()
         cardQue=new Queue() //need to control the order of cards for testing
@@ -280,8 +280,8 @@ describe("game state object testing",()=>{
                 p++
             }
           }
-
-          assert.strictEqual(p,messages.length)
+        
+         assert.strictEqual(p,messages.length)
           
 
         //dealer takes their turn

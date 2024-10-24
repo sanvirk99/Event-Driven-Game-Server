@@ -144,7 +144,11 @@ function createWebSocketServer(wss) {
 
     },1000)
 
+    wss.stop = () => {
 
+        clearInterval(gamesInterval)
+    }
+    
     return wss
 }
 
