@@ -144,8 +144,9 @@ class Game {
 
     gameAction(request){
         let gameAction=request.gameAction
-        for(const player of this.players){
         
+        for(const player of this.players){
+            
             if(request.clientId === player.clientId){
 
                 switch(gameAction){
@@ -153,7 +154,6 @@ class Game {
                         break
                     case 'bet': {
                         player.dispatch('bet', request.value)
-                        console.log('bet')
                         break
                     }
                     case 'stand': player.dispatch('stand'); this.logger.log(`${player.name} stands`)
