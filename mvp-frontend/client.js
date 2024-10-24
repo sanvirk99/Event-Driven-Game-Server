@@ -18,9 +18,15 @@ const displayMsg=(msg) => {
 
 function displayGame(jsonObject){
 
-    const messageElement = document.createElement('div');
-    messageElement.textContent = msg;
-    document.getElementById('game-snapshot').appendChild(messageElement);
+
+    const gameSnapshotElement = document.getElementById('game-snapshot');
+    gameSnapshotElement.innerHTML= ''
+    gameSnapshotElement.style.overflow = 'auto';
+    gameSnapshotElement.style.maxHeight = '400px';
+
+    const messageElement = document.createElement('pre');
+    messageElement.textContent = JSON.stringify(jsonObject, null, 2);
+    gameSnapshotElement.appendChild(messageElement); // Add new content
 
 }
 
@@ -241,13 +247,12 @@ document.getElementById("bet").addEventListener('click', () => {
 
     const requestBet = {
         method: 'game-action',
-        myGameId: myGameId,
+        gameId: myGameId,
         clientId: myId,
         gameAction: 'bet',
         value: 1
     };
 
- 
 
     socket.send(JSON.stringify(requestBet))
 
