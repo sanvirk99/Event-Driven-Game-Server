@@ -8,15 +8,15 @@ const {Deck,createStandardDeck} = require('./gameEngine/deck')
 
 
 
-function createGameWithCustomDeck(player,deck,logger){
+function createGameWithCustomDeck(ws,deck,logger){
 
-    return new Game(player,deck,logger)
+    return new Game(ws,deck,logger)
 
 }
 
-function createGameWithRandomDeck(player,logger){
+function createGameWithRandomDeck(ws,logger){
 
-    return new Game(player,createStandardDeck(),logger)
+    return new Game(ws,createStandardDeck(),logger)
 
 }
 
@@ -30,12 +30,12 @@ function createGameWithRandomDeck(player,logger){
 const resolveStates=["BLACKJACK","BUSTED","LOCKED"]
 class Game {
 
-    constructor(player,deck,logger){
+    constructor(ws,deck,logger){
 
         //game needs a deck to obtain cards from
         //game needs a gamestate 
         this.players=[]
-        this.players.push(new PlayerState(player,new Hand))
+        this.players.push(new PlayerState(ws,new Hand))
         this.dealer=new DealerState('dealer',new Hand())
         this.deck=deck
         this.que=new Queue()
@@ -49,8 +49,9 @@ class Game {
 
     }
 
-    activateDealer(){
+    activateDealer(){   
 
+        this.deck.shuffle() //shuffle deck 
         this.logger.log('distributing intial hand')
         this.dealer.dispatch('start',this.que.length)
         //lock bets and broadcast snapshot of game

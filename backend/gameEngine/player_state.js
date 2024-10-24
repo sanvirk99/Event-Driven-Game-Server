@@ -6,10 +6,10 @@
 
 
 class PlayerState {
-    constructor(connection,hand,game) {
-        this.ws=connection
-        this.name=connection.clientName
-        this.clientId=connection.uuid
+    constructor(ws,hand,game) {
+        this.ws=ws
+        this.name=ws.clientName  //game object references
+        this.clientId=ws.uuid    //game object references
         this.hand=hand
         this.game=game
         this.state = "WATCHING"

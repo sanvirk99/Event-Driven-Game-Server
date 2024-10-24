@@ -22,10 +22,13 @@ function getCard(value){
     
 }
 
-
+function shuffle(){
+    //do nothing
+}
 
 module.exports = {
 
     getCard,
+    shuffle
     
 }
