@@ -95,7 +95,12 @@ class GameState {
 
             END: {
 
-                //clear the table 
+                // run : () => {
+
+                //     this.game.reset()
+                //     this.changeState('waiting')
+
+                // }
 
             }
        
@@ -120,6 +125,11 @@ class GameState {
         } else {
             throw new Error(`Invalid state: ${newState}`);
         }
+    }
+
+    getState(){
+
+        return this.state
     }
 
 

@@ -49,6 +49,7 @@ class Game {
 
     }
 
+
     activateDealer(){   
 
         this.deck.shuffle() //shuffle deck 
@@ -61,15 +62,12 @@ class Game {
     dealerPlay(){
         this.logger.log('dealer reveals his cards and evaluated')
         this.dealer.hand.reveal()
-        let card=undefined
-        while(this.dealer.state==='UNDER17'){
-            card=this.deck.getCard(3)
-            this.dealer.dispatch("card",card)
-            this.logger.log(`dealer handed ${card.value}`)
+        while(this.dealer.getState()==='UNDER17'){
+            this.handCardDealer()
         }
-        this.logger.log(`dealer is ${this.dealer.state}`)
-        const dealerSum=this.dealer.hand.evaluate()
-        this.logger.log(`dealer count is ${this.dealer.hand.evaluate()}`)
+        this.logger.log(`dealer is ${this.dealer.getState()}`)
+        const dealerSum=this.dealer.evaluate()
+        this.logger.log(`dealer count is ${this.dealer.evaluate()}`)
         for(const player of this.players){
 
             this.resultPlayer(player,dealerSum)
@@ -80,9 +78,10 @@ class Game {
 
     resultPlayer(player,dealerSum){
 
-        if(this.dealer.state==="BUSTED"){
+        if(this.dealer.getState()==="BUSTED"){
 
-            this.logger.log(`${player.name} payout`)
+            this.logger.log(`${player.getName()} payout`)
+            
         }
 
 
@@ -90,26 +89,26 @@ class Game {
 
             case "BUSTED": {
 
-                this.logger.log(`${player.name} is busted`)
-                this.logger.log(`${player.name} collect bet`)
+                this.logger.log(`${player.getName()} is busted`)
+                this.logger.log(`${player.getName()} collect bet`)
 
             }
 
             case "BLACKJACK": {
 
-                this.logger.log(`${player.name} is blackjack`)
+                this.logger.log(`${player.getName()} is blackjack`)
                 //no money taken if dealer is also black jack
             }
 
 
             default: {
-                const playerSum=player.hand.evaluate()
-                this.logger.log(`player count is ${player.hand.evaluate()}`)
+                const playerSum=player.evaluate()
+                this.logger.log(`player count is ${player.evaluate()}`)
 
                 if(playerSum == dealerSum){
-                    this.logger.log(`${player.name} bet returned`)
+                    this.logger.log(`${player.getName()} bet returned`)
                 }else if (playerSum > dealerSum){
-                    this.logger.log(`${player.name} bet paid out`)
+                    this.logger.log(`${player.getName()} bet paid out`)
                 }else{
                     this.logger.log(`dealer collect bet`)
                 }
@@ -125,7 +124,7 @@ class Game {
 
         let card = this.deck.getCard()
 
-        if(this.dealer.hand.size() == 1){
+        if(this.dealer.hand.size() == 1){ //only second card is facedown
             card.setFaceDown()
         }
         this.dealer.dispatch('card',card)
@@ -140,7 +139,7 @@ class Game {
   
         player.dispatch('card',card)
 
-        this.logger.log(`${player.name} handed ${card.value}`)
+        this.logger.log(`${player.getName()} handed ${card.value}`)
     }
 
     gameAction(request){
@@ -148,7 +147,7 @@ class Game {
         
         for(const player of this.players){
             
-            if(request.clientId === player.clientId){
+            if(request.clientId === player.getId()){
 
                 switch(gameAction){
                     case 'hit': player.dispatch('hit') 
@@ -157,7 +156,7 @@ class Game {
                         player.dispatch('bet', request.value)
                         break
                     }
-                    case 'stand': player.dispatch('stand'); this.logger.log(`${player.name} stands`)
+                    case 'stand': player.dispatch('stand'); this.logger.log(`${player.getName()} stands`)
                         break
                 }
             }
@@ -167,20 +166,20 @@ class Game {
     }
 
     waitDecision(player){
-        this.logger.log(`check ${player.name} descion`)
+        this.logger.log(`check ${player.getName()} descion`)
         //while player state does not change to BLACKJACK
         //player may already be in black jack
         //if player responds they hit and now deciding for hit or stand , how to increase wait
         return new Promise((resolve, reject)=>{
 
-            if(player.state==="BLACKJACK"){
-                resolve(player.state)
+            if(player.getState()==="BLACKJACK"){
+                resolve(player.getState())
             }
 
             let pollAtempts =0
             const pollingId = setInterval(() => {
                 pollAtempts++
-                if(player.state === "CARD_WAIT"){
+                if(player.getState() === "CARD_WAIT"){
                     //indicater they hit
                     this.handCard(player)
                     pollAtempts=0
@@ -189,7 +188,7 @@ class Game {
 
                 for(const state of resolveStates){ //player responded
 
-                    if(state===player.state){
+                    if(state===player.getState()){
                         clearInterval(pollingId)
                         resolve(state)
                         return
@@ -200,7 +199,7 @@ class Game {
                 if(pollAtempts >= this.maxPollAtempts){
                     clearInterval(pollingId)
                     player.dispatch('stand')
-                    resolve(player.state)
+                    resolve(player.getState())
                     return
                 }
 
@@ -220,7 +219,7 @@ class Game {
     }
 
     getState(){
-        return this.gameState.state
+        return this.gameState.getState()
     }
 
 
@@ -231,22 +230,22 @@ class Game {
         let dealer= {
             clientId: 'dealer',
             name: 'dealer',
-            cards: this.dealer.hand.toJSON()
+            cards: this.dealer.getHandJSON()
         }
 
         info.push(dealer)
 
         for(const player of this.players){
             
-            if(player.state === 'WATCHING'){
+            if(player.getState() === 'WATCHING'){
                 continue
             }
 
             let json = {}
-            json['name'] = player.ws.clientName
-            json['clientId'] = player.clientId
-            json['cards'] = player.hand.toJSON()
-            json['bet'] = player.betAmount
+            json['name'] = player.getName()
+            json['clientId'] = player.getId()
+            json['cards'] = player.getHandJSON()
+            json['bet'] = player.getBet()
             info.push(json)
         }
         info.push(this.logger)

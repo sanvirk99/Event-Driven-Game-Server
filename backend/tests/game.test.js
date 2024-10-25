@@ -180,3 +180,6 @@ describe("game object interactions via game Action", () => {
 
 })
 
+
+
+//test settling bets all cases 

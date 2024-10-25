@@ -14,6 +14,7 @@ class PlayerState {
         this.game=game
         this.state = "WATCHING"
         this.betAmount=0
+        this.profits=0
         this.transitions = {
             WATCHING: {
                 bet: (bet) => {
@@ -97,6 +98,46 @@ class PlayerState {
             throw new Error(`Invalid state: ${newState}`);
         }
     }
+
+    clearHand(){
+
+        this.hand.clear()
+    }
+
+    getHandJSON(){
+        return this.hand.toJSON()
+    }
+
+    evaluate(){
+
+        return this.hand.evaluate()
+    }
+
+    resetBet(){
+        this.betAmount=0
+    }
+
+    winnings(num){ //can be negative if dealer collects the bet
+
+        this.profits=this.profits+num
+    }
+
+    getBet(){
+        return this.betAmount
+    }
+
+    getName(){
+        return this.ws.clientName
+    }
+
+    getId(){
+        return this.ws.uuid
+    }
+
+    getState(){
+        return this.state
+    }
+
 }
 
 

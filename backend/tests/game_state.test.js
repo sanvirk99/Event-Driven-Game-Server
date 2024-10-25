@@ -282,7 +282,6 @@ describe("game state object testing",()=>{
           }
         
          assert.strictEqual(p,messages.length)
-          
 
         //dealer takes their turn
         //dealer reveals card

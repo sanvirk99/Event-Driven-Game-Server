@@ -89,6 +89,21 @@ class DealerState {
             throw new Error(`Invalid state: ${newState}`);
         }
     }
+
+    getHandJSON(){
+        return this.hand.toJSON()
+    }
+
+
+    getState(){
+
+        return this.state
+    }
+
+    evaluate(){
+
+        return this.hand.evaluate()
+    }
 }
 
 
