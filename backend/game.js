@@ -60,6 +60,7 @@ class Game {
     }
 
     dealerPlay(){
+
         this.logger.log('dealer reveals his cards and evaluated')
         this.dealer.hand.reveal()
         while(this.dealer.getState()==='UNDER17'){
@@ -81,32 +82,36 @@ class Game {
         if(this.dealer.getState()==="BUSTED"){
 
             this.logger.log(`${player.getName()} payout`)
+
+            return 
             
         }
 
 
-        switch(player.state){
+        switch(player.getState()){
 
             case "BUSTED": {
 
                 this.logger.log(`${player.getName()} is busted`)
                 this.logger.log(`${player.getName()} collect bet`)
+                break
 
             }
 
             case "BLACKJACK": {
 
                 this.logger.log(`${player.getName()} is blackjack`)
+                break
+
                 //no money taken if dealer is also black jack
             }
-
 
             default: {
                 const playerSum=player.evaluate()
                 this.logger.log(`player count is ${player.evaluate()}`)
 
                 if(playerSum == dealerSum){
-                    this.logger.log(`${player.getName()} bet returned`)
+                    this.logger.log(`${player.getName()} stand-off, same total as dealer`)
                 }else if (playerSum > dealerSum){
                     this.logger.log(`${player.getName()} bet paid out`)
                 }else{
@@ -150,14 +155,19 @@ class Game {
             if(request.clientId === player.getId()){
 
                 switch(gameAction){
-                    case 'hit': player.dispatch('hit') 
+                    case 'hit': {
+                        player.dispatch('hit') 
                         break
+                    }
                     case 'bet': {
                         player.dispatch('bet', request.value)
                         break
                     }
-                    case 'stand': player.dispatch('stand'); this.logger.log(`${player.getName()} stands`)
+                    case 'stand': {
+                        player.dispatch('stand')
+                        this.logger.log(`${player.getName()} stands`)
                         break
+                    }
                 }
             }
         }
@@ -199,6 +209,7 @@ class Game {
                 if(pollAtempts >= this.maxPollAtempts){
                     clearInterval(pollingId)
                     player.dispatch('stand')
+                    this.logger.log(`${player.getName()} stands`)
                     resolve(player.getState())
                     return
                 }
@@ -225,15 +236,16 @@ class Game {
 
     getGameSnapShot(){
       
-        const info=[]
+        const info={}
 
         let dealer= {
             clientId: 'dealer',
+            state: this.dealer.getState(),
             name: 'dealer',
-            cards: this.dealer.getHandJSON()
+            hand: this.dealer.getHandJSON()
         }
 
-        info.push(dealer)
+        info['dealer'] = dealer
 
         for(const player of this.players){
             
@@ -242,13 +254,13 @@ class Game {
             }
 
             let json = {}
+            json['state'] = player.getState()
             json['name'] = player.getName()
-            json['clientId'] = player.getId()
-            json['cards'] = player.getHandJSON()
+            json['hand'] = player.getHandJSON()
             json['bet'] = player.getBet()
-            info.push(json)
+            info[player.getId()]=json
         }
-        info.push(this.logger)
+        info['roundlog'] = this.logger
         return info
 
     }
@@ -258,10 +270,6 @@ class Game {
 
 
 }
-
-
-
-
 
 
 module.exports = {

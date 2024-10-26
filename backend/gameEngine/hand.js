@@ -52,11 +52,16 @@ class Hand {
 
     toJSON(){
 
-        const res=[]
+        const cards=[]
         for(const card of this.cards){
 
-            res.push(card.toJSON())
+            cards.push(card.toJSON())
         }
+
+        const res={}
+
+        res['cards']=cards
+        res['count']=this.evaluate()
 
         return res
     }

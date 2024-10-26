@@ -226,6 +226,15 @@ document.getElementById("create-game").addEventListener('click', () => {
 
 document.getElementById("hit").addEventListener('click', () => {
 
+    const requestHit = {
+        method: 'game-action',
+        gameId: myGameId,
+        clientId: myId.clientId,
+        gameAction: 'hit',
+    }
+
+    socket.send(JSON.stringify(requestHit))
+
 
 })
 

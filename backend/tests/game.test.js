@@ -35,11 +35,6 @@ class MockDeck {
 
         return card
     }
-    setCardNum(num) { // should be called inside the test
-        if (2 <= num <= 11) {
-            this.cardNum = num
-        }
-    }
 }
 
 
@@ -48,27 +43,49 @@ class MockPlayer extends EventEmitter { }
 describe("game object interactions via game Action", () => {
 
     //game has a deck , dealer , player and a log
+    let deck;
+    let bob;
+    let logger;
+    let game;
+    let requestBet;
+    let requestStand;
+    let requestHit;
 
+    beforeEach(()=>{
 
-    test('constructing a game object, runing simple game, manual churning', async () => {
-
-        //mock the deck for testing
-        const deck = new MockDeck() // control the handed cards for perdictability 
-        const bob = new MockPlayer()
-        const logger = new Logger()
+        deck = new MockDeck() // control the handed cards for perdictability 
+        bob = new MockPlayer()
+        logger = new Logger()
         bob.uuid = 'f2323b47-0d47-4a3b-bd15-9446786a53db' //associate this with player state
         bob.clientName = 'Bob'
-
-        const game = createGameWithCustomDeck(bob, deck, logger)
-
-        assert.strictEqual(game.getState(), "WAITING")
-
-        const requestBet = {
+        requestBet = {
             method: 'game-action',
             clientId: bob.uuid,
             gameAction: 'bet',
             value: 1
         }
+        requestStand = {
+            method: 'game-action',
+            clientId: bob.uuid,
+            gameAction: 'stand',
+        }
+
+        requestHit = {
+            method: 'game-action',
+            clientId: bob.uuid,
+            gameAction: 'hit',
+        }
+
+        game = createGameWithCustomDeck(bob, deck, logger)
+    })
+
+
+    test('constructing a game object, runing simple game, manual churning', async () => {
+
+
+        assert.strictEqual(game.getState(), "WAITING")
+
+        
         deck.nextCard(3)
         deck.nextCard(4)
         deck.nextCard(10)
@@ -83,11 +100,7 @@ describe("game object interactions via game Action", () => {
         game.run()
         assert.strictEqual(game.getState(), "EVALUATE")
 
-        const requestStand = {
-            method: 'game-action',
-            clientId: bob.uuid,
-            gameAction: 'stand',
-        }
+     
         game.run()
         game.gameAction(requestStand)
 
@@ -102,31 +115,19 @@ describe("game object interactions via game Action", () => {
         assert.strictEqual(game.getState(), "RESULT")
 
         game.run()
-        console.log(logger)
+        //console.log(logger)
 
 
 
     })
 
 
-    test('automatic invocation of run', async () => {
+    test('dealer is higer then player, collects bet from player', async () => {
         // Mock the deck for testing
-        const deck = new MockDeck(); // Control the handed cards for predictability 
-        const bob = new MockPlayer();
-        const logger = new Logger();
-        bob.uuid = 'f2323b47-0d47-4a3b-bd15-9446786a53db'; // Associate this with player state
-        bob.clientName = 'Bob';
-
-        const game = createGameWithCustomDeck(bob, deck, logger);
-
+      
         assert.strictEqual(game.getState(), "WAITING");
 
-        const requestBet = {
-            method: 'game-action',
-            clientId: bob.uuid,
-            gameAction: 'bet',
-            value: 1
-        };
+  
         deck.nextCard(3);
         deck.nextCard(4);
         deck.nextCard(10);
@@ -136,50 +137,208 @@ describe("game object interactions via game Action", () => {
 
         game.gameAction(requestBet);
 
-        // Call run at regular intervals
-        let count = 0;
-        let prev = undefined
-        const requestStand = {
-            method: 'game-action',
-            clientId: bob.uuid,
-            gameAction: 'stand',
-        }
+        await new Promise(resolve => {
+            const intervalId = setInterval(() => {
 
+                if(game.getState() === 'EVALUATE' ){
+                    game.gameAction(requestStand) //speed up not waiting 5 seconds for player
+                }
+                if(game.getState() === 'END'){
+                    clearInterval(intervalId)
+                    resolve()
+                }
+                
+                game.run()
 
-      
+            }, 100); // 500 milliseconds interval
+        })
+        
+        assert.strictEqual(game.getState(), 'END')
+        
+    
+        let snapshot=game.getGameSnapShot()
 
+        assert.strictEqual(snapshot.dealer.hand.count,19)
+        assert.strictEqual(snapshot[bob.uuid].hand.count,13)
+        assert(snapshot.dealer.hand.count > snapshot[bob.uuid].hand.count)
+        
+
+    })
+
+    test('player is busted, dealer collects bet from player', async () => {
+
+        deck.nextCard(8) 
+        deck.nextCard(8)
+        deck.nextCard(8)
+        deck.nextCard(8)
+        deck.nextCard(8)
+        deck.nextCard(4)
+
+        game.gameAction(requestBet)
         await new Promise(resolve => {
 
             const intervalId = setInterval(() => {
 
-                if (count > 3) {
+                if(game.getState() === 'EVALUATE' ){
+                    game.gameAction(requestHit) //speed up not waiting 5 seconds for player
+                }
+                if(game.getState() === 'END'){
                     clearInterval(intervalId)
                     resolve()
                 }
-
-                if(game.getState() === 'EVALUATE'){
-                    game.gameAction(requestStand) //speed up not waiting 5 seconds for player
-                }
-
-                if (prev != game.getState()) {
-                    prev = game.getState()
-                    game.run()
-                    count++
-                }
                 
-               // assert.strictEqual(game.getGameSnapShot().length,2)
+                game.run()
 
-            }, 500); // 500 milliseconds interval
+            }, 100); // 500 milliseconds interval
 
         })
-        
         assert.strictEqual(game.getState(), 'END')
+        
+        let snapshot = game.getGameSnapShot()
+        assert.strictEqual(snapshot[bob.uuid].state,'BUSTED')
         console.log(logger)
 
+
     })
+    
+    //test settling bets all cases and then game reset
+    test('dealer is busted , player is paid out', async ()=>{
+
+        // players gets 4 and 4 
+        // dealer gets 8 8 and then is required to hit as under 17 leading to bust
+        deck.nextCard(4) 
+        deck.nextCard(8)
+        deck.nextCard(4)
+        deck.nextCard(8)
+        deck.nextCard(8)
+
+        game.gameAction(requestBet)
+        await new Promise(resolve => {
+
+            const intervalId = setInterval(() => {
+
+                if(game.getState() === 'EVALUATE' ){
+                    game.gameAction(requestStand) //speed up not waiting 5 seconds for player
+                }
+                if(game.getState() === 'END'){
+                    clearInterval(intervalId)
+                    resolve()
+                }
+                
+                game.run()
+
+            }, 100); // 500 milliseconds interval
+
+        })
+        assert.strictEqual(game.getState(), 'END')
+        let snapshot = game.getGameSnapShot()
+        assert.strictEqual(snapshot['dealer'].state,'BUSTED')
+        
+    })
+
+
+    test('dealer is lower then player , player is paid out', async ()=>{
+
+        // players gets 4 and 4 
+        // dealer gets 8 8 and then is required to hit as under 17 leading to bust
+        deck.nextCard(10) 
+        deck.nextCard(8)
+        deck.nextCard(10)
+        deck.nextCard(10)
+
+        game.gameAction(requestBet)
+        await new Promise(resolve => {
+
+            const intervalId = setInterval(() => {
+
+                if(game.getState() === 'EVALUATE' ){
+                    game.gameAction(requestStand) //speed up not waiting 5 seconds for player
+                }
+                if(game.getState() === 'END'){
+                    clearInterval(intervalId)
+                    resolve()
+                }
+                
+                game.run()
+
+            }, 100); // 500 milliseconds interval
+
+        })
+        assert.strictEqual(game.getState(), 'END')
+
+            
+        let snapshot=game.getGameSnapShot()
+
+        assert.strictEqual(snapshot.dealer.hand.count,18)
+        assert.strictEqual(snapshot[bob.uuid].hand.count,20)
+        assert(snapshot.dealer.hand.count < snapshot[bob.uuid].hand.count)
+
+        
+        
+    })
+
+
+    test('dealer and player standoff , no bets collected or paid out', async ()=>{
+
+        // players gets 4 and 4 
+        // dealer gets 8 8 and then is required to hit as under 17 leading to bust
+        deck.nextCard(10) 
+        deck.nextCard(10)
+        deck.nextCard(10)
+        deck.nextCard(10)
+
+        game.gameAction(requestBet)
+        await new Promise(resolve => {
+
+            const intervalId = setInterval(() => {
+
+                if(game.getState() === 'EVALUATE' ){
+                    game.gameAction(requestStand) //speed up not waiting 5 seconds for player
+                }
+                if(game.getState() === 'END'){
+                    clearInterval(intervalId)
+                    resolve()
+                }
+                
+                game.run()
+
+            }, 100); // 500 milliseconds interval
+
+        })
+        assert.strictEqual(game.getState(), 'END')
+
+        let snapshot = game.getGameSnapShot()
+        assert.strictEqual(snapshot.dealer.hand.count,20)
+        assert.strictEqual(snapshot[bob.uuid].hand.count,20)
+        assert(snapshot.dealer.hand.count === snapshot[bob.uuid].hand.count)
+
+        
+    })
+
+
+    test('player is blackjack , dealer is not', () => {
+
+    })
+
+
+    test('dealer is blackjack, player is not ', () =>{
+
+
+    })
+
+
+    test('both dealer and player black jack ')
+
+
+
+
+
+
 
 })
 
 
 
-//test settling bets all cases 
+
+
+
