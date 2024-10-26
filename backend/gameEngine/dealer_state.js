@@ -20,14 +20,12 @@ class DealerState {
                     if (numCards < 2 ){
                         return
                     }
-                    
                     let sum = this.hand.evaluate()
-                    if(sum < 17){
+                    if(sum === 21 && numCards === 2){
+                        this.changeState("BLACKJACK")
+                    }else if (sum < 17){
                         this.changeState("UNDER17")
-                    }else if (sum == 21){
-                        this.changeState("BLAKCJACK")
                     }else if (sum >= 17) {
-
                         this.changeState("OVER17")
                     }
 
@@ -40,9 +38,7 @@ class DealerState {
                     // evaluate
                     this.hand.handCard(card)
                     let sum = this.hand.evaluate()
-                    if (sum === 21) {
-                        this.changeState("BLACKJACK");
-                    } else if (sum >= 21) {
+                    if (sum > 21) {
                         this.changeState("BUSTED");
                     } else if (sum > 17){
                         this.changeState("OVER17")

@@ -91,6 +91,39 @@ test('Player Stages to stand',() => {
 
 })
 
+test('Player Stages to 21 and locked',() => {
+    const playerHand = new Hand();
+    let bob = new PlayerState("bob", playerHand);
+
+    assert.strictEqual(bob.state,"WATCHING")
+
+    bob.dispatch("bet", { value: 1 });
+    assert.strictEqual(bob.state, "CARD_WAIT");
+    bob.dispatch("card", getCard(10)) // 10 of spades
+    assert.strictEqual(playerHand.size(),1)
+    bob.dispatch("card", getCard(5))
+    assert.strictEqual(playerHand.size(),2)
+    assert.strictEqual(playerHand.evaluate(),15)
+    assert.strictEqual(bob.state, "PLAY");
+
+    bob.dispatch("hit")
+
+    bob.dispatch("card",getCard(6))
+    assert.strictEqual(playerHand.evaluate(),21)
+    assert.strictEqual(bob.state, "LOCKED");
+
+})
+
+test('invalid bet from player less then 1',() => {
+
+    const playerHand = new Hand();
+    let bob = new PlayerState("bob", playerHand);
+    assert.strictEqual(bob.state,"WATCHING")
+    bob.dispatch("bet", -1);
+    assert.strictEqual(bob.state, "WATCHING"); 
+
+})
+
 
 describe("dealer states  ", () => {
 
@@ -129,7 +162,7 @@ describe("dealer states  ", () => {
         dealer.dispatch("card", getCard(6))
         assert.strictEqual(dealer.state,"UNDER17")
         dealer.dispatch("card",getCard(5))
-        assert.strictEqual(dealer.state,"BLACKJACK")
+        assert.strictEqual(dealer.state,"OVER17")
         
     })
     

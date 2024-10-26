@@ -19,8 +19,7 @@ class PlayerState {
             WATCHING: {
                 bet: (bet) => {
                     if (bet < 1) {
-                        // remain watching
-                        return;
+                        return
                     }
 
                     this.betAmount=bet
@@ -32,12 +31,17 @@ class PlayerState {
                     // evaluate
                     this.hand.handCard(card)
                     let numCards=this.hand.size()
+                    
                     if (numCards < 2 ){
                         return
                     }
+
                     let sum = this.hand.evaluate()
-                    if (sum === 21) {
+
+                    if (sum === 21 && numCards === 2) {
                         this.changeState("BLACKJACK");
+                    }else if(sum === 21){
+                        this.changeState("LOCKED")
                     } else if (sum < 21) {
                         this.changeState("PLAY");
                     } else {
