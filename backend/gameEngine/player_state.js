@@ -54,12 +54,20 @@ class PlayerState {
             BLACKJACK: {
 
                 //waiting for dealer action, payout or dealer cant take money
+                evaluated : () => {
+
+                    this.changeState('EVALUATED')
+                }
 
             },
 
             BUSTED: {
 
                 //waiting for dealer action, delaer will collect the money
+                evaluated : () => {
+
+                    this.changeState("EVALUATED")
+                }
 
             },
 
@@ -78,8 +86,17 @@ class PlayerState {
 
             LOCKED: {
                 //wating for dealer action evaluate cards, take money or payout
+                evaluated : () => {
+
+                    this.changeState("EVALUATED")
+                }
 
             },
+
+            EVALUATED: {
+
+
+            }
           
         }
     }

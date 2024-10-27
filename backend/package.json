@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "NODE_ENV=test node --test",
-    "test-report": "node --test --experimental-test-coverage"
+    "test-report": "node --test --experimental-test-coverage "
   },
   "author": "",
   "license": "ISC",

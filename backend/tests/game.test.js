@@ -1,4 +1,4 @@
-const { test, beforeEach, describe, before } = require('node:test')
+const { test, beforeEach, describe, before , afterEach} = require('node:test')
 const assert = require('assert')
 const { getCard } = require('../utils/cards')
 const { createGameWithCustomDeck } = require('../game')
@@ -50,6 +50,14 @@ describe("game object interactions via game Action", () => {
     let requestBet;
     let requestStand;
     let requestHit;
+    let promiseStand;
+
+
+    before(()=>{
+
+
+        
+    })
 
     beforeEach(()=>{
 
@@ -75,6 +83,45 @@ describe("game object interactions via game Action", () => {
             clientId: bob.uuid,
             gameAction: 'hit',
         }
+
+
+        promiseStand = () => new Promise(resolve => {
+            const intervalId = setInterval(() => {
+
+                if(game.getState() === 'EVALUATE' ){
+                    game.gameAction(requestStand) //speed up not waiting 5 seconds for player
+                }
+                if(game.getState() === 'END'){
+                    clearInterval(intervalId)
+                    resolve()
+                    return
+                }else{
+                     game.run()
+                }
+                
+               
+
+            }, 100); // 500 milliseconds interval
+        })
+
+        promiseHit = () => new Promise(resolve => {
+            const intervalId = setInterval(() => {
+
+                if(game.getState() === 'EVALUATE' ){
+                    game.gameAction(requestHit) //speed up not waiting 5 seconds for player
+                }
+                if(game.getState() === 'END'){
+                    clearInterval(intervalId)
+                    resolve()
+                    return
+                }else{
+                     game.run()
+                }
+                
+
+            }, 100); // 500 milliseconds interval
+        })
+        
 
         game = createGameWithCustomDeck(bob, deck, logger)
     })
@@ -134,23 +181,9 @@ describe("game object interactions via game Action", () => {
         deck.nextCard(4)
 
         game.gameAction(requestBet)
-        await new Promise(resolve => {
 
-            const intervalId = setInterval(() => {
+        await promiseHit()
 
-                if(game.getState() === 'EVALUATE' ){
-                    game.gameAction(requestHit) //speed up not waiting 5 seconds for player
-                }
-                if(game.getState() === 'END'){
-                    clearInterval(intervalId)
-                    resolve()
-                }
-                
-                game.run()
-
-            }, 100); // 500 milliseconds interval
-
-        })
         assert.strictEqual(game.getState(), 'END')
         
         let snapshot = game.getGameSnapShot()
@@ -174,23 +207,7 @@ describe("game object interactions via game Action", () => {
         deck.nextCard(8)
 
         game.gameAction(requestBet)
-        await new Promise(resolve => {
-
-            const intervalId = setInterval(() => {
-
-                if(game.getState() === 'EVALUATE' ){
-                    game.gameAction(requestStand) //speed up not waiting 5 seconds for player
-                }
-                if(game.getState() === 'END'){
-                    clearInterval(intervalId)
-                    resolve()
-                }
-                
-                game.run()
-
-            }, 100); // 500 milliseconds interval
-
-        })
+        await promiseStand()
         assert.strictEqual(game.getState(), 'END')
         let snapshot = game.getGameSnapShot()
         assert.strictEqual(snapshot['dealer'].state,'BUSTED')
@@ -210,23 +227,9 @@ describe("game object interactions via game Action", () => {
         deck.nextCard(10)
 
         game.gameAction(requestBet)
-        await new Promise(resolve => {
+        
+        await promiseStand()
 
-            const intervalId = setInterval(() => {
-
-                if(game.getState() === 'EVALUATE' ){
-                    game.gameAction(requestStand) //speed up not waiting for player default
-                }
-                if(game.getState() === 'END'){
-                    clearInterval(intervalId)
-                    resolve()
-                }
-                
-                game.run()
-
-            }, 100); // 500 milliseconds interval
-
-        })
         assert.strictEqual(game.getState(), 'END')
 
         let snapshot = game.getGameSnapShot()
@@ -248,23 +251,7 @@ describe("game object interactions via game Action", () => {
         deck.nextCard(11)
 
         game.gameAction(requestBet)
-        await new Promise(resolve => {
-
-            const intervalId = setInterval(() => {
-
-                if(game.getState() === 'EVALUATE' ){
-                    game.gameAction(requestStand) //speed up not waiting for player default
-                }
-                if(game.getState() === 'END'){
-                    clearInterval(intervalId)
-                    resolve()
-                }
-                
-                game.run()
-
-            }, 100); // 500 milliseconds interval
-
-        })
+        await promiseStand()
         assert.strictEqual(game.getState(), 'END')
 
         let snapshot = game.getGameSnapShot()
@@ -287,23 +274,7 @@ describe("game object interactions via game Action", () => {
         deck.nextCard(11)
 
         game.gameAction(requestBet)
-        await new Promise(resolve => {
-
-            const intervalId = setInterval(() => {
-
-                if(game.getState() === 'EVALUATE' ){
-                    game.gameAction(requestStand) //speed up not waiting for player default
-                }
-                if(game.getState() === 'END'){
-                    clearInterval(intervalId)
-                    resolve()
-                }
-                
-                game.run()
-
-            }, 100); // 500 milliseconds interval
-
-        })
+        await promiseStand()
         assert.strictEqual(game.getState(), 'END')
 
         let snapshot = game.getGameSnapShot()
@@ -326,23 +297,7 @@ describe("game object interactions via game Action", () => {
         deck.nextCard(7)
 
         game.gameAction(requestBet)
-        await new Promise(resolve => {
-
-            const intervalId = setInterval(() => {
-
-                if(game.getState() === 'EVALUATE' ){
-                    game.gameAction(requestStand) //speed up not waiting for player default
-                }
-                if(game.getState() === 'END'){
-                    clearInterval(intervalId)
-                    resolve()
-                }
-                
-                game.run()
-
-            }, 100); // 500 milliseconds interval
-
-        })
+        await promiseStand()
         assert.strictEqual(game.getState(), 'END')
 
         let snapshot = game.getGameSnapShot()
@@ -374,21 +329,7 @@ describe("game object interactions via game Action", () => {
 
         game.gameAction(requestBet);
 
-        await new Promise(resolve => {
-            const intervalId = setInterval(() => {
-
-                if(game.getState() === 'EVALUATE' ){
-                    game.gameAction(requestStand) //speed up not waiting 5 seconds for player
-                }
-                if(game.getState() === 'END'){
-                    clearInterval(intervalId)
-                    resolve()
-                }
-                
-                game.run()
-
-            }, 100); // 500 milliseconds interval
-        })
+        await promiseStand()
         
         assert.strictEqual(game.getState(), 'END')
         
@@ -418,21 +359,7 @@ describe("game object interactions via game Action", () => {
         deck.nextCard(10)
         game.gameAction(requestBet);
 
-        await new Promise(resolve => {
-            const intervalId = setInterval(() => {
-
-                if(game.getState() === 'EVALUATE' ){
-                    game.gameAction(requestStand) //speed up not waiting 5 seconds for player
-                }
-                if(game.getState() === 'END'){
-                    clearInterval(intervalId)
-                    resolve()
-                }
-                
-                game.run()
-
-            }, 100); // 500 milliseconds interval
-        })
+        await promiseStand()
         
         assert.strictEqual(game.getState(), 'END')
         
@@ -450,6 +377,18 @@ describe("game object interactions via game Action", () => {
         
 
     })
+
+
+    afterEach(()=>{
+        
+        assert.strictEqual(game.getState(), 'END')
+        game.run()
+        let snapshot=game.getGameSnapShot()
+        let snapBob = snapshot[bob.uuid]
+        assert.strictEqual(snapBob.state,'EVALUATED')
+    })
+
+    
 
 
 })

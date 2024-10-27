@@ -95,12 +95,13 @@ class GameState {
 
             END: {
 
-                // run : () => {
+                run : () => {
 
-                //     this.game.reset()
-                //     this.changeState('waiting')
+                    this.game.endOfRound()
+                    // this.game.reset()
+                    // this.changeState('waiting')
 
-                // }
+                }
 
             }
        

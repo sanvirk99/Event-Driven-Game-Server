@@ -133,6 +133,13 @@ class Game {
 
     }
 
+    endOfRound(){
+
+        for(const player of this.players){
+            player.dispatch('evaluated')
+        }
+    }
+
     handCardDealer(){
 
         let card = this.deck.getCard()
