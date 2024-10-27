@@ -79,43 +79,51 @@ class Game {
 
     resultPlayer(player,dealerSum){
 
-        if(this.dealer.getState()==="BUSTED"){
-
-            this.logger.log(`${player.getName()} payout`)
-
-            return 
-            
-        }
-
-
         switch(player.getState()){
 
             case "BUSTED": {
 
                 this.logger.log(`${player.getName()} is busted`)
                 this.logger.log(`${player.getName()} collect bet`)
+                const new_net = player.getNet() - player.getBet()
+                player.setNet(new_net)
+
                 break
 
             }
 
-            case "BLACKJACK": {
+            case "BLACKJACK": { // 3:2 playout 
 
-                this.logger.log(`${player.getName()} is blackjack`)
+                
+
+                if(this.dealer.getState() === 'BLACKJACK'){
+                    this.logger.log(`player dealer standoff both blackjack`)
+                }else{
+                    this.logger.log(`${player.getName()} is blackjack paid 1.5 x the bet`)
+                    const new_net = player.getNet() + player.getBet() + 0.5 * player.getBet()
+                    player.setNet(new_net)
+                }
                 break
-
                 //no money taken if dealer is also black jack
             }
-
-            default: {
+            default: {  //player is neither busted or black jack 
                 const playerSum=player.evaluate()
                 this.logger.log(`player count is ${player.evaluate()}`)
-
-                if(playerSum == dealerSum){
+                if (this.dealer.getState() === 'BUSTED'){
+                    this.logger.log(`${player.getName()} paid 1 x the bet`)
+                    const new_net = player.getNet() + player.getBet()
+                    player.setNet(new_net)
+                }
+                else if(playerSum == dealerSum){
                     this.logger.log(`${player.getName()} stand-off, same total as dealer`)
                 }else if (playerSum > dealerSum){
                     this.logger.log(`${player.getName()} bet paid out`)
+                    const new_net = player.getNet() + player.getBet()
+                    player.setNet(new_net)
                 }else{
                     this.logger.log(`dealer collect bet`)
+                    const new_net = player.getNet() - player.getBet()
+                    player.setNet(new_net)
                 }
 
             }
@@ -248,16 +256,12 @@ class Game {
         info['dealer'] = dealer
 
         for(const player of this.players){
-            
-            if(player.getState() === 'WATCHING'){
-                continue
-            }
-
             let json = {}
             json['state'] = player.getState()
             json['name'] = player.getName()
             json['hand'] = player.getHandJSON()
             json['bet'] = player.getBet()
+            json['net'] = player.getNet()
             info[player.getId()]=json
         }
         info['roundlog'] = this.logger

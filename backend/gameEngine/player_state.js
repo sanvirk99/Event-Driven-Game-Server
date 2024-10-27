@@ -14,11 +14,11 @@ class PlayerState {
         this.game=game
         this.state = "WATCHING"
         this.betAmount=0
-        this.profits=0
+        this.net=0
         this.transitions = {
             WATCHING: {
                 bet: (bet) => {
-                    if (bet < 1) {
+                    if (bet < 2) {
                         return
                     }
 
@@ -121,13 +121,17 @@ class PlayerState {
         this.betAmount=0
     }
 
-    winnings(num){ //can be negative if dealer collects the bet
+    setNet(_net){ //can be negative if dealer collects the bet
 
-        this.profits=this.profits+num
+        this.net=_net
     }
 
     getBet(){
         return this.betAmount
+    }
+
+    getNet(){
+        return this.net
     }
 
     getName(){

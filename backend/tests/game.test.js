@@ -62,7 +62,7 @@ describe("game object interactions via game Action", () => {
             method: 'game-action',
             clientId: bob.uuid,
             gameAction: 'bet',
-            value: 1
+            value: 2
         }
         requestStand = {
             method: 'game-action',
@@ -155,7 +155,9 @@ describe("game object interactions via game Action", () => {
         
         let snapshot = game.getGameSnapShot()
         assert.strictEqual(snapshot[bob.uuid].state,'BUSTED')
-        //console.log(logger)
+        
+        let snapBob = snapshot[bob.uuid]
+        assert.strictEqual(snapBob.net, -2)
 
 
     })
@@ -192,6 +194,10 @@ describe("game object interactions via game Action", () => {
         assert.strictEqual(game.getState(), 'END')
         let snapshot = game.getGameSnapShot()
         assert.strictEqual(snapshot['dealer'].state,'BUSTED')
+
+        let snapBob = snapshot[bob.uuid]
+        assert.strictEqual(snapBob.state,'LOCKED')
+        assert.strictEqual(snapBob.net, 2)
         
     })
 
@@ -228,6 +234,9 @@ describe("game object interactions via game Action", () => {
         assert.strictEqual(snapshot[bob.uuid].hand.count,21)
         assert.strictEqual(snapshot[bob.uuid].state,'BLACKJACK')
 
+        let snapBob = snapshot[bob.uuid]
+        assert.strictEqual(snapBob.net, 3)
+
 
     })
 
@@ -262,6 +271,9 @@ describe("game object interactions via game Action", () => {
         assert.strictEqual(snapshot.dealer.hand.count,21)
         assert.strictEqual(snapshot[bob.uuid].hand.count,20)
         assert.strictEqual(snapshot['dealer'].state,'BLACKJACK')
+
+        let snapBob = snapshot[bob.uuid]
+        assert.strictEqual(snapBob.net, -2)
 
 
     })
@@ -300,6 +312,9 @@ describe("game object interactions via game Action", () => {
         assert.strictEqual(snapshot['dealer'].state,'BLACKJACK')
         assert.strictEqual(snapshot[bob.uuid].state,'BLACKJACK')
 
+        let snapBob = snapshot[bob.uuid]
+        assert.strictEqual(snapBob.net, 0)
+
     })
 
 
@@ -336,6 +351,10 @@ describe("game object interactions via game Action", () => {
         assert.strictEqual(snapshot['dealer'].state,'OVER17')
         assert.strictEqual(snapshot[bob.uuid].state,'LOCKED')
         assert(snapshot.dealer.hand.count < snapshot[bob.uuid].hand.count)
+
+
+        let snapBob = snapshot[bob.uuid]
+        assert.strictEqual(snapBob.net, 2)
 
     })
 
@@ -379,6 +398,9 @@ describe("game object interactions via game Action", () => {
         assert.strictEqual(snapshot.dealer.hand.count,19)
         assert.strictEqual(snapshot[bob.uuid].hand.count,13)
         assert(snapshot.dealer.hand.count > snapshot[bob.uuid].hand.count)
+
+        let snapBob = snapshot[bob.uuid]
+        assert.strictEqual(snapBob.net, -2)
         
 
     })
@@ -422,6 +444,10 @@ describe("game object interactions via game Action", () => {
         assert(snapshot.dealer.hand.count === snapshot[bob.uuid].hand.count)
         assert.strictEqual(snapshot['dealer'].state,'OVER17')
         assert.strictEqual(snapshot[bob.uuid].state,'LOCKED')
+
+        let snapBob = snapshot[bob.uuid]
+        assert.strictEqual(snapBob.net, 0)
+        
 
     })
 
