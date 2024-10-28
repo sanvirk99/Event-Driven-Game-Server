@@ -47,6 +47,14 @@ const displayGameMsg=(msg) => {
 socket.onopen = function(event) {
     console.log('WebSocket is open now.');
     console.log(event)
+    let request = {
+
+        method: 'set-name',
+        clientId : myId,
+        clientName: 'bob'
+    }
+
+    socket.send(JSON.stringify(request))
 };
 
 socket.onmessage = function(event) {
@@ -259,7 +267,7 @@ document.getElementById("bet").addEventListener('click', () => {
         gameId: myGameId,
         clientId: myId,
         gameAction: 'bet',
-        value: 1
+        value: 2
     };
 
 

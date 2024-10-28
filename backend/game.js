@@ -44,11 +44,28 @@ class Game {
 
 
         //allocate 5 seconds for player to decide: 10 * 500 ms = 5000 ms = 5 seconds
-        this.maxPollAtempts=10 
-        this.pollPeriodMs=500 
+        if(process.env.NODE_ENV === 'test'){
+            this.maxPollAtempts=10 
+            this.pollPeriodMs=10
+        }else {
+            this.maxPollAtempts=10 
+            this.pollPeriodMs=500
+        }
+       
 
     }
 
+    reset(){
+        this.que.clear()
+        for(const player of this.players){
+            player.clearHand()
+            player.resetBet()
+            player.dispatch('watch')
+        }
+
+        this.dealer.hand.clear()
+        this.dealer.changeState('WAITING')
+    }
 
     activateDealer(){   
 

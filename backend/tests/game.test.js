@@ -101,7 +101,7 @@ describe("game object interactions via game Action", () => {
                 
                
 
-            }, 100); // 500 milliseconds interval
+            }, 10);
         })
 
         promiseHit = () => new Promise(resolve => {
@@ -119,7 +119,7 @@ describe("game object interactions via game Action", () => {
                 }
                 
 
-            }, 100); // 500 milliseconds interval
+            }, 10); 
         })
         
 
@@ -380,12 +380,12 @@ describe("game object interactions via game Action", () => {
 
 
     afterEach(()=>{
-        
+
         assert.strictEqual(game.getState(), 'END')
         game.run()
         let snapshot=game.getGameSnapShot()
         let snapBob = snapshot[bob.uuid]
-        assert.strictEqual(snapBob.state,'EVALUATED')
+        assert.strictEqual(snapBob.state,'WATCHING')
     })
 
     

@@ -95,6 +95,12 @@ class PlayerState {
 
             EVALUATED: {
 
+                watch : () => {
+
+                    this.changeState('WATCHING')
+
+                }
+
 
             }
           

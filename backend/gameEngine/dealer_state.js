@@ -51,17 +51,19 @@ class DealerState {
 
                 //dealer black jack
 
+
             },
 
             BUSTED: {
 
                 //dealer busted
+          
 
             },
 
             OVER17: {
                 //dealer can no longer get card
-
+         
             },
           
         }

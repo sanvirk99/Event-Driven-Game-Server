@@ -98,8 +98,8 @@ class GameState {
                 run : () => {
 
                     this.game.endOfRound()
-                    // this.game.reset()
-                    // this.changeState('waiting')
+                    this.game.reset()
+                    this.changeState('WAITING')
 
                 }
 
