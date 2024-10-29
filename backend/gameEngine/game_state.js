@@ -5,23 +5,41 @@ class GameState {
         this.game=game
         this.players=game.players
         this.dealer=game.dealer
-        this.que=game.que
+        this.que=game.que   
         this.state = "WAITING"
         this.hasRun=false
         this.transitions = { //can make them async in order to call gamestate run
             WAITING: {
-                run: () => {
+                run: async () => {
 
+                    if(this.evaluating){
+                        return
+                    }
+
+                    let ready=false
                     for(const player of Object.values(this.players)){ //should be game functions
                        //if players in card_wait state add them to que
                        if(player.state==="CARD_WAIT"){
-                        this.que.enqueue(player)
+                            ready=true
+                            break
                        }
                        
                     }  
-                    if(this.que.size()>=1){
+
+                    if(ready){ // one player placed bet start timer before game begins 
+                        this.evaluating=true
+                        //await reponse from other players timer , lock this function
+                        await game.waitBet()
+
+                        for(const player of Object.values(this.players)){ //should be game functions
+                            //if players in card_wait state add them to que
+                            if(player.state==="CARD_WAIT"){
+                             this.que.enqueue(player)
+                            }          
+                         }  
                         this.changeState("HAND_CARDS")
                         this.game.activateDealer()
+                        this.evaluating=false
                         
                     }
                 }
@@ -32,7 +50,7 @@ class GameState {
 
             HAND_CARDS: {
 
-                run: () => {
+                run: () => { //to make it relistic add delay when handing out cards and broadcast each card
 
                     for (const player of this.que ){
 

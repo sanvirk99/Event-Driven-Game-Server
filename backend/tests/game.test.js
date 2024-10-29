@@ -11,6 +11,15 @@ const { EventEmitter } = require('events');
 /**
  * bet,hit,stand,exit
  */
+
+const awaitTime = (ms) => {
+
+    return new Promise((resolve,reject) => {
+
+        setTimeout(()=>{resolve()},ms)
+    })
+}
+
 class MockDeck {
 
     constructor() {
@@ -51,13 +60,6 @@ describe("game object interactions via game Action", () => {
     let requestStand;
     let requestHit;
     let promiseStand;
-
-
-    before(()=>{
-
-
-        
-    })
 
     beforeEach(()=>{
 
@@ -142,6 +144,7 @@ describe("game object interactions via game Action", () => {
 
         game.gameAction(requestBet)
         game.run()
+        await awaitTime(25)
         assert.strictEqual(game.getState(), "HAND_CARDS")
 
         game.run()
@@ -161,7 +164,7 @@ describe("game object interactions via game Action", () => {
 
         assert.strictEqual(game.getState(), "RESULT")
 
-        
+
         game.run()
         //console.log(logger)
 
@@ -394,6 +397,99 @@ describe("game object interactions via game Action", () => {
 
 })
 
+
+
+
+describe('more then one person in a game session', () => {
+
+        //game has a deck , dealer , player and a log
+        let deck;
+        let bob;
+        let joe
+        let logger;
+        let game;
+        let bobRequestBet;
+        let joeRequestBet;
+        let bobRequestStand;
+        let requestHit;
+        let promiseStand;
+    
+        beforeEach(()=>{
+    
+            deck = new MockDeck() // control the handed cards for perdictability 
+            bob = new MockPlayer()
+            joe = new MockPlayer()
+            logger = new Logger()
+            bob.uuid = 'f2323b47-0d47-4a3b-bd15-9446786a53dd' //associate this with player state
+            joe.uuid = 'f2323b47-0c47-4a4b-bd15-9446786a54dc'
+            bob.clientName = 'Bob'
+            joe.clientName = 'Joe'
+            bobRequestBet = {
+                method: 'game-action',
+                clientId: bob.uuid,
+                gameAction: 'bet',
+                value: 2
+            }
+            joeRequestBet = {
+                method: 'game-action',
+                clientId: joe.uuid,
+                gameAction: 'bet',
+                value: 2
+            }
+            
+            bobRequestStand = {
+                method: 'game-action',
+                clientId: bob.uuid,
+                gameAction: 'stand',
+            }
+
+
+    
+            promiseStand = () => new Promise(resolve => {
+                const intervalId = setInterval(() => {
+    
+                    // if(game.getState() === 'EVALUATE' ){
+                    //     game.gameAction(bobRequestStand) //speed up not waiting 5 seconds for player
+                    // }
+                    if(game.getState() === 'END'){
+                        clearInterval(intervalId)
+                        resolve()
+                        return
+                    }else{
+                         game.run()
+                    }
+                    
+                }, 10);
+            })
+            
+    
+            game = createGameWithCustomDeck(bob, deck, logger)
+        })
+
+
+
+        test('two player atempting to bet, once a player bets start round after waiting for second player to place bet', async () => {
+
+            //order bob , joe,  dealer
+            deck.nextCard(8) 
+            deck.nextCard(8)
+            deck.nextCard(8)
+            deck.nextCard(8)
+            deck.nextCard(8)
+            deck.nextCard(4)
+
+            game.join(joe)
+            //game.gameAction(bobRequestBet)
+            setTimeout(() => {game.gameAction(joeRequestBet)},5)
+            await promiseStand() // both players will stand automatically
+
+            console.log(game.getGameSnapShot())
+
+
+        })
+
+
+})
 
 
 

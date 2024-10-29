@@ -207,13 +207,40 @@ class Game {
 
     }
 
-    gameRemove(request){
+    join(ws){
+
+        //add client to game
+        this.players[ws.uuid]=new PlayerState(ws,new Hand()) 
+
+
+    }
+
+    gameRemove(ws){
 
         if(request.clientId in this.players){
-
+            let player=this.players[request.clientId]
             //set remove flag
+            player.exit()
 
         }
+
+    }
+
+    waitBet(){
+
+        return new Promise((resolve,reject)=>{
+
+            if(process.env.NODE_ENV === 'test'){
+
+                setTimeout(()=>{resolve()},20)
+                
+            }else {
+                
+                setTimeout(()=>{resolve()},10000) 
+            }
+            
+
+        })
 
     }
 

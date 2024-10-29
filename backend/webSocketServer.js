@@ -75,12 +75,13 @@ function createWebSocketServer(wss) {
             }
 
 
-            if (request.method === 'join') {
+            if (request.method === 'join') {//cant join if already connection in game
 
                 //client will join the game and then proceed to play
                 if (request.gameId in games) {
 
                     games[request.gameId].players.push(ws.uuid)
+                    games[request.gameId].game.join(ws)
 
                     const res = {
                         method: 'join',
@@ -97,12 +98,12 @@ function createWebSocketServer(wss) {
 
             }
 
-            if (request.method === 'exit-game') {
+            if (request.method === 'exit-game') { 
 
                 //client will join the game and then proceed to play
                 if (request.gameId in games) {
 
-                    games[request.gameId].game.gameRemove(request)
+                    games[request.gameId].game.gameRemove(ws)
 
                 }
 

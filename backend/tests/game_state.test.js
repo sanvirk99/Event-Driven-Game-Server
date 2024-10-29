@@ -13,6 +13,14 @@ const { clearInterval } = require('timers')
 
 const resolveStates=["BLACKJACK","BUSTED","LOCKED"]
 
+const awaitTime = (ms) => {
+
+    return new Promise((resolve,reject) => {
+
+        setTimeout(()=>{resolve()},ms)
+    })
+}
+
 class MockGame {
 
     constructor(players,dealer,logger,que,cardQue){
@@ -89,6 +97,17 @@ class MockGame {
 
 
         }
+
+    }
+    waitBet(){
+
+        return new Promise((resolve,reject)=>{
+
+
+            setTimeout(()=>{resolve()},20)
+                
+          
+        })
 
     }
 
@@ -218,7 +237,7 @@ describe("game state object testing",()=>{
         assert.strictEqual(bob.state,"CARD_WAIT")
         gameState.dispatch("run") 
 
-
+        await awaitTime(25)
         assert.strictEqual(gameState.state,"HAND_CARDS")
         assert.strictEqual(que.size(),1)
 
