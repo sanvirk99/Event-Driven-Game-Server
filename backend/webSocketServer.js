@@ -97,6 +97,17 @@ function createWebSocketServer(wss) {
 
             }
 
+            if (request.method === 'exit-game') {
+
+                //client will join the game and then proceed to play
+                if (request.gameId in games) {
+
+                    games[request.gameId].game.gameRemove(request)
+
+                }
+
+            }
+
 
             if (request.method === 'game-action') {
                 //let the game object take care of the msg based on the game id 
@@ -120,7 +131,7 @@ function createWebSocketServer(wss) {
 
     });
 
-    //update all players in game of gamestate and run the game loop
+    //update all players in game of gamestate and run the game loop every 1 second
     const gamesInterval = setInterval(()=>{
 
         for(const key in games){
@@ -135,7 +146,7 @@ function createWebSocketServer(wss) {
             }
 
            // console.log(game.getGameSnapShot())
-
+            
             for(const clientId of players ){
                 clients[clientId].send(JSON.stringify(response))
             }

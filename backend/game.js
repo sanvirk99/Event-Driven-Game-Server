@@ -34,8 +34,8 @@ class Game {
 
         //game needs a deck to obtain cards from
         //game needs a gamestate 
-        this.players=[]
-        this.players.push(new PlayerState(ws,new Hand))
+        this.players={}
+        this.players[ws.uuid]=new PlayerState(ws,new Hand)
         this.dealer=new DealerState('dealer',new Hand())
         this.deck=deck
         this.que=new Queue()
@@ -57,7 +57,7 @@ class Game {
 
     reset(){
         this.que.clear()
-        for(const player of this.players){
+        for(const player in Object.values(this.players)){
             player.clearHand()
             player.resetBet()
             player.dispatch('watch')
@@ -86,7 +86,7 @@ class Game {
         this.logger.log(`dealer is ${this.dealer.getState()}`)
         const dealerSum=this.dealer.evaluate()
         this.logger.log(`dealer count is ${this.dealer.evaluate()}`)
-        for(const player of this.players){
+        for(const player of Object.values(this.players)){
 
             this.resultPlayer(player,dealerSum)
         }
@@ -152,7 +152,8 @@ class Game {
 
     endOfRound(){
 
-        for(const player of this.players){
+        for(const player in Object.values(this.players)){
+            let player=this.players[id]
             player.dispatch('evaluated')
         }
     }
@@ -180,30 +181,40 @@ class Game {
     }
 
     gameAction(request){
-        let gameAction=request.gameAction
         
-        for(const player of this.players){
+        
+        if(request.clientId in this.players){
             
-            if(request.clientId === player.getId()){
+            let player=this.players[request.clientId]
+            let gameAction=request.gameAction
 
-                switch(gameAction){
-                    case 'hit': {
-                        player.dispatch('hit') 
-                        break
-                    }
-                    case 'bet': {
-                        player.dispatch('bet', request.value)
-                        break
-                    }
-                    case 'stand': {
-                        player.dispatch('stand')
-                        this.logger.log(`${player.getName()} stands`)
-                        break
-                    }
+            switch(gameAction){
+                case 'hit': {
+                    player.dispatch('hit') 
+                    break
+                }
+                case 'bet': {
+                    player.dispatch('bet', request.value)
+                    break
+                }
+                case 'stand': {
+                    player.dispatch('stand')
+                    this.logger.log(`${player.getName()} stands`)
+                    break
                 }
             }
+            
         }
 
+    }
+
+    gameRemove(request){
+
+        if(request.clientId in this.players){
+
+            //set remove flag
+
+        }
 
     }
 
@@ -279,7 +290,7 @@ class Game {
 
         info['dealer'] = dealer
 
-        for(const player of this.players){
+        for(const player of Object.values(this.players)){
             let json = {}
             json['state'] = player.getState()
             json['name'] = player.getName()

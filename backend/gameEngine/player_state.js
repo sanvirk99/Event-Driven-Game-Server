@@ -169,6 +169,16 @@ class PlayerState {
         return this.state
     }
 
+    exit(){
+
+        this.exitFlag=true
+    }
+
+    leftTheGame(){
+
+        return this.exitFlag
+    }
+
 }
 
 

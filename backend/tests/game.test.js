@@ -161,6 +161,7 @@ describe("game object interactions via game Action", () => {
 
         assert.strictEqual(game.getState(), "RESULT")
 
+        
         game.run()
         //console.log(logger)
 

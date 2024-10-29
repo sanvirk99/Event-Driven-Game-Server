@@ -12,7 +12,7 @@ class GameState {
             WAITING: {
                 run: () => {
 
-                    for(const player of this.players){ //should be game functions
+                    for(const player of Object.values(this.players)){ //should be game functions
                        //if players in card_wait state add them to que
                        if(player.state==="CARD_WAIT"){
                         this.que.enqueue(player)
