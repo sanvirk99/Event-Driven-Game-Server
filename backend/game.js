@@ -57,7 +57,7 @@ class Game {
 
     reset(){
         this.que.clear()
-        for(const player in Object.values(this.players)){
+        for(const player of Object.values(this.players)){
             player.clearHand()
             player.resetBet()
             player.dispatch('watch')
@@ -152,8 +152,7 @@ class Game {
 
     endOfRound(){
 
-        for(const player in Object.values(this.players)){
-            let player=this.players[id]
+        for(const player of Object.values(this.players)){
             player.dispatch('evaluated')
         }
     }
