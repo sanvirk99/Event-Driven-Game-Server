@@ -43,20 +43,31 @@ class Game {
         this.logger=logger
 
 
-        //allocate 5 seconds for player to decide: 10 * 500 ms = 5000 ms = 5 seconds
+        //speed up async test
         if(process.env.NODE_ENV === 'test'){
             this.maxPollAtempts=10 
             this.pollPeriodMs=10
+            this.betWaitMs=20
         }else {
             this.maxPollAtempts=10 
             this.pollPeriodMs=500
+            this.betWaitMs=10000
         }
-       
 
     }
 
+    //when connected to database i would transfer the round outcome here
     reset(){
         this.que.clear()
+        
+        Object.keys(this.players).forEach( (key)=>{
+
+            if(this.players[key].leftTheGame()){
+                this.logger.log(`${this.players[key].getName()} removed`)
+                delete this.players[key]
+            }
+        })
+
         for(const player of Object.values(this.players)){
             player.clearHand()
             player.resetBet()
@@ -125,7 +136,7 @@ class Game {
             }
             default: {  //player is neither busted or black jack 
                 const playerSum=player.evaluate()
-                this.logger.log(`player count is ${player.evaluate()}`)
+                this.logger.log(`${player.getName()} count is ${playerSum}`)
                 if (this.dealer.getState() === 'BUSTED'){
                     this.logger.log(`${player.getName()} paid 1 x the bet`)
                     const new_net = player.getNet() + player.getBet()
@@ -211,14 +222,16 @@ class Game {
 
         //add client to game
         this.players[ws.uuid]=new PlayerState(ws,new Hand()) 
+        this.logger.log(`${this.players[ws.uuid].getName()} joined the game`)
 
 
     }
 
-    gameRemove(ws){
+    remove(ws){
 
-        if(request.clientId in this.players){
-            let player=this.players[request.clientId]
+        if(ws.uuid in this.players){
+            let player=this.players[ws.uuid]
+            this.logger.log(`${this.players[ws.uuid].getName()} request to be removed`)
             //set remove flag
             player.exit()
 
@@ -230,16 +243,11 @@ class Game {
 
         return new Promise((resolve,reject)=>{
 
-            if(process.env.NODE_ENV === 'test'){
+         
 
-                setTimeout(()=>{resolve()},20)
+            setTimeout(()=>{resolve()},this.betWaitMs) 
                 
-            }else {
-                
-                setTimeout(()=>{resolve()},10000) 
-            }
-            
-
+           
         })
 
     }

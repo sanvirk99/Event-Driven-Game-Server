@@ -479,10 +479,17 @@ describe('more then one person in a game session', () => {
             deck.nextCard(4)
 
             game.join(joe)
-            //game.gameAction(bobRequestBet)
+            game.gameAction(bobRequestBet)
             setTimeout(() => {game.gameAction(joeRequestBet)},5)
             await promiseStand() // both players will stand automatically
 
+            game.run()
+            game.gameAction(bobRequestBet)
+            setTimeout(() => {game.gameAction(joeRequestBet)},5)
+            game.remove(joe)
+            await promiseStand() // both players will stand automatically
+
+            game.run()
             console.log(game.getGameSnapShot())
 
 
