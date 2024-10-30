@@ -140,7 +140,7 @@ describe('mocking server and clients ', () =>{
 
 
 
-describe('client names connectes names himself then creates a game ', () => {
+describe('create , join and exit game, when no players in game delete game and connection close  ', () => {
 
 
 

@@ -6,9 +6,37 @@ const {createGameWithRandomDeck} = require('./game')
 //comminicate via json format
 
 
+
+
+
+
+
 function createWebSocketServer(wss) {
     const clients = {}
     const games = {}
+
+    const clientRemovalGame = (ws) => {
+
+        if(ws.gameId in games){
+            games[ws.gameId].remove(ws)
+            let index=games[request.gameId].players.findIndex(id => id === ws.uuid)
+            if(index!=-1){
+                games[request.gameId].game.gameRemove(ws)
+                games[request.gameId].players.splice(index,1)
+                ws.gameId=undefined
+            }
+
+            if(games[request.gameId].players.length === 0){
+                delete games[request.gameId]
+            }
+
+            return true
+            
+        }
+
+        return false
+
+    }
   
     wss.on('connection', (ws) => {
         ws.uuid = crypto.randomUUID()
@@ -54,6 +82,7 @@ function createWebSocketServer(wss) {
                 //generate game id
                 let uuidGame = crypto.randomUUID()
                 const game = createGameWithRandomDeck(ws,new Logger())
+                ws.gameId=uuidGame
                 games[uuidGame] = {
                     players: [ws.uuid],
                     game : game
@@ -82,6 +111,7 @@ function createWebSocketServer(wss) {
 
                     games[request.gameId].players.push(ws.uuid)
                     games[request.gameId].game.join(ws)
+                    ws.gameId=request.gameId
 
                     const res = {
                         method: 'join',
@@ -98,13 +128,21 @@ function createWebSocketServer(wss) {
 
             }
 
-            if (request.method === 'exit-game') { 
+            if (request.method === 'exit-game') {  //if the player count is less then zero delete the game instanse
 
                 //client will join the game and then proceed to play
+            
                 if (request.gameId in games) {
+                    if(clientRemovalGame(ws)){
+                        const res = {
+                            method: 'exit-game',
+                            clientId: ws.uuid,
+                            gameId: request.gameId,
+                            playerCount: games[request.gameId].players.length
+                        }
 
-                    games[request.gameId].game.gameRemove(ws)
-
+                        ws.send(JSON.stringify(res))
+                    }
                 }
 
             }
@@ -121,6 +159,17 @@ function createWebSocketServer(wss) {
 
 
         });
+
+        ws.on('close',function close() {
+            
+            //have to remove from the game the player resides if they do
+            if(ws.gameId in games){
+                clientRemovalGame(ws)
+            }
+
+            delete clients[ws.uuid]
+
+        })
 
 
         const res = {
