@@ -49,7 +49,7 @@ class Game {
             this.pollPeriodMs=10
             this.betWaitMs=20
         }else {
-            this.maxPollAtempts=10 
+            this.maxPollAtempts=20
             this.pollPeriodMs=500
             this.betWaitMs=10000
         }
@@ -201,10 +201,12 @@ class Game {
             switch(gameAction){
                 case 'hit': {
                     player.dispatch('hit') 
+                    this.logger.log(`${player.getName()} hit`)
                     break
                 }
                 case 'bet': {
                     player.dispatch('bet', request.value)
+                    this.logger.log(`${player.getName()} bet`)
                     break
                 }
                 case 'stand': {
