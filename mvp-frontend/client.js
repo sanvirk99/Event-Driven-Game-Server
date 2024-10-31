@@ -237,7 +237,7 @@ document.getElementById("hit").addEventListener('click', () => {
     const requestHit = {
         method: 'game-action',
         gameId: myGameId,
-        clientId: myId.clientId,
+        clientId: myId,
         gameAction: 'hit',
     }
 
@@ -251,7 +251,7 @@ document.getElementById("stand").addEventListener('click', () => {
     const requestStand = {
         method: 'game-action',
         gameId: myGameId,
-        clientId: myId.clientId,
+        clientId: myId,
         gameAction: 'stand',
     }
 
