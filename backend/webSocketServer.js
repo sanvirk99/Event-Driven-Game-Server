@@ -25,10 +25,8 @@ function createWebSocketServer(wss) {
             let index = games[ws.gameId].players.findIndex(id => id === ws.uuid)
             if (index != -1) {
                 games[ws.gameId].game.remove(ws)
-                games[ws.gameId].players.splice(index, 1)
-                
+                games[ws.gameId].players.splice(index, 1)          
             }
-
             if (games[ws.gameId].players.length === 0) {
                 delete games[ws.gameId]
             }

@@ -182,7 +182,8 @@ describe('create , join and exit game, when no players in game delete game and c
 
     test(`one player creates game other joins using game id 
         player request to leave came after placing bet hence keep joe in game till the round is resolved then exit
-        the last player to leave game should also trigger the game object to be deleted from the server`,async ()=>{
+        the last player to leave game should also trigger the game object to be deleted from the server
+        in the event the connection closes and the player is last in the game session it should delete game object`,async ()=>{
 
         bob.emit('message',bob.requestSetName('bob'))
         joe.emit('message',joe.requestSetName('joe'))
@@ -220,13 +221,13 @@ describe('create , join and exit game, when no players in game delete game and c
         assert.strictEqual(server.games[bob.gameId].players.length,1)
 
 
-        bob.emit('message',bob.requestExit())
-
+        //bob.emit('message',bob.requestExit())
+        bob.emit('close')
         assert.strictEqual(Object.keys(server.games).length,0)
 
-
-
-
+        assert.strictEqual(Object.keys(server.clientList).length,1)
+        joe.emit('close')
+        assert.strictEqual(Object.keys(server.clientList).length,0)
 
     })
 
