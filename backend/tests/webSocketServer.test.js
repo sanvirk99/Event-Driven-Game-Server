@@ -11,10 +11,9 @@ class Mocking extends EventEmitter{}
 
 class MockingClient extends EventEmitter { 
 
-
-    send(event){
+    send(msg){
     
-        let response = JSON.parse(event.data)
+        let response = JSON.parse(msg)
        
     
         if(response.method === "connect"){
@@ -48,6 +47,29 @@ class MockingClient extends EventEmitter {
             this.snapshot=response.snapshot
         }
     
+    }
+
+    requestCreate(){
+        const req = {
+
+            clientId: this.id,
+            method: "create",
+    
+        }
+    
+        return JSON.stringify(req)
+    }
+
+    requestSetName(_name){
+
+        const req={
+            method: 'set-name',
+            clientId : this.id,
+            clientName: _name
+        }
+
+        return JSON.stringify(req)
+       
     }
 
 
@@ -93,13 +115,28 @@ class MockingClient extends EventEmitter {
 
     }
 
+    requestExit(){
+
+
+        const request = {
+
+            method: 'exit-game',
+            clientId : this.id,
+            gameId: this.gameId,
+        }
+
+        return JSON.stringify(request)
+
+
+    }
+
 
     requestJoin(joinId){
 
         const request = {
 
             method: 'join',
-            clientId : myId,
+            clientId : this.id,
             gameId: joinId,
         }
 
@@ -112,6 +149,90 @@ class MockingClient extends EventEmitter {
 
 }
 
+describe('create , join and exit game, when no players in game delete game and connection close  ', () => {
+
+
+    let server
+    let bob
+    let joe
+
+    const awaitEnd = (game) => new Promise(resolve => {
+        const intervalId = setInterval(() => {
+
+            if(game.getState() === 'END'){
+                clearInterval(intervalId)
+                resolve()
+                return
+            }else{
+                 game.run()
+            }
+
+        }, 10);
+    })
+
+    beforeEach(()=>{
+        server = createWebSocketServer(new Mocking())
+        bob = new MockingClient()
+        joe= new MockingClient()
+
+        server.emit('connection',bob)
+        server.emit('connection',joe)
+
+    })
+
+    test(`one player creates game other joins using game id 
+        player request to leave came after placing bet hence keep joe in game till the round is resolved then exit
+        the last player to leave game should also trigger the game object to be deleted from the server`,async ()=>{
+
+        bob.emit('message',bob.requestSetName('bob'))
+        joe.emit('message',joe.requestSetName('joe'))
+        assert.strictEqual(bob.name,'bob')
+        assert.strictEqual(joe.name,'joe')
+
+        assert.strictEqual(Object.keys(server.games).length,0)
+        bob.emit('message',bob.requestCreate())
+        assert.strictEqual(Object.keys(server.games).length,1)
+        assert.strictEqual(server.games[bob.gameId].players.length,1)
+        joe.emit('message',joe.requestJoin(bob.gameId))
+        assert.strictEqual(server.games[bob.gameId].players.length,2)
+
+        const game=server.games[bob.gameId].game;
+
+        let snapShot=game.getGameSnapShot()
+
+        assert(bob.id in snapShot)
+        assert(joe.id in snapShot)
+
+        bob.emit('message',bob.requestBet())
+        joe.emit('message',joe.requestBet())
+        joe.emit('message',joe.requestExit())
+
+        await awaitEnd(game) 
+        snapShot=game.getGameSnapShot()
+        assert.strictEqual(snapShot['game'].state,'END')
+        assert(bob.id in snapShot)
+        assert(joe.id in snapShot)
+
+        game.run() 
+        snapShot = game.getGameSnapShot()
+        assert.strictEqual(snapShot['game'].state,'WAITING')
+        assert((joe.id in snapShot) === false);
+        assert.strictEqual(server.games[bob.gameId].players.length,1)
+
+
+        bob.emit('message',bob.requestExit())
+
+        assert.strictEqual(Object.keys(server.games).length,0)
+
+
+
+
+
+    })
+
+
+
+})
 
 
 
@@ -245,34 +366,3 @@ describe('mocking server and clients ', () => {
 
 
 
-describe('create , join and exit game, when no players in game delete game and connection close  ', () => {
-
-
-    let server
-    let bob
-    let joe
-
-    beforeEach(()=>{
-
-        server = createWebSocketServer(new Mocking())
-        bob = new Mocking()
-        joe= new Mocking()
-
-        //set names
-
-
-
-    })
-
-
-
-
-    afterEach(()=>{
-
-
-
-    })
-
-
-
-})

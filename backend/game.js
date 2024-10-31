@@ -316,7 +316,10 @@ class Game {
     getGameSnapShot(){
       
         const info={}
-
+        let game = {
+            state: this.gameState.getState()
+        }
+        info['game']=game
         let dealer= {
             clientId: 'dealer',
             state: this.dealer.getState(),

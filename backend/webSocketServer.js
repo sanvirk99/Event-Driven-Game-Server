@@ -15,8 +15,8 @@ function createWebSocketServer(wss) {
     const clients = {}
     const games = {}
 
-    wss.clientObjects = clients
-    wss.gameObjects = games
+    wss.clientList = clients
+    wss.games = games
 
     const clientRemovalGame = (ws) => {
 
@@ -142,8 +142,6 @@ function createWebSocketServer(wss) {
                         const res = {
                             method: 'exit-game',
                             clientId: ws.uuid,
-                            gameId: request.gameId,
-                            playerCount: games[request.gameId].players.length
                         }
 
                         ws.send(JSON.stringify(res))
