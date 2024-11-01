@@ -9,24 +9,51 @@
         .hidden {
             display: none;
         }
+
+        #messages {
+            max-height: 300px;
+            /* Set a maximum height for the messages area */
+            max-width: 300px;
+            min-height: 100px;
+            overflow-y: auto;
+            /* Enable vertical scrolling for messages */
+            background-color: lightgray;
+        }
+
+        #container {
+            display: flex;
+            justify-content: space-between;
+            padding: 5%;
+            border: 1px solid;
+        }
+
+        #chat-container,
+        #game-container {
+            flex: 1;
+            margin: 0 10px;
+            padding: 5%;
+            border: 1px solid;
+        }
     </style>
 </head>
 
-<body >
-    <div style="display: flex;   min-height: 400px; min-width: 400px;">
+<body>
+    <div id='status'></div>
 
-        <div id="chat-container" style="padding: 5%; border: 1px solid;">
-            <div id="messages"></div>
-            <input type="text" id="message-input" placeholder="Type your message...">
-            <button id="send-button">Send Msg</button>
-            <button id="create-game">Create</button>
-        </div>
+    <input type="text" id="name-input" placeholder="Enter your name..." class="'hidden">
+    <button id="set-name-button">Set Name</button>
 
-        <div id="game-container" style="padding: 5%; border: 1px solid;">
 
+    <div id='game' class="hidden"></div>
+
+    <div id="container">
+
+        <div id="game-container" style="padding: 3%; border: 1px solid;">
+            <div>Game View</div>
             <div id="join-game" class="hidden" style=" border: 1px solid;">
                 <input type="text" id="gameId-input" placeholder="type in game id to join">
                 <button id="join-game-button">Join</button>
+                <button id="create-game">Create Game</button>
             </div>
 
 
@@ -38,39 +65,59 @@
                 <button id="stand">Stand</button>
                 <button id="bet">Bet</button>
                 <button id="exit">Exit</button>
-            </div>
-           
+                <button id="share-id">share game id in chat</button>
+                <div id="game-snapshot"></div>
 
+            </div>
+        </div> 
+        
+        <div id="chat-container" style="padding: 5%; border: 1px solid;">
+            <div>Global Chat</div>
+            <div id="messages"></div>
+            <input type="text" id="message-input" placeholder="Type your message...">
+            <button id="send-button">Send Msg</button>
         </div>
 
-        
+    </div>
+
+
+
+
 
     </div>
-    <div id="game-snapshot">
+
 
     </div>
 
 
     <script src="client.js"></script>
     <script>
+
+
         function showJoinGame() {
-            document.getElementById('join-game').classList.toggle('hidden',false);
+            document.getElementById('join-game').classList.toggle('hidden', false);
         }
 
         function showInGame() {
-            document.getElementById('in-game').classList.toggle('hidden',false);
+            document.getElementById('in-game').classList.toggle('hidden', false);
+
         }
 
         function hideInGame() {
-            document.getElementById('in-game').classList.toggle('hidden',true);
+            document.getElementById('in-game').classList.toggle('hidden', true);
+
+
+
         }
 
         function hideJoinGame() {
-            document.getElementById('join-game').classList.toggle('hidden',true);
+            document.getElementById('join-game').classList.toggle('hidden', true);
         }
 
-        
         showJoinGame()
+
+
+
 
     </script>
 

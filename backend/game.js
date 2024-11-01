@@ -35,7 +35,7 @@ class Game {
         //game needs a deck to obtain cards from
         //game needs a gamestate 
         this.players={}
-        this.players[ws.uuid]=new PlayerState(ws,new Hand)
+       
         this.dealer=new DealerState('dealer',new Hand())
         this.deck=deck
         this.que=new Queue()
@@ -48,11 +48,14 @@ class Game {
             this.maxPollAtempts=10 
             this.pollPeriodMs=10
             this.betWaitMs=20
-        }else {
-            this.maxPollAtempts=20
-            this.pollPeriodMs=500
+        }else { 
+            this.maxPollAtempts=50 //15 seconds = 50 * 300ms = 15000 ms 
+            this.pollPeriodMs=300
             this.betWaitMs=10000
-        }
+        } 
+        
+        //this.players[ws.uuid]=new PlayerState(ws,new Hand)
+        this.join(ws)
 
     }
 

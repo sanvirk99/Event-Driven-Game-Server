@@ -22,7 +22,7 @@ function displayGame(jsonObject){
     const gameSnapshotElement = document.getElementById('game-snapshot');
     gameSnapshotElement.innerHTML= ''
     gameSnapshotElement.style.overflow = 'auto';
-    gameSnapshotElement.style.maxHeight = '400px';
+   // gameSnapshotElement.style.maxHeight = '400px';
 
     const messageElement = document.createElement('pre');
     messageElement.textContent = JSON.stringify(jsonObject, null, 2);
@@ -30,6 +30,32 @@ function displayGame(jsonObject){
 
 }
 
+
+function displayStatus() {
+    let innerHTML = '';
+
+    if(myId){
+
+        innerHTML += `<div>client ID: ${myId}</div> `;
+    }
+
+    if (myName) {
+        innerHTML += `<div>Name: ${myName} </div>`;
+    }
+
+   
+
+    if (myGameId !== undefined) {
+        innerHTML += ` <div>Game ID: ${myGameId} </div>`;
+        innerHTML += `<div>In Game</div>`;
+    } else if(myGameId === undefined) {
+        innerHTML += `<div>Not in Game</div>`;
+    }
+
+    document.getElementById('status').innerHTML = innerHTML;
+
+
+}
 
 const displayGameMsg=(msg) => {
 
@@ -47,14 +73,7 @@ const displayGameMsg=(msg) => {
 socket.onopen = function(event) {
     console.log('WebSocket is open now.');
     console.log(event)
-    let request = {
-
-        method: 'set-name',
-        clientId : myId,
-        clientName: 'bob'
-    }
-
-    socket.send(JSON.stringify(request))
+   
 };
 
 socket.onmessage = function(event) {
@@ -68,45 +87,30 @@ socket.onmessage = function(event) {
     if(response.method === "connect"){
 
         myId=response.clientId
-        displayMsg(response.method)
-        displayMsg(`myId : ${myId}`)
     }
 
     if(response.method === "set-name"){
         myName=response.clientName
-        displayMsg(`myName : ${myName}`)
+       // displayMsg(`myName : ${myName}`)
     }
 
     if(response.method === "chat"){
-
-        let clientId=response.clientId
         response.clientName ??= 'unnamed';
-        displayMsg(response.method + ' ' +response.clientName+' :' + response.chatMsg)
+        displayMsg(response.clientName+' :' + response.chatMsg)
     }
 
     if(response.method === "create"){
 
         myGameId=response.gameId
-        displayMsg(response.method)
-        displayMsg(`myGameId : ${myGameId}`)
-
-        //can auto join when game is created
         hideJoinGame()
         showInGame()
-        displayGameMsg(`gameId : ${myGameId}`)
-    
+     
     }
 
     if(response.method === "join"){
-
         myGameId=response.gameId
-        displayMsg(response.method)
-        displayMsg(`gameId : ${myGameId}`)
-        //can auto join when game is created
         hideJoinGame()
         showInGame()
-        displayGameMsg(`gameId : ${myGameId}`)
-    
     }
 
     if(response.method === 'snapshot'){
@@ -114,10 +118,16 @@ socket.onmessage = function(event) {
         displayGame(response.snapshot)
     }
 
+    if(response.method === 'exit-game'){
 
-    
+        myGameId = undefined
+        hideInGame()
+        showJoinGame()
+        
+    }
 
 
+    displayStatus()
 
 };
 
@@ -129,49 +139,9 @@ socket.onerror = function(error) {
     console.error('WebSocket error observed:', error);
 };
 
+function chatmsg(messageText){
 
-document.getElementById('send-button').addEventListener('click', function() {
-    const messageInput = document.getElementById('message-input');
-    const messageText = messageInput.value.trim();
-    messageInput.value = '';
-    messageInput.focus();
-
-    if(messageText[0]==='#'){
-        console.log('game cmd')
-        const colenIndex = messageText.indexOf(':')
-        if (colenIndex !== -1) {
-            // Extract the command name and input
-            const commandName = messageText.slice(1, colenIndex).trim();
-            const commandInput = messageText.slice(colenIndex + 1).trim();
-
-            console.log('Command Name:', commandName);
-            console.log('Command Input:', commandInput);
-
-            // Process the command based on the command name
-            if (commandName === 'name') {
-                // Handle the 'name' command
-                console.log('Handling name command with input:', commandInput);
-                let request = {
-
-                    method: 'set-name',
-                    clientId : myId,
-                    clientName: commandInput
-                }
-
-                socket.send(JSON.stringify(request))
-                // Add your command handling logic here
-            }
-            // Add more command handling as needed
-        } else {
-            console.error('Invalid command format. Use #command-name-input');
-        }
-
-
-        
-        
-    }else if (messageText) {
-        //displayMsg(messageText)
-        let request = {
+  let request = {
 
             method: 'chat',
             clientId : myId,
@@ -181,9 +151,47 @@ document.getElementById('send-button').addEventListener('click', function() {
         let str = JSON.stringify(request)
 
         socket.send(str)
+
+
+}
+document.getElementById('send-button').addEventListener('click', function() {
+    const messageInput = document.getElementById('message-input');
+    const messageText = messageInput.value.trim();
+    messageInput.value = '';
+    messageInput.focus();
+
+    if (messageText) {
+        //displayMsg(messageText)
+        chatmsg(messageText)
        // displayMsg(messageText)
     }
 });
+
+function setName(nameInput) {
+
+    let request = {
+
+        method: 'set-name',
+        clientId : myId,
+        clientName: nameInput
+    }
+
+    socket.send(JSON.stringify(request))
+}
+
+document.getElementById('set-name-button').addEventListener('click', function() {
+    const messageInput = document.getElementById('name-input');
+    const messageText = messageInput.value.trim();
+    messageInput.value = '';
+    messageInput.focus();
+
+    if (messageText) {
+       setName(messageText)
+       // displayMsg(messageText)
+    }
+});
+
+
 
 
 document.getElementById("join-game-button").addEventListener('click', () => {
@@ -208,6 +216,16 @@ document.getElementById("join-game-button").addEventListener('click', () => {
     
 })
 
+document.getElementById("share-id").addEventListener('click', () => {
+    
+
+    if(myGameId !== undefined){
+
+        chatmsg(` join my game id = ${myGameId}`)
+    }
+    
+})
+
 
 // Optional: Allow sending messages with the Enter key
 document.getElementById('message-input').addEventListener('keypress', function(event) {
@@ -215,6 +233,15 @@ document.getElementById('message-input').addEventListener('keypress', function(e
         document.getElementById('send-button').click();
     }
 });
+
+document.getElementById('name-input').addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {
+        document.getElementById('set-name-button').click();
+    }
+});
+
+
+
 
 document.getElementById("create-game").addEventListener('click', () => {
 
@@ -272,6 +299,22 @@ document.getElementById("bet").addEventListener('click', () => {
 
 
     socket.send(JSON.stringify(requestBet))
+
+
+})
+
+
+
+document.getElementById("exit").addEventListener('click', () => {
+
+    const requestExit = {
+        method: 'exit-game',
+        gameId: myGameId,
+        clientId: myId
+    };
+
+
+    socket.send(JSON.stringify(requestExit))
 
 
 })

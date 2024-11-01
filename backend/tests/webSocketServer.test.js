@@ -11,6 +11,11 @@ class Mocking extends EventEmitter{}
 
 class MockingClient extends EventEmitter { 
 
+    constructor(){
+        super()
+        this.inGame=false
+    }
+
     send(msg){
     
         let response = JSON.parse(msg)
@@ -33,18 +38,25 @@ class MockingClient extends EventEmitter {
         if(response.method === "create"){
     
             this.gameId=response.gameId
+            this.inGame=true
             
-        
         }
     
         if(response.method === "join"){
     
            this.gameId=response.gameId
+           this.inGame=true
         
         }
     
         if(response.method === 'snapshot'){
             this.snapshot=response.snapshot
+        }
+
+        if(response.method === 'exit-game'){
+            this.inGame = false
+            this.gameId = undefined
+            
         }
     
     }
@@ -197,6 +209,15 @@ describe('create , join and exit game, when no players in game delete game and c
         joe.emit('message',joe.requestJoin(bob.gameId))
         assert.strictEqual(server.games[bob.gameId].players.length,2)
 
+        assert.strictEqual(bob.inGame,true)
+        assert.strictEqual(joe.inGame,true)
+
+
+        
+
+
+
+
         const game=server.games[bob.gameId].game;
 
         let snapShot=game.getGameSnapShot()
@@ -207,6 +228,9 @@ describe('create , join and exit game, when no players in game delete game and c
         bob.emit('message',bob.requestBet())
         joe.emit('message',joe.requestBet())
         joe.emit('message',joe.requestExit())
+        
+        assert.strictEqual(bob.inGame,true)
+        assert.strictEqual(joe.inGame,false)
 
         await awaitEnd(game) 
         snapShot=game.getGameSnapShot()
@@ -222,14 +246,59 @@ describe('create , join and exit game, when no players in game delete game and c
 
 
         //bob.emit('message',bob.requestExit())
-        bob.emit('close')
+        bob.emit('close') //close wont emit the exit game response, as client has probablu closed their browser
         assert.strictEqual(Object.keys(server.games).length,0)
+
+        assert.strictEqual(bob.inGame,true) 
+        assert.strictEqual(joe.inGame,false)
 
         assert.strictEqual(Object.keys(server.clientList).length,1)
         joe.emit('close')
         assert.strictEqual(Object.keys(server.clientList).length,0)
 
+
+    
+
+
+
+
     })
+
+
+    test(`once player is in game then cant join or create other games, creating game auto joins the player`,()=>{
+
+        bob.emit('message',bob.requestSetName('bob'))
+        joe.emit('message',joe.requestSetName('joe'))
+        assert.strictEqual(bob.name,'bob')
+        assert.strictEqual(joe.name,'joe')
+
+        bob.emit('message',bob.requestCreate())
+        assert.strictEqual(Object.keys(server.games).length,1)
+        assert.strictEqual(server.games[bob.gameId].players.length,1)
+        joe.emit('message',joe.requestCreate())
+        assert.strictEqual(server.games[joe.gameId].players.length,1)
+
+
+        //bob request to create after being in game is denited idacted by gameid not changin
+        const beforeId=bob.gameId
+        bob.emit('message',bob.requestCreate())
+        assert.strictEqual(beforeId,bob.gameId)
+
+        //bob request to join game of joe while in game denied
+        bob.emit('message',bob.requestJoin(joe.gameId))
+        assert.strictEqual(beforeId,bob.gameId)
+
+
+
+
+
+
+
+    })
+
+
+
+    
 
 
 

@@ -68,7 +68,7 @@ function createWebSocketServer(wss) {
             }
 
             if (request.method === 'chat') {
-                console.log(request) // global chat 
+                //console.log(request) // global chat 
                 request.clientName = ws.clientName
                 let response = JSON.stringify(request)
                 //brodcast to others
@@ -80,7 +80,10 @@ function createWebSocketServer(wss) {
             }
 
             if (request.method === 'create') {
-                console.log(request)
+                //console.log(request)
+                if(ws.gameId !== undefined){
+                    return //cant create or join while in game
+                }
 
                 //generate game id
                 let uuidGame = crypto.randomUUID()
@@ -108,6 +111,10 @@ function createWebSocketServer(wss) {
 
 
             if (request.method === 'join') {//cant join if already connection in game
+
+                if(ws.gameId !== undefined){
+                    return //cant create or join while in game
+                }
 
                 //client will join the game and then proceed to play
                 if (request.gameId in games) {
