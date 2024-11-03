@@ -5,12 +5,10 @@ const server = require('http').createServer(app)
 const {createWebSocketServer} = require('./webSocketServer')
 
 
+const port = process.argv[2] || 8080;
 
-
-
-const port=8080
 server.listen(port, () => {
-  console.log('server listiening on port 8080')
+  console.log(`server listiening on port ${port}`)
 })
 
 const wss = createWebSocketServer(new WebSocketServer({ server }))
