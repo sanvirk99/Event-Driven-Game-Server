@@ -40,3 +40,21 @@ npm run test-report
 ## Current Coverage 
 
 ![Report](testReportSnapShot.png)
+
+
+
+## Screenshots
+
+![Landing page joe and bob](image.png)
+
+![Joining the Game](image-1.png)
+
+once one player bets dealer will wait for other in game to also bet if a player does bet dealer will skip their turn for the round they will remain in watching state. for this case both joe and bob bet
+![waiting on bet](image-2.png)
+
+cards are dealt players have descion to make. Both players chooose to stand
+![in middle of round](image-3.png)
+
+
+dealer will play their turn and then the winner will be decided. In this case both players lost, as a result they lost bet and their net is -2
+![alt text](image-4.png)

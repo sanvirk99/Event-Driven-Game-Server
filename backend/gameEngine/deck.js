@@ -58,7 +58,7 @@ class Deck {
     }
 
 
-    getCard(){
+    getCard(){ 
         let card=this.cards[this.#card_index]
         this.#card_index++
         if(this.#card_index >= this.size){

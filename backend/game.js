@@ -59,6 +59,7 @@ class Game {
 
     }
 
+
     //when connected to database i would transfer the round outcome here
     reset(){
         this.que.clear()
@@ -341,7 +342,7 @@ class Game {
             json['net'] = player.getNet()
             info[player.getId()]=json
         }
-        info['roundlog'] = this.logger
+        info['roundlog'] = this.logger.getMessages()
         return info
 
     }
