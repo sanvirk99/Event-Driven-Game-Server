@@ -7,8 +7,7 @@ const { createGameWithRandomDeck } = require('./game')
 
 
 
-
-
+const PLAYER_COUNT_PER_SESSION=5
 
 
 function createWebSocketServer(wss) {
@@ -40,6 +39,7 @@ function createWebSocketServer(wss) {
         return false
 
     }
+
 
     wss.on('connection', (ws) => {
         ws.uuid = crypto.randomUUID()
@@ -117,7 +117,7 @@ function createWebSocketServer(wss) {
                 }
 
                 //client will join the game and then proceed to play
-                if (request.gameId in games) {
+                if (request.gameId in games && games[request.gameId].players.length < PLAYER_COUNT_PER_SESSION) {
 
                     games[request.gameId].players.push(ws.uuid)
                     games[request.gameId].game.join(ws)

@@ -288,18 +288,48 @@ describe('create , join and exit game, when no players in game delete game and c
         bob.emit('message',bob.requestJoin(joe.gameId))
         assert.strictEqual(beforeId,bob.gameId)
 
-
-
-
-
-
-
     })
 
 
+    test(`limit the amount of player in gamession to 5, 
+        new player can join when spot in empty, 
+        new joined player is in watching state`,() =>{
+        
+        //get 5 player to join
 
-    
+        let players={}
 
+        for(let i = 1; i<=6; i++){
+            players[i]=new MockingClient()
+            server.emit('connection',players[i])
+            players[i].emit('message',players[i].requestSetName(`player${i}`))
+            assert.strictEqual(players[i].name,`player${i}`)
+        }
+
+        players[1].emit('message',players[1].requestCreate())
+        assert(players[1].inGame === true)
+        for(let i = 2; i<6; i++){   
+            players[i].emit('message',players[i].requestJoin(players[1].gameId))
+            assert(players[i].inGame === true)
+        }
+
+        assert.strictEqual(server.games[players[1].gameId].players.length,5)
+
+        //6th should fail
+        players[6].emit('message',players[6].requestJoin(players[1].gameId))
+        assert(players[6].inGame === false)
+
+        //make one player leave the game thats already in 
+        players[2].emit('message',players[2].requestExit())
+        assert(players[2].inGame === false)
+        assert.strictEqual(server.games[players[1].gameId].players.length,4)
+        //now the failed player should be in
+
+        players[6].emit('message',players[6].requestJoin(players[1].gameId))
+        assert(players[6].inGame === true)
+
+        
+    })
 
 
 })
