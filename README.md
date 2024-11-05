@@ -45,16 +45,29 @@ npm run test-report
 
 ## Screenshots
 
-![Landing page joe and bob](image.png)
+### Landing page
+
+![Landing page](image.png)
+
+### Joining the Game
 
 ![Joining the Game](image-1.png)
 
-once one player bets dealer will wait for other in game to also bet if a player does bet dealer will skip their turn for the round they will remain in watching state. for this case both joe and bob bet
-![waiting on bet](image-2.png)
+### Waiting on Bet
 
-cards are dealt players have descion to make. Both players chooose to stand
-![in middle of round](image-3.png)
+Once one player bets, the dealer will wait for the other players in the game to also bet. If a player does not bet, the dealer will skip their turn for the round and they will remain in a watching state. In this case, both Joe and Bob have placed their bets.
 
+![Waiting on Bet](image-2.png)
 
-dealer will play their turn and then the winner will be decided. In this case both players lost, as a result they lost bet and their net is -2
-![alt text](image-4.png)
+### In the Middle of a Round
+
+After the bets are placed, the cards are dealt and the players have decisions to make. if player does not decide server will assume their action to be stand In this case, both players choose to stand.
+
+![In the Middle of a Round](image-3.png)
+
+### Winner Decided
+
+The dealer will play their turn and then the winner will be decided. In this case, both players lost the round as dealer had higher count, resulting in a loss of their bets. Their net balance is -2. You can see based on the logs all the actions that took place during this round.
+
+![Winner Decided](image-4.png)
+
