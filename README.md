@@ -39,8 +39,8 @@ npm run test-report
 
 ## Current Coverage 
 
-![Report](testReportSnapShot.png)
 
+![Report](coverage.png)
 
 
 ## Screenshots
