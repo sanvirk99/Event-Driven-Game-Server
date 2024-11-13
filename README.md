@@ -72,3 +72,13 @@ The dealer will play their turn and then the winner will be decided. In this cas
 
 ![Winner Decided](screenshots/image-4.png)
 
+
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
+
+## Card Deck png and svg Attribution
+
+The images used in this project are sourced from [Chase Roberts's Repository](https://github.com/crobertsbmw/deckofcards.git), and are licensed under the MIT License.
+
