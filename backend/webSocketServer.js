@@ -7,7 +7,7 @@ const { createGameWithRandomDeck } = require('./game')
 
 
 
-const PLAYER_COUNT_PER_SESSION=5
+const PLAYER_COUNT_PER_SESSION=4
 
 
 function createWebSocketServer(wss) {
@@ -51,8 +51,17 @@ function createWebSocketServer(wss) {
         ws.on('error', console.error);
 
         ws.on('message', (data) => {
-            let request = JSON.parse(data)
+            console.log(data)
+            let request=undefined
+            try{ //if formated
+                request=JSON.parse(data)
+            }catch(e){
+                return
+            }
 
+            if (request === undefined || request.method === undefined) {
+                return
+            }
 
             if (request.method === 'set-name') {
 
