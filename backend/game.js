@@ -5,6 +5,7 @@ const {GameState} = require('./gameEngine/game_state')
 const {Hand} = require('./gameEngine/hand')
 const {Queue} = require("./utils/que")
 const {Deck,createStandardDeck} = require('./gameEngine/deck')
+const e = require('express')
 
 
 
@@ -316,6 +317,33 @@ class Game {
         return this.gameState.getState()
     }
 
+    testSnapShot(info){
+
+        for(const player of Object.values(this.players)){
+            let json = {}
+            json['state'] = player.getState()
+            json['name'] = player.getName()
+            json['hand'] = player.getHandJSON()
+            json['bet'] = player.getBet()
+            json['net'] = player.getNet()
+            info[player.getId()]=json
+        }
+
+    }
+
+    prodSnapShot(info){
+        info['players']={}
+        for(const player of Object.values(this.players)){
+            let json = {}
+            json['state'] = player.getState()
+            json['name'] = player.getName()
+            json['hand'] = player.getHandJSON()
+            json['bet'] = player.getBet()
+            json['net'] = player.getNet()
+            info['players'][player.getId()]=json
+        }
+
+    }
 
     getGameSnapShot(){
       
@@ -332,23 +360,17 @@ class Game {
         }
 
         info['dealer'] = dealer
-
-        for(const player of Object.values(this.players)){
-            let json = {}
-            json['state'] = player.getState()
-            json['name'] = player.getName()
-            json['hand'] = player.getHandJSON()
-            json['bet'] = player.getBet()
-            json['net'] = player.getNet()
-            info[player.getId()]=json
+       
+        if (process.env.NODE_ENV === 'test'){
+            this.testSnapShot(info)
+        }else{
+            this.prodSnapShot(info)
         }
+
         info['roundlog'] = this.logger.getMessages()
         return info
 
     }
-
-
-
 
 
 }

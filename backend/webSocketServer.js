@@ -13,7 +13,6 @@ const PLAYER_COUNT_PER_SESSION=4
 function createWebSocketServer(wss) {
     const clients = {}
     const games = {}
-
     wss.clientList = clients
     wss.games = games
 
@@ -45,13 +44,11 @@ function createWebSocketServer(wss) {
         ws.uuid = crypto.randomUUID()
         ws.clientName = "unnamed"
         clients[ws.uuid] = ws
-
         ws.gameId = undefined
         //add uuid here 
         ws.on('error', console.error);
 
         ws.on('message', (data) => {
-            console.log(data)
             let request=undefined
             try{ //if formated
                 request=JSON.parse(data)
@@ -178,13 +175,14 @@ function createWebSocketServer(wss) {
         });
 
         ws.on('close', function close() {
-
-            //have to remove from the game the player resides if they do
+            //have to remove from the game the player resides if they 
             if (ws.gameId in games) {
                 clientRemovalGame(ws)
             }
 
             delete clients[ws.uuid]
+
+            console.log(Object.keys(clients).length+1, "current client count")
 
         })
 
@@ -225,7 +223,8 @@ function createWebSocketServer(wss) {
 
         }, 1000)
 
-
+        
+        
 
     }
 
@@ -235,7 +234,7 @@ function createWebSocketServer(wss) {
     }
 
     
-
+   
     return wss
 }
 
