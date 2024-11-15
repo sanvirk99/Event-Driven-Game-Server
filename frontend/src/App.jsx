@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
+import GameView from './components/GameView'
 
-
-const InputName = ({setNameRequest}) => {
+const InputName = ({ setNameRequest }) => {
 
 
   const [inputValue, setInputValue] = useState('');
@@ -12,10 +12,10 @@ const InputName = ({setNameRequest}) => {
     }
   };
 
-  const handleClick = () => { 
+  const handleClick = () => {
 
     setNameRequest(inputValue)
-    
+
   }
 
   return (
@@ -29,22 +29,6 @@ const InputName = ({setNameRequest}) => {
       <button onClick={handleClick}>Submit</button>
     </div>
   );
-
-
-}
-
-const Chat = ({ws}) => {
-  
-}
-
-const Game = ({ws}) => {
-
-
-    //game view
-
-    //game controlls
-
-
 }
 
 
@@ -52,35 +36,54 @@ function App() {
 
   const connection = useRef(null)
   const [name, setName] = useState('unnamed')
-  const [myId,setMyId] = useState('undefined')
+  const [myId, setMyId] = useState('undefined')
+  const [gameId, setGameId] = useState(null)
+  const [gameState, setGameState] = useState(null)
 
 
   useEffect(() => {
     const socket = new WebSocket("ws://localhost:8080")
 
     // Connection opened
-    socket.onopen = function(event) {
+    socket.onopen = function (event) {
       console.log('WebSocket is open now.');
       console.log(event)
-     
-  };
-  
+
+    }
+
     // Listen for messages
     socket.onmessage = (event) => {
       console.log("Message from server ", event.data)
       let response = JSON.parse(event.data)
-      if(response.method === "connect"){
+      if (response.method === "connect") {
 
         setMyId(response.clientId)
+        
       }
 
-      if(response.method === "set-name"){
+      if (response.method === "set-name") {
         setName(response.clientName)
       }
 
+      if (response.method === "create") {
+        setGameId(response.gameId)
+      }
+
+      if (response.method === "join") {
+        setGameId(response.gameId)
+      }
+
+      if(response.method === 'snapshot'){
+        setGameState(response.snapshot)
+      }
+
+      if(response.method === 'exit-game'){
+
+        setGameId(null)
+      }
     }
 
-    socket.onclose = function(event) {
+    socket.onclose = function (event) {
       console.log('WebSocket is closed now.');
     };
 
@@ -88,17 +91,17 @@ function App() {
     return () => connection.current.close()
   }, [])
 
-    //setname
+  //setname
   const setNameRequest = (inputValue) => {
-  
-      let request ={ 
-        method: 'set-name', 
-        clientName: inputValue ,
-        clientId : myId
-      }
 
-      let str=JSON.stringify(request)
-      connection.current.send(str)
+    let request = {
+      method: 'set-name',
+      clientName: inputValue,
+      clientId: myId
+    }
+
+    let str = JSON.stringify(request)
+    connection.current.send(str)
 
   };
 
@@ -106,7 +109,10 @@ function App() {
     <div>
       <p>Name: {name}</p>
       <p>Client ID: {myId}</p>
-      {name === 'unnamed' ? (<InputName setNameRequest={setNameRequest} />) : null}
+      <p>Game ID: {gameId}</p>
+      {name === 'unnamed' ? (<InputName setNameRequest={setNameRequest} />) : (
+        <GameView connection={connection.current} gameId={gameId} gameState={gameState} myId={myId}/>
+      )}
     </div>
   )
 
