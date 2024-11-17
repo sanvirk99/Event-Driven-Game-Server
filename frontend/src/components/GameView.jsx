@@ -1,4 +1,30 @@
 import { useState, useEffect } from "react";
+import "../assets/GameView.css";
+
+const imgPath = "/src/assets/img/";
+const cardValues = ['0', '2', '3', '4', '5', '6', '7', '8', '9', 'J', 'Q', 'K', 'A'];
+const suits = ['D', 'H', 'S', 'C'];
+
+const getCardPath = (value, suit) => {
+    return `${imgPath}/${value}${suit}_python.svg`
+};
+
+
+const DisplayCards = () => {
+
+    return (
+        <div className="deck">
+          {cardValues.map((value) => (
+            <div className="deck-row" key={value}>
+              {suits.map((suit) => (
+                <img className="deck-card" src={getCardPath(value,suit)} key={`${value}${suit}`} />
+              ))}
+            </div>
+          ))}
+        </div>
+      );
+
+};
 
 
 const JoinGame = ({connection,myId}) => {
@@ -62,9 +88,7 @@ const GameView=({connection,gameId,gameState,myId}) => {
         {(gameId ?  <pre>{JSON.stringify(gameState, null, 2)}</pre> : <JoinGame connection={connection} myId={myId}/> )}
         </div>
 
-        <div id='svg-images'>
-            <img src={'/src/img/0C.png'} /> 
-        </div>
+        <DisplayCards />
         </>
         
     )

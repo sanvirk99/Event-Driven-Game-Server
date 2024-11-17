@@ -35,7 +35,7 @@ const InputName = ({ setNameRequest }) => {
 function App() {
 
   const connection = useRef(null)
-  const [name, setName] = useState('unnamed')
+  const [name, setName] = useState('bob')
   const [myId, setMyId] = useState('undefined')
   const [gameId, setGameId] = useState(null)
   const [gameState, setGameState] = useState(null)

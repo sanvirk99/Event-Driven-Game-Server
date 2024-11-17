@@ -1,0 +1,21 @@
+
+.deck {
+
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: column;
+}
+
+.deck-row {
+
+    display: flex;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+}
+
+
+.deck-card {
+
+    width: 5%;
+
+}
