@@ -97,7 +97,8 @@ function createWebSocketServer(wss) {
                 ws.gameId = uuidGame
                 games[uuidGame] = {
                     players: [ws.uuid],
-                    game: game
+                    game: game,
+                    snapshot: ''
                 }
 
 
@@ -206,17 +207,22 @@ function createWebSocketServer(wss) {
                 const game = games[key].game
                 const players = games[key].players
                 game.run()
-                const response = {
 
+                const snapshot = JSON.stringify({
                     method: 'snapshot',
                     snapshot: game.getGameSnapShot()
+                })
+                
 
+                if (games[key].snapshot === snapshot) {
+                    continue
                 }
 
-                // console.log(game.getGameSnapShot())
+                games[key].snapshot = snapshot
 
+                // console.log(game.getGameSnapShot())
                 for (const clientId of players) {
-                    clients[clientId].send(JSON.stringify(response))
+                    clients[clientId].send(snapshot)
                 }
 
             }
