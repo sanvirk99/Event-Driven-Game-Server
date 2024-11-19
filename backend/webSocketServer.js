@@ -184,6 +184,7 @@ function createWebSocketServer(wss) {
             delete clients[ws.uuid]
 
             console.log(Object.keys(clients).length+1, "current client count")
+            console.log(Object.keys(games).length, "current game count")
 
         })
 

@@ -5,7 +5,7 @@ const {Card} = require('./card')
 
 function createStandardDeck(){
     const suits = ["S","C","H","D"]
-    const faces = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"]
+    const faces = ["A","2","3","4","5","6","7","8","9","0","J","Q","K"]
     const values = [11,2,3,4,5,6,7,8,9,10,10,10,10]
 
     let cards=[]
