@@ -1,0 +1,32 @@
+
+
+#table {
+
+    display: flex;
+    height: 100px;
+    flex-direction: column;
+    
+    
+}
+
+#table-seat {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+}
+
+
+
+
+#deck-row {
+
+    margin :  1% auto;
+    display: flex;
+}
+
+
+#deck-card {
+
+    width: 20%;
+
+} 
