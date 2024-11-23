@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planing Template</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="./twind.css">
+</head>
+
+<body class="flex flex-col min-h-screen bg-green-300 text-xs">
+
+    <div id="nav" class="flex">
+        <div class="flex justify-between bg-white p-3 w-full">
+            <div class="flex">
+                <!-- <button id="start" class="m-1 p-1 bg-green-500 text-white rounded-lg">Share gameID</button> -->
+                <p class="m-1 p-1 text-black rounded-lg text-xs">
+                    GameID:dfdsf-dfsdf-dfdsf
+                </p>
+                <!-- <button id="reset" class="m-1 p-1 bg-green-500 text-white rounded-lg">Reset</button> -->
+            </div>
+    
+            <div class="flex">
+                <button id="rules" class="m-1 p-1 bg-green-500 text-white rounded-lg text-xs">
+                    Post GameID global chat
+                </button>
+                <button id="exit" class="m-1 p-1 bg-green-500 text-white rounded-lg text-xs">
+                    Leave Game
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="table" class="flex flex-col items-center m-10">
+
+        <div class="flex justify-center m-3">
+
+            <div class="flex-col shadow-2xl bg-white rounded-lg p-3 ">
+
+                <div class="flex justify-between">
+                    <p>Dealer</p>
+                    <p>Count:21</p>
+                </div>
+                <div class="flex justify-center ">
+                    <img class="w-1/5 m-1 shadow-xl" src="0C_python.svg" alt="card">
+                    <img class="w-1/5 m-1 shadow-xl" src="0C_python.svg" alt="card">
+                </div>
+
+                <div class="flex justify-evenly">
+                    <div class="gain">
+                        <p>Gain:$0.00
+                    </div>
+                    <div class="bet">Bet: $0 </div>
+                </div>
+
+            </div>
+        </div>
+
+
+        <div class="seat flex justify-center m-3">
+
+
+            <div class="hand flex-col shadow-2xl bg-white rounded-lg p-3">
+
+                <div class="flex justify-between">
+                    <p>You</p>
+                    <p> Bet:$2</p>
+                    <p>Count:21</p>
+                </div>
+                <div class="cards flex justify-center ">
+                    <img class="w-1/5 m-1 shadow-xl" src="0C_python.svg" alt="card">
+                    <img class="w-1/5 m-1 shadow-xl" src="0C_python.svg" alt="card">
+                </div>
+
+                <div class="stats flex justify-evenly">
+                    <div id="gain">
+                        <p>Gain:$0.00
+                    </div>
+                </div>
+
+                <div id="controls">
+
+                    <div id="betting" class="flex justify-center">
+                        <button id="bet2" class="m-1 p-1 bg-green-500 text-white rounded-lg">Bet 2</button>
+                        <button id="bet5" class="m-1 p-1 bg-green-500 text-white rounded-lg">Bet 5</button>
+                        <button id="bet10" class="m-1 p-1 bg-green-500 text-white rounded-lg">Bet 10</button>
+                        <button id="bet20" class="m-1 p-1 bg-green-500 text-white rounded-lg">Bet 20</button>
+                    </div>
+
+                    <div id="actions" class="flex justify-center">
+                        <button id="hit" class="m-1 p-1 bg-green-500 text-white rounded-lg">Hit</button>
+                        <button id="stand" class="m-1 p-1 bg-green-500 text-white rounded-lg">Stand</button>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+        <div class="seat flex justify-center m-3">
+
+
+            <div class="hand flex-col shadow-2xl bg-white rounded-lg p-3">
+
+                <div class="flex justify-between">
+                    <p>Player</p>
+                    <p> Bet:$2</p>
+                    <p>Count:21</p>
+                </div>
+                <div class="cards flex justify-center ">
+                    <img class="w-1/5 m-1 shadow-xl" src="0C_python.svg" alt="card">
+                    <img class="w-1/5 m-1 shadow-xl" src="0C_python.svg" alt="card">
+                </div>
+
+                <div class="stats flex justify-evenly">
+                    <div id="gain">
+                        <p>Gain:$0.00
+                    </div>
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+</body>
+
+</html>
