@@ -19,14 +19,13 @@ const InputName = ({ setNameRequest }) => {
   }
 
   return (
-    <div>
-      <input
-        type="text"
-        value={inputValue}
-        onChange={handleChange}
-        placeholder="Enter your name"
-      />
-      <button onClick={handleClick}>Submit</button>
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="flex flex-col items-center">
+        <input type="text" className="name-input mb-4 p-2 border rounded" placeholder="Enter a Name" onChange={handleChange} value={inputValue} />
+        <button id="stand" className="m-1 p-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700" onClick={handleClick}>
+          SetName
+        </button>
+      </div>
     </div>
   );
 }
@@ -35,7 +34,7 @@ const InputName = ({ setNameRequest }) => {
 function App() {
 
   const connection = useRef(null)
-  const [name, setName] = useState('bob')
+  const [name, setName] = useState('unnamed')
   const [myId, setMyId] = useState('undefined')
   const [gameId, setGameId] = useState(null)
   const [gameState, setGameState] = useState(null)
@@ -106,10 +105,13 @@ function App() {
   };
 
   return (
-    <div>
+    <div className=" bg-slate-50 text-xs font-serif font-bold">
+      <div className='flex'>
       <p>Name: {name}</p>
       <p>Client ID: {myId}</p>
       <p>Game ID: {gameId}</p>
+      </div>
+      
       {name === 'unnamed' ? (<InputName setNameRequest={setNameRequest} />) : (
         <GameView connection={connection.current} gameId={gameId} gameState={gameState} myId={myId}/>
       )}
