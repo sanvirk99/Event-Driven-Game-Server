@@ -193,6 +193,16 @@ class MockGame {
     }
 
 
+    pauseForResults(){
+
+        return new Promise((resolve,reject)=>{
+
+            resolve()
+        })
+
+    }
+
+
     
 
     

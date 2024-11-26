@@ -59,7 +59,6 @@ function createWebSocketServer(wss) {
             if (request === undefined || request.method === undefined) {
                 return
             }
-
             if (request.method === 'set-name') {
 
                 ws.clientName = request.clientName
@@ -72,7 +71,6 @@ function createWebSocketServer(wss) {
                 ws.send(JSON.stringify(res))
 
             }
-
             if (request.method === 'chat') {
                 //console.log(request) // global chat 
                 request.clientName = ws.clientName
@@ -82,9 +80,7 @@ function createWebSocketServer(wss) {
 
                     client.send(response)
                 }
-
             }
-
             if (request.method === 'create') {
                 //console.log(request)
                 if(ws.gameId !== undefined){
@@ -100,7 +96,6 @@ function createWebSocketServer(wss) {
                     game: game,
                     snapshot: ''
                 }
-
 
                 //create game and use game id to map it
                 const res = {
@@ -229,9 +224,6 @@ function createWebSocketServer(wss) {
             }
 
         }, 1000)
-
-        
-        
 
     }
 

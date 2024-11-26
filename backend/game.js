@@ -250,13 +250,29 @@ class Game {
 
         return new Promise((resolve,reject)=>{
 
-         
 
+            if(Object.keys(this.players).length === 1){ //only one player in game skip wait
+                resolve()
+                return
+            }
             setTimeout(()=>{resolve()},this.betWaitMs) 
                 
            
         })
 
+    }
+
+    pauseForResults(){
+
+        return new Promise((resolve,reject)=>{
+
+
+            if(process.env.NODE_ENV === 'test'){
+                resolve()
+                return
+            }
+            setTimeout(()=>{resolve()},5000) //wait 5 seconds before proceeding to next round
+        })
     }
 
     waitDecision(player){

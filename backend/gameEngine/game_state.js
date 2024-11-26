@@ -1,3 +1,4 @@
+const e = require("express")
 
 //watches player states and acts accordingly
 class GameState {
@@ -26,9 +27,11 @@ class GameState {
                        
                     }  
 
+                   
                     if(ready){ // one player placed bet start timer before game begins 
                         this.evaluating=true
                         //await reponse from other players timer , lock this function
+
                         await game.waitBet()
 
                         for(const player of Object.values(this.players)){ //should be game functions
@@ -37,11 +40,12 @@ class GameState {
                              this.que.enqueue(player)
                             }          
                          }  
+                      
                         this.changeState("HAND_CARDS")
                         this.game.activateDealer()
                         this.evaluating=false
-                        
-                    }
+                    }  
+                   
                 }
                 
                 //if one or more players waiting on cards game proceeds to next state
@@ -99,13 +103,24 @@ class GameState {
             RESULT: {
 
                 //now dealer will evaluate draw a card
-                run: () => {
+                run: async () => {
+
+                    if(this.evaluating){
+                        return
+                    }
+
+                    this.evaluating=true
 
                     //dealer draws second card 
                     //dealer can be busted , many things
                     this.game.dealerPlay();
-                    //go back to waitng 
+                    //go back to waitng
+                    
+                    await this.game.pauseForResults()
+
+                    
                     this.changeState("END")
+                    this.evaluating=false
 
                 }
 
