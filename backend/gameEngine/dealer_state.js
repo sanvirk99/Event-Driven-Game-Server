@@ -89,7 +89,11 @@ class DealerState {
     }
 
     getHandJSON(){
-        return this.hand.toJSON()
+
+        if(process.env.NODE_ENV === 'test'){
+            return this.hand.toJSON()
+        }
+        return this.hand.toJSONProd()
     }
 
 

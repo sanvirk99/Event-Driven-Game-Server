@@ -103,7 +103,7 @@ test("build deck, get cards jsonObjects", () => {
         assert.strictEqual(jsonObject.face, card.face);
         assert.strictEqual(jsonObject.value, card.value);
         assert.strictEqual(jsonObject.isAce, card.isAce());
-        assert.strictEqual(jsonObject.cardUp,card.isVisable());
+        assert.strictEqual(jsonObject.cardUp,card.isVisible());
 
         
     }
