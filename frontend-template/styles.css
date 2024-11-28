@@ -2,33 +2,39 @@
 @tailwind components;
 @tailwind utilities;
 
-#table {
-
+.cards {
     display: flex;
-    height: 100px;
-    flex-direction: column;
-    
-    
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
-#table-seat {
+
+.container {
     display: flex;
     width: 100%;
-    justify-content: center;
+}
+
+.actions {
+    flex: 1;
+    max-width: 20%; /* Adjusted to 20% */
+    min-width: 20%;
+}
+
+.table {
+    flex: 4;
+    max-width: 80%; /* Adjusted to 80% */
+}
+
+.message {
+    overflow-wrap: break-word;
 }
 
 
 
-
-#deck-row {
-
-    margin :  1% auto;
-    display: flex;
-}
-
-
-#deck-card {
-
-    width: 20%;
-
-} 
+/* .card {
+    max-width: 20%;
+    height: auto;
+    flex: 1 1 auto;
+    max-width: calc(33.33% - 2rem); Adjust based on the number of cards and desired spacing
+    box-sizing: border-box;
+} */

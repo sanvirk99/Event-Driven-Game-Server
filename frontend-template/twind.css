@@ -554,12 +554,42 @@ video {
   display: none;
 }
 
-.m-1 {
-  margin: 0.25rem;
+.container {
+  width: 100%;
 }
 
-.m-10 {
-  margin: 2.5rem;
+@media (min-width: 640px) {
+  .container {
+    max-width: 640px;
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: 768px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1024px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container {
+    max-width: 1280px;
+  }
+}
+
+@media (min-width: 1536px) {
+  .container {
+    max-width: 1536px;
+  }
+}
+
+.m-1 {
+  margin: 0.25rem;
 }
 
 .m-3 {
@@ -570,16 +600,16 @@ video {
   margin: 1rem;
 }
 
+.m-5 {
+  margin: 1.25rem;
+}
+
 .flex {
   display: flex;
 }
 
 .table {
   display: table;
-}
-
-.min-h-screen {
-  min-height: 100vh;
 }
 
 .w-1\/5 {
@@ -608,6 +638,10 @@ video {
 
 .justify-evenly {
   justify-content: space-evenly;
+}
+
+.rounded-2xl {
+  border-radius: 1rem;
 }
 
 .rounded-lg {
@@ -676,28 +710,43 @@ video {
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 
-#table {
+.cards {
   display: flex;
-  height: 100px;
-  flex-direction: column;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
-#table-seat {
+.container {
   display: flex;
   width: 100%;
-  justify-content: center;
 }
 
-#deck-row {
-  margin :  1% auto;
-  display: flex;
+.actions {
+  flex: 1;
+  max-width: 20%;
+  /* Adjusted to 20% */
+  min-width: 20%;
 }
 
-#deck-card {
-  width: 20%;
+.table {
+  flex: 4;
+  max-width: 80%;
+  /* Adjusted to 80% */
 }
+
+.message {
+  overflow-wrap: break-word;
+}
+
+/* .card {
+    max-width: 20%;
+    height: auto;
+    flex: 1 1 auto;
+    max-width: calc(33.33% - 2rem); Adjust based on the number of cards and desired spacing
+    box-sizing: border-box;
+} */
 
 .hover\:bg-purple-700:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(126 34 206 / var(--tw-bg-opacity, 1));
-} 
+}
