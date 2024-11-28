@@ -33,6 +33,7 @@ const DisplayCards = () => {
 };
 
 
+
 const JoinGame = ({ connection, myId }) => {
 
 
@@ -111,6 +112,12 @@ const Nav = ({ connection,myId,gameId }) => {
         connection.send(str)
     };
 
+    const copyID = () => {
+
+        //copy id to clipboard
+        navigator.clipboard.writeText(gameId)
+    }
+
     return (
 
         <div id="nav" className="flex justify-between bg-white m-4 p-1 rounded-xl shadow-2xl ">
@@ -124,8 +131,8 @@ const Nav = ({ connection,myId,gameId }) => {
                 </div>
 
                 <div className="flex">
-                    <button id="rules" className="m-1 p-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700 ">
-                        Post GameID Global Chat
+                    <button id="rules" className="m-1 p-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700 " onClick={copyID}>
+                        Copy Game ID
                     </button>
                     <button id="exit" className="m-1 p-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700" onClick={requestExit}>
                         Leave Game
@@ -163,7 +170,7 @@ const Dealer = ({ dealer }) => {
                             />
                         ))
                     ) : (
-                        <img className="w-1/5 m-1 shadow-xl" src={`${imgPath}/blank.svg`} />
+                        <img className="w-1/5 m-1" src={`${imgPath}/blank.svg`} />
                     )}
 
                 </div>
@@ -246,8 +253,8 @@ const Player = ({ connection, player , gameId }) => {
             <div className="hand flex-col shadow-2xl bg-white rounded-lg p-3">
 
                 <div className="flex justify-between">
-                    <p>You</p>
-                    <p> {`Bet:${player.bet}`} </p>
+                    <p>{`${player.name} (You)`}</p>
+                    <p> {`Bet: ${player.bet}`} </p>
                     <p>{`Count: ${player.count}`}</p>
                 </div>
                 <div className="cards flex justify-center ">
@@ -264,13 +271,13 @@ const Player = ({ connection, player , gameId }) => {
                             );
                         })
                     ) : (
-                        <img className="w-1/5 m-1 shadow-xl" src={`${imgPath}/blank.svg`} />
+                        <img className="w-1/5 m-1" src={`${imgPath}/blank.svg`} />
                     )}
                 </div>
 
                 <div className="stats flex justify-evenly">
                     <div id="gain">
-                        {`Gain:$${player.net}`}
+                        {`net gain/loss: $ ${player.net}`}
                     </div>
                 </div>
 
@@ -315,7 +322,7 @@ const OtherPlayer = ({ player }) => {
 
             <div className="flex justify-between">
                 <p>{player.name}</p>
-                <p> {`Bet:${player.bet}`} </p>
+                <p> {`Bet: ${player.bet}`} </p>
                 <p>{`Count: ${player.count}`}</p>
             </div>
             <div className="cards flex justify-center ">
@@ -332,13 +339,13 @@ const OtherPlayer = ({ player }) => {
                         );
                     })
                 ) : (
-                    <img className="w-1/5 m-1 shadow-xl" src={`${imgPath}/blank.svg`} />
+                    <img className="w-1/5 m-1" src={`${imgPath}/blank.svg`} />
                 )}
             </div>
 
             <div className="stats flex justify-evenly">
                 <div id="gain">
-                    {`Gain:$${player.net}`}
+                    {`net gain/loss: $ ${player.net}`}
                 </div>
             </div>
 
@@ -350,11 +357,32 @@ const OtherPlayer = ({ player }) => {
     )
 }
 
+
+
+const Log = ({ gameActions }) => {
+
+
+    return (
+    
+        <div className="message">
+            <p className="bg-purple-400">Game Log</p>
+            {gameActions.map((message, i) => (
+                <div key={i} className={`log-entry ${i % 2 === 0 ? 'bg-gray-200' : 'bg-gray-400'}`}>
+                    {message}
+                </div>
+            ))}
+            
+        </div>
+    );
+
+}
+
 const GameView = ({ connection, gameId, gameState, myId }) => {
 
 
     const [dealer, setDealer] = useState(undefined)
     const [players, setPlayers] = useState([])
+    const [gameActions, setGameActions] = useState([])
 
     useEffect(() => {
 
@@ -388,6 +416,16 @@ const GameView = ({ connection, gameId, gameState, myId }) => {
 
             setPlayers(copy)
 
+            if (!gameState.roundlog) {
+                return
+            }
+
+            let actions = gameState.roundlog.map((action) => {
+                return action
+            })
+
+            setGameActions(actions)
+
         }
 
 
@@ -402,15 +440,25 @@ const GameView = ({ connection, gameId, gameState, myId }) => {
                    
                     <>
                        <Nav connection={connection} myId={myId} gameId={gameId} />
-                        <div id="table" className="flex flex-col items-center m-10">
-                            {dealer && <Dealer dealer={dealer} />}
-                            {players.map((player, i) => {
-                                if (player.id === myId) {
-                                    return <Player key={player.id} connection={connection} player={player} gameId={gameId} />;
-                                }
-                                return <OtherPlayer key={player.id} player={player} />;
-                            })}
+
+                        <div className="container flex">
+
+                            <div className="actions bg-white  m-5 rounded-2xl shadow-2xl">
+                               <Log gameActions={gameActions} />
+                            </div>
+
+                            <div className="table flex-col items-center m-5">
+                                {dealer && <Dealer dealer={dealer} />}
+                                {players.map((player, i) => {
+                                    if (player.id === myId) {
+                                        return <Player key={player.id} connection={connection} player={player} gameId={gameId} />;
+                                    }
+                                    return <OtherPlayer key={player.id} player={player} />;
+                                })}
+                            </div>
+
                         </div>
+                       
                     </>
                      
                     

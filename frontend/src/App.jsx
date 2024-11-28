@@ -35,7 +35,7 @@ function App() {
 
   const connection = useRef(null)
   const [name, setName] = useState('unnamed')
-  const [myId, setMyId] = useState('undefined')
+  const [myId, setMyId] = useState(null)
   const [gameId, setGameId] = useState(null)
   const [gameState, setGameState] = useState(null)
 
@@ -84,6 +84,10 @@ function App() {
 
     socket.onclose = function (event) {
       console.log('WebSocket is closed now.');
+      setGameId(null)
+      setGameState(null)
+      setMyId(null)
+
     };
 
     connection.current = socket
@@ -106,9 +110,15 @@ function App() {
 
   return (
     <div >
-      {name === 'unnamed' ? (<InputName setNameRequest={setNameRequest} />) : (
-        <GameView connection={connection.current} gameId={gameId} gameState={gameState} myId={myId}/>
-      )}
+      {myId === null ? (
+        <div>
+          Connecting... (refresh page to try again, if this does not work then server is not responding)
+
+        </div>) :
+        (name === 'unnamed' ? (<InputName setNameRequest={setNameRequest} />) : (
+          <GameView connection={connection.current} gameId={gameId} gameState={gameState} myId={myId} />
+        ))}
+
     </div>
   )
 
