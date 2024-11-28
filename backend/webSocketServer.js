@@ -8,6 +8,7 @@ const { createGameWithRandomDeck } = require('./game')
 
 
 const PLAYER_COUNT_PER_SESSION=4
+const MAX_CONNECTIONS=100  //clean up inactive connections or idle connections
 
 
 function createWebSocketServer(wss) {
@@ -39,8 +40,16 @@ function createWebSocketServer(wss) {
 
     }
 
+    
 
     wss.on('connection', (ws) => {
+
+        if (Object.keys(clients).length > MAX_CONNECTIONS) {
+            ws.close()
+            return  
+        }
+
+
         ws.uuid = crypto.randomUUID()
         ws.clientName = "unnamed"
         clients[ws.uuid] = ws
@@ -49,6 +58,8 @@ function createWebSocketServer(wss) {
         ws.on('error', console.error);
 
         ws.on('message', (data) => {
+
+         
             let request=undefined
             try{ //if formated
                 request=JSON.parse(data)
@@ -59,7 +70,7 @@ function createWebSocketServer(wss) {
             if (request === undefined || request.method === undefined) {
                 return
             }
-            if (request.method === 'set-name') {
+            if (request.method === 'set-name' && request.clientName !== undefined) {
 
                 ws.clientName = request.clientName
 
@@ -176,10 +187,9 @@ function createWebSocketServer(wss) {
                 clientRemovalGame(ws)
             }
 
-            delete clients[ws.uuid]
-
-            console.log(Object.keys(clients).length+1, "current client count")
-            console.log(Object.keys(games).length, "current game count")
+            if (ws.uuid in clients){
+                delete clients[ws.uuid]
+            }
 
         })
 

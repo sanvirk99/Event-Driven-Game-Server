@@ -77,7 +77,7 @@ const JoinGame = ({ connection, myId }) => {
     return (
         <div className="flex flex-col items-center justify-center min-h-screen">
 
-            <button className="m-1 p-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700" onClick={pasteFromClipboard}>Paste ID from Clipboard</button>    
+            <button className="m-1 p-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700" onClick={pasteFromClipboard}>Paste ID from Clipboard</button>    
 
             <div className="flex">
                 
@@ -97,9 +97,19 @@ const JoinGame = ({ connection, myId }) => {
 
 
 
-const Nav = ({ gameId }) => {
+const Nav = ({ connection,myId,gameId }) => {
 
+    const requestExit = () => {
 
+        let request = {
+            method: 'exit-game',
+            gameId: gameId,
+            clientId: myId,
+        }
+
+        let str = JSON.stringify(request)
+        connection.send(str)
+    };
 
     return (
 
@@ -108,7 +118,7 @@ const Nav = ({ gameId }) => {
                 <div className="flex ">
 
                     <p className="flex m-1 p-1 text-white rounded-lg bg-purple-600 ">
-                        GameID:dfdsf-dfsdf-dfdsf
+                        {gameId}
                     </p>
 
                 </div>
@@ -117,7 +127,7 @@ const Nav = ({ gameId }) => {
                     <button id="rules" className="m-1 p-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700 ">
                         Post GameID Global Chat
                     </button>
-                    <button id="exit" className="m-1 p-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+                    <button id="exit" className="m-1 p-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700" onClick={requestExit}>
                         Leave Game
                     </button>
                 </div>
@@ -139,11 +149,23 @@ const Dealer = ({ dealer }) => {
 
                 <div className="flex justify-between">
                     <p>Dealer</p>
-                    <p>Count:21</p>
+                    <p>Count: {dealer.count}</p>
                 </div>
                 <div className="flex justify-center ">
-                    <img className="w-1/5 m-1 shadow-xl" src={`${imgPath}/0C_python.svg`} alt="card" />
-                    <img className="w-1/5 m-1 shadow-xl" src={`${imgPath}/0C_python.svg`} alt="card" />
+
+                    {dealer.cards.length > 0 ? (
+                        dealer.cards.map((card) => (
+                            <img
+                                key={dealer.id + card.face + card.suit}
+                                className="w-1/5 m-1 shadow-xl"
+                                src={getCardPath(card.face, card.suit, card.cardUp)}
+                                alt={`${card.face} of ${card.suit}`}
+                            />
+                        ))
+                    ) : (
+                        <img className="w-1/5 m-1 shadow-xl" src={`${imgPath}/blank.svg`} />
+                    )}
+
                 </div>
 
             </div>
@@ -173,7 +195,48 @@ const TablePlayers = ({ players }) => {
 
 }
 
-const Player = ({ player }) => {
+const Player = ({ connection, player , gameId }) => {
+
+    const requestBet = {
+        method: 'game-action',
+        gameId: gameId,
+        clientId: player.id,
+        gameAction: 'bet',
+        value: 2
+    };
+
+    const requestStand = {
+        method: 'game-action',
+        gameId: gameId,
+        clientId: player.id,
+        gameAction: 'stand',
+    }
+
+    const requestHit = {
+        method: 'game-action',
+        gameId: gameId,
+        clientId: player.id,
+        gameAction: 'hit',
+    }
+
+
+    const requestCreate = (type)  => {
+
+        switch (type) {
+
+            case 'bet':
+                connection.send(JSON.stringify(requestBet))
+                break;
+            case 'stand':
+                connection.send(JSON.stringify(requestStand))
+                break;  
+            case 'hit':
+                connection.send(JSON.stringify(requestHit))
+                break;
+        }
+    }  
+
+
 
     return (
 
@@ -184,38 +247,50 @@ const Player = ({ player }) => {
 
                 <div className="flex justify-between">
                     <p>You</p>
-                    <p> Bet:$2</p>
-                    <p>Count:21</p>
+                    <p> {`Bet:${player.bet}`} </p>
+                    <p>{`Count: ${player.count}`}</p>
                 </div>
                 <div className="cards flex justify-center ">
-                    <img className="w-1/5 m-1 shadow-xl" src={`${imgPath}/0C_python.svg`} alt="card" />
-                    <img className="w-1/5 m-1 shadow-xl" src={`${imgPath}/0C_python.svg`} alt="card" />
+
+                    {player.cards.length > 0 ? (
+                        player.cards.map((card) => {
+                            return (
+                                <img
+                                    key={player.id + card.face + card.suit}
+                                    className="w-1/5 m-1 shadow-xl"
+                                    src={getCardPath(card.face, card.suit)}
+                                    alt={`${card.face} of ${card.suit}`}
+                                />
+                            );
+                        })
+                    ) : (
+                        <img className="w-1/5 m-1 shadow-xl" src={`${imgPath}/blank.svg`} />
+                    )}
                 </div>
 
                 <div className="stats flex justify-evenly">
                     <div id="gain">
-                        Gain:$0.00
+                        {`Gain:$${player.net}`}
                     </div>
                 </div>
 
                 <div id="controls">
 
                     <div id="betting" className="flex justify-center">
-                        <button id="bet2" className="m-1 p-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700">Bet
-                            $2</button>
-                        <button id="bet5" className="m-1 p-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700">Bet
+                        <button id="bet2" className="m-1 p-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700" onClick={()=>requestCreate('bet')} >Bet$2</button>
+                        {/* <button id="bet5" className="m-1 p-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700">Bet
                             $5</button>
                         <button id="bet10" className="m-1 p-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700">Bet
                             $10</button>
                         <button id="bet20" className="m-1 p-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700">Bet
-                            $20</button>
+                            $20</button> */}
                     </div>
 
                     <div id="actions" className="flex justify-center">
                         <button id="hit"
-                            className="m-1 p-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700">Hit</button>
+                            className="m-1 p-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700" onClick={()=>requestCreate('hit')}>Hit</button>
                         <button id="stand"
-                            className="m-1 p-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700">Stand</button>
+                            className="m-1 p-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700" onClick={()=>requestCreate('stand')}>Stand</button>
                     </div>
 
                 </div>
@@ -236,28 +311,42 @@ const OtherPlayer = ({ player }) => {
         <div className="seat flex justify-center m-3">
 
 
-            <div className="hand flex-col shadow-2xl bg-white rounded-lg p-3">
+        <div className="hand flex-col shadow-2xl bg-white rounded-lg p-3">
 
-                <div className="flex justify-between">
-                    <p>You</p>
-                    <p> Bet:$2</p>
-                    <p>Count:21</p>
-                </div>
-                <div className="cards flex justify-center ">
-                    <img className="w-1/5 m-1 shadow-xl" src={`${imgPath}/back-pattern.svg`} alt="card" />
-                    <img className="w-1/5 m-1 shadow-xl" src={`${imgPath}/0C_python.svg`} alt="card" />
-                </div>
+            <div className="flex justify-between">
+                <p>{player.name}</p>
+                <p> {`Bet:${player.bet}`} </p>
+                <p>{`Count: ${player.count}`}</p>
+            </div>
+            <div className="cards flex justify-center ">
 
-                <div className="stats flex justify-evenly">
-                    <div id="gain">
-                        Gain:$0.00
-                    </div>
-                </div>
-
+                {player.cards.length > 0 ? (
+                    player.cards.map((card) => {
+                        return (
+                            <img
+                                key={player.id + card.face + card.suit}
+                                className="w-1/5 m-1 shadow-xl"
+                                src={getCardPath(card.face, card.suit)}
+                                alt={`${card.face} of ${card.suit}`}
+                            />
+                        );
+                    })
+                ) : (
+                    <img className="w-1/5 m-1 shadow-xl" src={`${imgPath}/blank.svg`} />
+                )}
             </div>
 
+            <div className="stats flex justify-evenly">
+                <div id="gain">
+                    {`Gain:$${player.net}`}
+                </div>
+            </div>
 
+          
         </div>
+
+
+    </div>
     )
 }
 
@@ -288,8 +377,11 @@ const GameView = ({ connection, gameId, gameState, myId }) => {
 
                 copy.push({
                     id: playerId,
+                    name: gameState.players[playerId].name,
                     cards: gameState.players[playerId].hand.cards,
-                    count: gameState.players[playerId].hand.count
+                    count: gameState.players[playerId].hand.count,
+                    bet: gameState.players[playerId].bet,
+                    net: gameState.players[playerId].net
                 })
 
             })
@@ -309,10 +401,16 @@ const GameView = ({ connection, gameId, gameState, myId }) => {
                 {(gameId ? (
                    
                     <>
-                       <Nav gameId={gameId} />
-                        <Dealer dealer={dealer} />
-                        <Player />
-                        <OtherPlayer />
+                       <Nav connection={connection} myId={myId} gameId={gameId} />
+                        <div id="table" className="flex flex-col items-center m-10">
+                            {dealer && <Dealer dealer={dealer} />}
+                            {players.map((player, i) => {
+                                if (player.id === myId) {
+                                    return <Player key={player.id} connection={connection} player={player} gameId={gameId} />;
+                                }
+                                return <OtherPlayer key={player.id} player={player} />;
+                            })}
+                        </div>
                     </>
                      
                     

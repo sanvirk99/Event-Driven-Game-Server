@@ -105,13 +105,7 @@ function App() {
   };
 
   return (
-    <div className=" bg-slate-50 text-xs font-serif font-bold">
-      <div className='flex'>
-      <p>Name: {name}</p>
-      <p>Client ID: {myId}</p>
-      <p>Game ID: {gameId}</p>
-      </div>
-      
+    <div >
       {name === 'unnamed' ? (<InputName setNameRequest={setNameRequest} />) : (
         <GameView connection={connection.current} gameId={gameId} gameState={gameState} myId={myId}/>
       )}

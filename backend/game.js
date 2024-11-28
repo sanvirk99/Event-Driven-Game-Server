@@ -58,6 +58,8 @@ class Game {
         //this.players[ws.uuid]=new PlayerState(ws,new Hand)
         this.join(ws)
 
+        this.logger.log('one bet needed to start round')
+
     }
 
 
@@ -81,11 +83,13 @@ class Game {
 
         this.dealer.hand.clear()
         this.dealer.changeState('WAITING')
+        this.logger.log('one bet needed to start round')
     }
 
     activateDealer(){   
 
         this.deck.shuffle() //shuffle deck 
+        this.logger.log('dealer shuffles deck')
         this.logger.log('distributing intial hand')
         this.dealer.dispatch('start',this.que.length)
         //lock bets and broadcast snapshot of game
@@ -94,7 +98,7 @@ class Game {
 
     dealerPlay(){
 
-        this.logger.log('dealer reveals his cards and evaluated')
+        this.logger.log('dealer reveals his cards')
         this.dealer.hand.reveal()
         while(this.dealer.getState()==='UNDER17'){
             this.handCardDealer()
@@ -102,7 +106,7 @@ class Game {
         this.logger.log(`dealer is ${this.dealer.getState()}`)
         const dealerSum=this.dealer.evaluate()
         this.logger.log(`dealer count is ${this.dealer.evaluate()}`)
-        for(const player of Object.values(this.players)){
+        for(const player of this.que){
 
             this.resultPlayer(player,dealerSum)
         }
@@ -130,10 +134,12 @@ class Game {
                 
 
                 if(this.dealer.getState() === 'BLACKJACK'){
-                    this.logger.log(`player dealer standoff both blackjack`)
+                    this.logger.log(`${player.getName()} standoff no money taken`)
                 }else{
-                    this.logger.log(`${player.getName()} is blackjack paid 1.5 x the bet`)
+                    
                     const new_net = player.getNet() + player.getBet() + 0.5 * player.getBet()
+                    let payout = 0.5 * player.getBet() + player.getBet()
+                    this.logger.log(`${player.getName()} payout = $${payout} 3:2`)
                     player.setNet(new_net)
                 }
                 break
@@ -143,18 +149,18 @@ class Game {
                 const playerSum=player.evaluate()
                 this.logger.log(`${player.getName()} count is ${playerSum}`)
                 if (this.dealer.getState() === 'BUSTED'){
-                    this.logger.log(`${player.getName()} paid 1 x the bet`)
+                    this.logger.log(`${player.getName()} payout = $${player.getBet()} 1:1`)
                     const new_net = player.getNet() + player.getBet()
                     player.setNet(new_net)
                 }
                 else if(playerSum == dealerSum){
-                    this.logger.log(`${player.getName()} stand-off, same total as dealer`)
+                    this.logger.log(`${player.getName()} stand-off no money taken`)
                 }else if (playerSum > dealerSum){
-                    this.logger.log(`${player.getName()} bet paid out`)
+                    this.logger.log(`${player.getName()} payout = $${player.getBet()} 1:1`)
                     const new_net = player.getNet() + player.getBet()
                     player.setNet(new_net)
                 }else{
-                    this.logger.log(`dealer collect bet`)
+                    this.logger.log(`${player.getName()} loses $${player.getBet()}`)
                     const new_net = player.getNet() - player.getBet()
                     player.setNet(new_net)
                 }
@@ -179,9 +185,12 @@ class Game {
 
         if(this.dealer.hand.size() == 1){ //only second card is facedown
             card.setFaceDown()
+            this.logger.log(`dealer handed face down card`)
+        }else{
+            this.logger.log(`dealer handed ${card.value}`)
         }
         this.dealer.dispatch('card',card)
-        this.logger.log(`dealer handed ${card.value}`)
+        
 
     }
 
@@ -210,6 +219,10 @@ class Game {
                     break
                 }
                 case 'bet': {
+
+                    if(this.gameState.getState() !== 'WAITING'){
+                        return //cant place bet after game has started
+                    }
                     player.dispatch('bet', request.value)
                     this.logger.log(`${player.getName()} bet`)
                     break
@@ -238,12 +251,22 @@ class Game {
 
         if(ws.uuid in this.players){
             let player=this.players[ws.uuid]
-            this.logger.log(`${this.players[ws.uuid].getName()} request to be removed`)
+            //this.logger.log(`${this.players[ws.uuid].getName()} request to be removed`)
             //set remove flag
             player.exit()
 
         }
 
+    }
+
+    allBetsPlaced(){
+            
+        for(const player of Object.values(this.players)){
+            if(player.getState() === 'WATCHING'){
+                return false
+            }
+        }
+        return true
     }
 
     waitBet(){
@@ -255,7 +278,43 @@ class Game {
                 resolve()
                 return
             }
-            setTimeout(()=>{resolve()},this.betWaitMs) 
+
+            this.logger.log('waiting for everyone to place bets')
+            // setTimeout(()=>{
+                
+            //     this.logger.log('bets locked')
+            //     resolve()
+
+            // },this.betWaitMs) 
+
+            if (process.env.NODE_ENV === 'test'){
+                resolve()
+                return
+            }
+            let elapsedTime = 0;
+            const pollInterval = 1000;
+            const maxPollTime = this.betWaitMs;
+
+            const intervalId = setInterval(() => {
+                if (this.allBetsPlaced()) { // Replace with your actual condition check
+                    this.logger.log('bets locked');
+                    clearInterval(intervalId);
+                    resolve();
+                } else {
+                    elapsedTime += pollInterval;
+                    if (elapsedTime >= maxPollTime) {
+                        
+                        for(const player of Object.values(this.players)){
+                            if(player.getState() === 'WATCHING'){
+                                this.logger.log(`${player.getName()} did not place bet`)
+                            }
+                        }
+
+                        clearInterval(intervalId);
+                        resolve();
+                    }
+                }
+            }, pollInterval);
                 
            
         })
@@ -276,7 +335,7 @@ class Game {
     }
 
     waitDecision(player){
-        this.logger.log(`check ${player.getName()} descion`)
+        this.logger.log(`${player.getName()} turn`)
         //while player state does not change to BLACKJACK
         //player may already be in black jack
         //if player responds they hit and now deciding for hit or stand , how to increase wait
@@ -309,7 +368,7 @@ class Game {
                 if(pollAtempts >= this.maxPollAtempts){
                     clearInterval(pollingId)
                     player.dispatch('stand')
-                    this.logger.log(`${player.getName()} stands`)
+                    this.logger.log(`${player.getName()} no response, stand`)
                     resolve(player.getState())
                     return
                 }
@@ -362,6 +421,8 @@ class Game {
     }
 
     getGameSnapShot(){
+
+        
       
         const info={}
         let game = {
