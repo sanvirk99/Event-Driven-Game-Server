@@ -112,8 +112,10 @@ class PlayerState {
         const action = actions[actionName];
         if (action) {
             action(payload)
+            return true
         } else {
             // action is not valid for current state
+            return false
         }
     }
 

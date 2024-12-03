@@ -65,7 +65,8 @@ function createWebSocketServer(wss) {
             try{ //if formated
                 request=JSON.parse(data)
                 if(!methodValidation(request)){
-                    console.log('invalid request')   
+                    console.log('invalid request')
+                    console.log(request)   
                     return 
                 }
             }catch(e){

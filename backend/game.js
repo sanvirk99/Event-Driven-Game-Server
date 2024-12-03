@@ -214,8 +214,9 @@ class Game {
 
             switch(gameAction){
                 case 'hit': {
-                    player.dispatch('hit') 
-                    this.logger.log(`${player.getName()} hit`)
+                    if(player.dispatch('hit')){
+                        this.logger.log(`${player.getName()} hit`)
+                    }
                     break
                 }
                 case 'bet': {
@@ -223,13 +224,17 @@ class Game {
                     if(this.gameState.getState() !== 'WAITING' || request.value === undefined){
                         return //cant place bet after game has started or bet value is missing
                     }
-                    player.dispatch('bet', request.value)
-                    this.logger.log(`${player.getName()} bet`)
+                    if(player.dispatch('bet', request.value)){
+                        this.logger.log(`${player.getName()} bet`)
+                    }
+                    
                     break
                 }
                 case 'stand': {
-                    player.dispatch('stand')
-                    this.logger.log(`${player.getName()} stands`)
+                    
+                    if(player.dispatch('stand')){
+                        this.logger.log(`${player.getName()} stands`)
+                    }
                     break
                 }
             }
