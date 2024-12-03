@@ -6,6 +6,8 @@ const InputName = ({ setNameRequest }) => {
 
   const [inputValue, setInputValue] = useState('');
 
+  const [notification, setNotification] = useState(undefined)
+
   const handleChange = (e) => {
     if (e.target.value.length <= 20) {
       setInputValue(e.target.value);
@@ -14,6 +16,12 @@ const InputName = ({ setNameRequest }) => {
 
   const handleClick = () => {
 
+    if (inputValue.length < 3 || inputValue.length > 20) {
+      setNotification('Name must be between 3 and 20 characters')
+      console.log('Name must be between 3 and 20 characters') 
+      return
+    }
+
     setNameRequest(inputValue)
 
   }
@@ -21,6 +29,7 @@ const InputName = ({ setNameRequest }) => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="flex flex-col items-center">
+        {notification && <div>{notification}</div>}
         <input type="text" className="name-input mb-4 p-2 border rounded" placeholder="Enter a Name" onChange={handleChange} value={inputValue} />
         <button id="stand" className="m-1 p-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700" onClick={handleClick}>
           SetName
