@@ -19,7 +19,7 @@ class MockingClient extends EventEmitter {
     send(msg){
     
         let response = JSON.parse(msg)
-       
+
     
         if(response.method === "connect"){
     
@@ -192,6 +192,22 @@ describe('create , join and exit game, when no players in game delete game and c
 
     })
 
+
+    test("bad action client malformed json request should not crash server and be ignored, no response should be emitted by server", () => {
+        //log request 
+        bob.emit('message', "this is not json")
+        bob.emit('message', JSON.stringify({})) // missing method and clientId
+        bob.emit('message', JSON.stringify({ method: 'set-name' })) // missing clientId
+        bob.emit('message', JSON.stringify({ clientId: '123' })) // missing method and clientId not proper length
+        bob.emit('message', JSON.stringify({ method: 'set-name', clientId: '123'})) // missing clientid not proper length
+        bob.emit('message', JSON.stringify({ method: 'set-name', clientId: bob.id})) //missing clientName
+        bob.emit('message', JSON.stringify({ method: 'set-name', clientId: bob.id, clientName: 'bob', random: "ranodmfodjgoijgodijgrd"})) //correct request but invalid key can piggy back on correct response
+        assert.strictEqual(bob.name,undefined)
+        bob.emit('message',bob.requestSetName('bob')) //welformed request
+        assert.strictEqual(bob.name,'bob')
+
+    })
+
     test(`one player creates game other joins using game id 
         player request to leave came after placing bet hence keep joe in game till the round is resolved then exit
         the last player to leave game should also trigger the game object to be deleted from the server
@@ -348,9 +364,6 @@ describe('mocking server and clients ', () => {
         client 2 can join the game given he includes game id to join the game in the request`, () => {
 
 
-
-
-
         client.responseCount = 0
 
         client['send'] = function (res) {
@@ -454,6 +467,8 @@ describe('mocking server and clients ', () => {
 
 
     })
+
+
 
 
 

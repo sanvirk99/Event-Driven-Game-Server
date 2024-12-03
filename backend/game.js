@@ -220,8 +220,8 @@ class Game {
                 }
                 case 'bet': {
 
-                    if(this.gameState.getState() !== 'WAITING'){
-                        return //cant place bet after game has started
+                    if(this.gameState.getState() !== 'WAITING' || request.value === undefined){
+                        return //cant place bet after game has started or bet value is missing
                     }
                     player.dispatch('bet', request.value)
                     this.logger.log(`${player.getName()} bet`)

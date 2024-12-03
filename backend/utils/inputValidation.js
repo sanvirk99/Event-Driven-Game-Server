@@ -16,7 +16,7 @@ const methodsSchema = {
     properties: {
         method: {
             type: "string",
-            enum: ["set-name","join","create","game-action","exit-game"]
+            enum: ["set-name","join","create","game-action","exit-game", "chat"]
         },
         clientId: {
             type: "string",
@@ -35,10 +35,20 @@ const methodsSchema = {
         gameAction: {
             type: "string",
             enum: ["hit","stand","bet"]
+        },
+        chatMsg: {
+            type: "string",
+            maxLength: 255
+        },
+        value : {
+            type: "integer",
+            minimum: 2,
+            maximum: 2
         }
+
     },
     required: ["method","clientId"],
-    additionalProperties: true,
+    additionalProperties: false
 }
 
 
@@ -49,7 +59,6 @@ const methodValidation= ajv.compile(methodsSchema)
 
 
 module.exports = {
-
     sampleValidation,
     methodValidation
 }

@@ -37,7 +37,7 @@ describe("ajv game lobby interaction message validation", ()=>{
 
     
 
-    test("setting name ",()=>{
+    test("setting name + altering clientid or exceding max name length",()=>{
         let req={
             method: 'set-name',
             clientId : clientId,
@@ -75,6 +75,57 @@ describe("ajv game lobby interaction message validation", ()=>{
             method: 'set-name',
             clientId : clientId,
             clientName: "bo"
+        }
+        assert.strictEqual(methodValidation(req),false)
+
+    })
+
+    test("joining a game, additonal key should fail",()=>{
+        let req = {
+            method: 'join',
+            clientId : clientId,
+            gameId: gameId,
+        }
+        assert.strictEqual(methodValidation(req),true)
+
+        req = {
+            method: 'join',
+            clientId : clientId,
+            gameId: gameId,
+            random: 'DFDSFDS'
+        }
+        assert.strictEqual(methodValidation(req),false)
+
+    })
+
+
+    test("creating a game, additonal key should fail",()=>{
+        let req = {
+            method: 'create',
+            clientId : clientId,
+        }
+        assert.strictEqual(methodValidation(req),true)
+
+        req = {
+            method: 'create',
+            clientId : clientId,
+            random: 'DFDSFDS'
+        }
+        assert.strictEqual(methodValidation(req),false)
+
+    })
+
+    test("exiting a game, additonal key should fail",()=>{
+        let req = {
+            method: 'exit-game',
+            clientId : clientId,
+        }
+        assert.strictEqual(methodValidation(req),true)
+
+        req = {
+            method: 'exit-game',
+            clientId : clientId,
+            random: 'DFDSFDS'
         }
         assert.strictEqual(methodValidation(req),false)
 

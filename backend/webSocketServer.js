@@ -2,6 +2,7 @@
 const crypto = require('node:crypto');
 const { Logger } = require('./utils/logger')
 const { createGameWithRandomDeck } = require('./game')
+const {sampleValidation,methodValidation} = require('./utils/inputValidation')
 
 //comminicate via json format
 
@@ -63,7 +64,12 @@ function createWebSocketServer(wss) {
             let request=undefined
             try{ //if formated
                 request=JSON.parse(data)
+                if(!methodValidation(request)){
+                    console.log('invalid request')   
+                    return 
+                }
             }catch(e){
+                console.log('invalid request')
                 return
             }
 
@@ -121,11 +127,14 @@ function createWebSocketServer(wss) {
                 ws.send(JSON.stringify(res))
 
             }
-
-
+            //all actions below require a gameId
+            if(request.gameId === undefined){
+                return
+            }
+            
             if (request.method === 'join') {//cant join if already connection in game
 
-                if(ws.gameId !== undefined){
+                if(ws.gameId !== undefined ){
                     return //cant create or join while in game
                 }
 
@@ -142,18 +151,12 @@ function createWebSocketServer(wss) {
                         gameId: request.gameId,
                         playerCount: games[request.gameId].players.length
                     }
-
                     ws.send(JSON.stringify(res))
 
                 }
-
-
-
             }
 
             if (request.method === 'exit-game') {  //if the player count is less then zero delete the game instanse
-
-                //client will join the game and then proceed to play
 
                 if (request.gameId in games) {
                     if (clientRemovalGame(ws)) {
@@ -167,14 +170,10 @@ function createWebSocketServer(wss) {
                 }
 
             }
-
-
             if (request.method === 'game-action') {
-                //let the game object take care of the msg based on the game id 
-
+               
                 if (request.gameId in games) {
                     games[request.gameId].game.gameAction(request)
-
                 }
             }
 
