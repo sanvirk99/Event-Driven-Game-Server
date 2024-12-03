@@ -2,7 +2,7 @@
 const {test, beforeEach, describe, before} = require('node:test')
 const assert = require('assert')
 
-const {sampleValidation} = require("../utils/inputValidation") 
+const {sampleValidation,methodValidation} = require("../utils/inputValidation") 
 
 
 const gameId='8d94816d-ddba-477a-a085-859bb286f8d5'
@@ -37,26 +37,46 @@ describe("ajv game lobby interaction message validation", ()=>{
 
     
 
-    test("setting name",()=>{
+    test("setting name ",()=>{
+        let req={
+            method: 'set-name',
+            clientId : clientId,
+            clientName: "bob"
+        }
+        assert.strictEqual(methodValidation(req),true)
+        req={
+            method: 'set-nam',
+            clientId : clientId,
+            clientName: "bob"
+        }
+        assert.strictEqual(methodValidation(req),false)
+        req={
+            method: 'set-nam',
+            clientId : clientId,
+            clientName: "bobdddddddddddddddddddddddddddddd"
+        }
+        assert.strictEqual(methodValidation(req),false)
+        req={
+            method: 'set-name',
+            clientId : clientId+'1',
+            clientName: "bob"
 
-        // const schema = {
-        //     type: "object",
-        //     properties: {
-        //         foo: {type: "integer"},
-        //         bar: {type: "string", maxLength: 3}
-        //     },
-        //     required: ["foo"],
-        //     additionalProperties: false
-        // }
+        }
+        assert.strictEqual(methodValidation(req),false)
+        req={
+            method: 'set-name',
+            clientId : clientId.slice(0,-1),
+            clientName: "bob"
 
-        // let requestWellformated = {
+        }
+        assert.strictEqual(methodValidation(req),false)
 
-        //     method: 'set-name',
-        //     clientId : myId,
-        //     clientName: nameInput
-        // }
-    
-
+        req={
+            method: 'set-name',
+            clientId : clientId,
+            clientName: "bo"
+        }
+        assert.strictEqual(methodValidation(req),false)
 
     })
 

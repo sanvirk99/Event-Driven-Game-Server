@@ -9,21 +9,47 @@ const schema = {
     },
     required: ["foo"],
     additionalProperties: false
-    }
-
-    const validate = ajv.compile(schema)
-
-    const data = {
-    foo: 1,
-    bar: "abc"
 }
 
+const methodsSchema = {
+    type: "object",
+    properties: {
+        method: {
+            type: "string",
+            enum: ["set-name","join","create","game-action","exit-game"]
+        },
+        clientId: {
+            type: "string",
+            maxLength: 36,
+            minLength: 36
+        },
+        clientName: {
+            type: "string",
+            maxLength: 20,
+            minLength: 3
+        },
+        gameId: {
+            type: "string",
+            maxLength: 36
+        },
+        gameAction: {
+            type: "string",
+            enum: ["hit","stand","bet"]
+        }
+    },
+    required: ["method","clientId"],
+    additionalProperties: true,
+}
+
+
 const sampleValidation = ajv.compile(schema)
+const methodValidation= ajv.compile(methodsSchema)
 
 
 
 
 module.exports = {
 
-    sampleValidation
+    sampleValidation,
+    methodValidation
 }
