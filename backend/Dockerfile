@@ -12,5 +12,5 @@ RUN npm install
 # Copy the entire application files to the working directory
 COPY . .
 
-# Command to run the WebSocket server when the container starts
-CMD ["node", "index.js"]
+# test then run node
+CMD ["sh", "-c", "npm run test && node index.js"]
