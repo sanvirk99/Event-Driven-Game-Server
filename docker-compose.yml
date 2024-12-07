@@ -1,0 +1,11 @@
+# version: "3"
+# services:
+#   ws-server:
+#     build:
+#       dockerfile: Dockerfile
+#       context: ./backend
+#     volumes:
+#       - /app/node_modules
+#       - ./backend:./app
+
+ 
