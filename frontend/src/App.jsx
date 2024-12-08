@@ -39,6 +39,20 @@ const InputName = ({ setNameRequest }) => {
   );
 }
 
+//https://stackoverflow.com/questions/10406930/how-to-construct-a-websocket-uri-relative-to-the-page-uri
+// Get the protocol (ws for http, wss for https)
+const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+
+// Get the host (domain or IP address)
+const host = window.location.hostname;
+
+// Get the port (default to 80 for ws and 443 for wss if not specified)
+// const port = window.location.port ? `:${window.location.port}` : '';
+const port = ':8080'
+
+// Construct the WebSocket URI
+const wsUri = `${protocol}//${host}${port}`;
+
 
 function App() {
 
@@ -50,7 +64,7 @@ function App() {
 
 
   useEffect(() => {
-    const socket = new WebSocket("ws://localhost:8080")
+    const socket = new WebSocket(wsUri)
 
     // Connection opened
     socket.onopen = function (event) {

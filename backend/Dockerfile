@@ -11,6 +11,8 @@ RUN npm install
 
 # Copy the entire application files to the working directory
 COPY . .
+# Copy the mvp-frontend directory to be a sibling of the app directory
+COPY ../mvp-frontend /mvp-frontend
 
 # test then run node
 CMD ["sh", "-c", "npm run test && node index.js"]
