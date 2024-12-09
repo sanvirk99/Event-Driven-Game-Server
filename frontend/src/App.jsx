@@ -48,10 +48,10 @@ const host = window.location.hostname;
 
 // Get the port (default to 80 for ws and 443 for wss if not specified)
 // const port = window.location.port ? `:${window.location.port}` : '';
-const port = ':8080'
+// const port = ':8080'
 
 // Construct the WebSocket URI
-const wsUri = `${protocol}//${host}${port}`;
+const wsUri = `${protocol}//${host}/ws`;
 
 
 function App() {

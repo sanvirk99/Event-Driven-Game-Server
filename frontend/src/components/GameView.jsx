@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import "../assets/GameView.css";
-
-const imgPath = "/src/assets/img/";
+const imgPath = `${import.meta.env.BASE_URL}img`;
 const cardValues = ['0', '2', '3', '4', '5', '6', '7', '8', '9', 'J', 'Q', 'K', 'A'];
 const suits = ['D', 'H', 'S', 'C'];
 

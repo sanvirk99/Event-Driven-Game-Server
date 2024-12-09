@@ -14,7 +14,7 @@ server.listen(port, () => {
 const wss = createWebSocketServer(new WebSocketServer({ server }))
 
 
-app.use(express.static('./mvp-frontend/'))
+//app.use(express.static('./mvp-frontend/'))
 
 app.get('/ping', (req, res) => res.send('Hello World'))
 

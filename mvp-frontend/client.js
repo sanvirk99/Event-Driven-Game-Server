@@ -10,7 +10,7 @@ const host = window.location.hostname;
 const port = window.location.port ? `:${window.location.port}` : '';
 
 // Construct the WebSocket URI
-const wsUri = `${protocol}//${host}${port}`;
+const wsUri = `${protocol}//${host}/ws`;
 
 console.log(wsUri); // Print or use the WebSocket URI
 

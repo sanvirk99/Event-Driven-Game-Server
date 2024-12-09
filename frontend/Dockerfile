@@ -13,4 +13,4 @@ RUN npm install
 COPY . .
 
 # commad to run vite interface
-CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "build"]
