@@ -6,6 +6,8 @@ services:
     volumes:
       - ./backend:/app
       - /app/node_modules
+    networks:
+      - proxied  # Connect to the external 'proxied' network
 
   react-client:
     build: 
@@ -23,11 +25,16 @@ services:
     build:
       dockerfile: Dockerfile
       context: ./nginx
-    ports:
-      - "80:80"
+    # ports:
+    #   - "80:80"
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
       - ./frontend/dist:/usr/share/nginx/html/client
       - ./mvp-frontend:/usr/share/nginx/html/mvp-client  # Serve the static files
+    networks:
+      - proxied
 
-    
+networks:
+  proxied:
+    name: proxied
+    external: true
