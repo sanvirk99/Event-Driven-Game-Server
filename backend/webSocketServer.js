@@ -21,7 +21,7 @@ function createWebSocketServer(wss) {
     const clientRemovalGame = (ws) => {
 
         if (ws.gameId in games) {
-            games[ws.gameId].game.remove(ws)
+            // games[ws.gameId].game.remove(ws)
             let index = games[ws.gameId].players.findIndex(id => id === ws.uuid)
             if (index != -1) {
                 games[ws.gameId].game.remove(ws)
@@ -49,7 +49,6 @@ function createWebSocketServer(wss) {
             ws.close()
             return  
         }
-
 
         ws.uuid = crypto.randomUUID()
         ws.clientName = "unnamed"

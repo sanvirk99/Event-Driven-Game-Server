@@ -6,27 +6,31 @@
 
 ![System](screenshots/system.jpeg)
 
-## Run Project
+## Run Project locally using Docker
 
-To run the project, navigate to the `backend` directory and execute the following command:
+The docker-compose file is provided to run the project locally. To run the project, execute the following command:
 
 ```
-cd backend
-node index {port}
+docker-compose -f docker-compose-local.yml up
 ```
+This will compose three services:
+1. React Client
+2. Mvp Client
+3. Backend
 
-If the `{port}` parameter is not provided, the project will default to port 8080. 
+the project will be running on http://localhost with port 80 (http)
 
-## Run Frontend
-
-To run the frontend, you can access it by navigating to `localhost:{port}` in your web browser. The frontend is automatically served by the backend server when it is run.
-
+React Client: http://localhost
+![alt text](reactclient.png)
+Mvp Client: http://localhost/mvp-client
+![alt text](mvpclient.png)
 
 ## Test Project
 
-To test the project, run the following command:
+Current test only cover the backend and test are run automatically when the project is built using docker, run the following command in the backend directory to run the tests independently:
 
 ```
+cd backend
 npm run test
 ```
 
@@ -44,7 +48,7 @@ npm run test-report
 ![Report](screenshots/coverage.png)
 
 
-## Screenshots
+## Basic Flow using mvp-client (http://localhost/mvp-client), screeshots taken when port 8080 was used 
 
 ### Landing page
 

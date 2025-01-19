@@ -1,0 +1,31 @@
+services:
+  ws-server:
+    build:
+      dockerfile: Dockerfile
+      context: ./backend
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+  react-client:
+    build: 
+      dockerfile: Dockerfile
+      context: ./frontend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+  nginx:
+    depends_on:
+      - ws-server
+      - react-client
+    # restart: always
+    build:
+      dockerfile: Dockerfile
+      context: ./nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./frontend/dist:/usr/share/nginx/html/client
+      - ./mvp-frontend:/usr/share/nginx/html/mvp-client  # Serve the static files
