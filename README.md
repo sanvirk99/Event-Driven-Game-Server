@@ -15,15 +15,21 @@ docker-compose -f docker-compose-local.yml up
 ```
 This will compose three services:
 1. React Client
-2. Mvp Client
+2. Mvp Client (minimal client)
 3. Backend
 
 the project will be running on http://localhost with port 80 (http)
 
-React Client: http://localhost
-![alt text](reactclient.png)
-Mvp Client: http://localhost/mvp-client
-![alt text](mvpclient.png)
+<div style="display: flex; justify-content: space-around;">
+    <div>
+        <p>React Client: <a href="http://localhost">http://localhost</a></p>
+        <img src="reactclient.png" alt="React Client" width="500"/>
+    </div>
+    <div>
+        <p>Mvp Client: <a href="http://localhost/mvp-client">http://localhost/mvp-client</a></p>
+        <img src="mvpclient.png" alt="Mvp Client" width="500"/>
+    </div>
+</div>
 
 ## Test Project
 
