@@ -7,85 +7,85 @@ const { createWebSocketServer } = require('../webSocketServer')
 const { EventEmitter } = require('events');
 
 
-class Mocking extends EventEmitter{}
+class Mocking extends EventEmitter { }
 
-class MockingClient extends EventEmitter { 
+class MockingClient extends EventEmitter {
 
-    constructor(){
+    constructor() {
         super()
-        this.inGame=false
+        this.inGame = false
     }
 
-    send(msg){
-    
+    send(msg) {
+
         let response = JSON.parse(msg)
 
-    
-        if(response.method === "connect"){
-    
-            this.id=response.clientId
-            
-        }
-    
-        if(response.method === "set-name"){
-            this.name=response.clientName
-        }
-    
-        if(response.method === "chat"){
-    
-        }
-    
-        if(response.method === "create"){
-    
-            this.gameId=response.gameId
-            this.inGame=true
-            
-        }
-    
-        if(response.method === "join"){
-    
-           this.gameId=response.gameId
-           this.inGame=true
-        
-        }
-    
-        if(response.method === 'snapshot'){
-            this.snapshot=response.snapshot
+
+        if (response.method === "connect") {
+
+            this.id = response.clientId
+
         }
 
-        if(response.method === 'exit-game'){
+        if (response.method === "set-name") {
+            this.name = response.clientName
+        }
+
+        if (response.method === "chat") {
+
+        }
+
+        if (response.method === "create") {
+
+            this.gameId = response.gameId
+            this.inGame = true
+
+        }
+
+        if (response.method === "join") {
+
+            this.gameId = response.gameId
+            this.inGame = true
+
+        }
+
+        if (response.method === 'snapshot') {
+            this.snapshot = response.snapshot
+        }
+
+        if (response.method === 'exit-game') {
             this.inGame = false
             this.gameId = undefined
-            
+
         }
-    
+
     }
 
-    requestCreate(){
+    requestCreate() {
         const req = {
 
             clientId: this.id,
             method: "create",
-    
+
         }
-    
+
         return JSON.stringify(req)
     }
 
-    requestSetName(_name){
+    requestSetName(_name) {
 
-        const req={
+        const req = {
             method: 'set-name',
-            clientId : this.id,
+            clientId: this.id,
             clientName: _name
         }
 
         return JSON.stringify(req)
-       
+
     }
 
 
-    requestBet(){
+    requestBet() {
 
         const requestBet = {
             method: 'game-action',
@@ -99,7 +99,7 @@ class MockingClient extends EventEmitter {
 
     }
 
-    requestHit(){
+    requestHit() {
 
         const requestStand = {
             method: 'game-action',
@@ -107,13 +107,13 @@ class MockingClient extends EventEmitter {
             clientId: this.id,
             gameAction: 'hit',
         }
-    
+
         return JSON.stringify(requestStand)
 
 
     }
 
-    requestStand(){
+    requestStand() {
 
         const requestStand = {
             method: 'game-action',
@@ -121,19 +121,19 @@ class MockingClient extends EventEmitter {
             clientId: this.id,
             gameAction: 'stand',
         }
-    
+
         return JSON.stringify(requestStand)
 
 
     }
 
-    requestExit(){
+    requestExit() {
 
 
         const request = {
 
             method: 'exit-game',
-            clientId : this.id,
+            clientId: this.id,
             gameId: this.gameId,
         }
 
@@ -143,12 +143,12 @@ class MockingClient extends EventEmitter {
     }
 
 
-    requestJoin(joinId){
+    requestJoin(joinId) {
 
         const request = {
 
             method: 'join',
-            clientId : this.id,
+            clientId: this.id,
             gameId: joinId,
         }
 
@@ -161,7 +161,7 @@ class MockingClient extends EventEmitter {
 
 }
 
-describe('create , join and exit game, when no players in game delete game and connection close  ', () => {
+describe('create , join and exit game, when no players in game delete game and connection   ', () => {
 
 
     let server
@@ -171,24 +171,24 @@ describe('create , join and exit game, when no players in game delete game and c
     const awaitEnd = (game) => new Promise(resolve => {
         const intervalId = setInterval(() => {
 
-            if(game.getState() === 'END'){
+            if (game.getState() === 'END') {
                 clearInterval(intervalId)
                 resolve()
                 return
-            }else{
-                 game.run()
+            } else {
+                game.run()
             }
 
         }, 10);
     })
 
-    beforeEach(()=>{
+    beforeEach(() => {
         server = createWebSocketServer(new Mocking())
         bob = new MockingClient()
-        joe= new MockingClient()
+        joe = new MockingClient()
 
-        server.emit('connection',bob)
-        server.emit('connection',joe)
+        server.emit('connection', bob)
+        server.emit('connection', joe)
 
     })
 
@@ -199,157 +199,155 @@ describe('create , join and exit game, when no players in game delete game and c
         bob.emit('message', JSON.stringify({})) // missing method and clientId
         bob.emit('message', JSON.stringify({ method: 'set-name' })) // missing clientId
         bob.emit('message', JSON.stringify({ clientId: '123' })) // missing method and clientId not proper length
-        bob.emit('message', JSON.stringify({ method: 'set-name', clientId: '123'})) // missing clientid not proper length
-        bob.emit('message', JSON.stringify({ method: 'set-name', clientId: bob.id})) //missing clientName
-        bob.emit('message', JSON.stringify({ method: 'set-name', clientId: bob.id, clientName: 'bob', random: "ranodmfodjgoijgodijgrd"})) //correct request but invalid key can piggy back on correct response
-        assert.strictEqual(bob.name,undefined)
-        bob.emit('message',bob.requestSetName('bob')) //welformed request
-        assert.strictEqual(bob.name,'bob')
+        bob.emit('message', JSON.stringify({ method: 'set-name', clientId: '123' })) // missing clientid not proper length
+        bob.emit('message', JSON.stringify({ method: 'set-name', clientId: bob.id })) //missing clientName
+        bob.emit('message', JSON.stringify({ method: 'set-name', clientId: bob.id, clientName: 'bob', random: "ranodmfodjgoijgodijgrd" })) //correct request but invalid key can piggy back on correct response
+        assert.strictEqual(bob.name, undefined)
+        bob.emit('message', bob.requestSetName('bob')) //welformed request
+        assert.strictEqual(bob.name, 'bob')
 
     })
 
     test(`one player creates game other joins using game id 
         player request to leave came after placing bet hence keep joe in game till the round is resolved then exit
         the last player to leave game should also trigger the game object to be deleted from the server
-        in the event the connection closes and the player is last in the game session it should delete game object`,async ()=>{
+        in the event the connection closes and the player is last in the game session it should delete game object`, async () => {
 
-        bob.emit('message',bob.requestSetName('bob'))
-        joe.emit('message',joe.requestSetName('joe'))
-        assert.strictEqual(bob.name,'bob')
-        assert.strictEqual(joe.name,'joe')
+        bob.emit('message', bob.requestSetName('bob'))
+        joe.emit('message', joe.requestSetName('joe'))
+        assert.strictEqual(bob.name, 'bob')
+        assert.strictEqual(joe.name, 'joe')
 
-        assert.strictEqual(Object.keys(server.games).length,0)
-        bob.emit('message',bob.requestCreate())
-        assert.strictEqual(Object.keys(server.games).length,1)
-        assert.strictEqual(server.games[bob.gameId].players.length,1)
-        joe.emit('message',joe.requestJoin(bob.gameId))
-        assert.strictEqual(server.games[bob.gameId].players.length,2)
+        assert.strictEqual(Object.keys(server.games).length, 0)
+        bob.emit('message', bob.requestCreate())
+        assert.strictEqual(Object.keys(server.games).length, 1)
+        assert.strictEqual(server.games[bob.gameId].players.length, 1)
+        joe.emit('message', joe.requestJoin(bob.gameId))
+        assert.strictEqual(server.games[bob.gameId].players.length, 2)
 
-        assert.strictEqual(bob.inGame,true)
-        assert.strictEqual(joe.inGame,true)
+        assert.strictEqual(bob.inGame, true)
+        assert.strictEqual(joe.inGame, true)
 
+        const game = server.games[bob.gameId].game;
 
-        
-
-
-
-
-        const game=server.games[bob.gameId].game;
-
-        let snapShot=game.getGameSnapShot()
+        let snapShot = game.getGameSnapShot()
 
         assert(bob.id in snapShot)
         assert(joe.id in snapShot)
 
-        bob.emit('message',bob.requestBet())
-        joe.emit('message',joe.requestBet())
-        joe.emit('message',joe.requestExit())
-        
-        assert.strictEqual(bob.inGame,true)
-        assert.strictEqual(joe.inGame,false)
+        bob.emit('message', bob.requestBet())
+        joe.emit('message', joe.requestBet())
+        joe.emit('message', joe.requestExit())
 
-        await awaitEnd(game) 
-        snapShot=game.getGameSnapShot()
-        assert.strictEqual(snapShot['game'].state,'END')
-        assert(bob.id in snapShot)
-        assert(joe.id in snapShot)
+        assert.strictEqual(bob.inGame, true)
+        assert.strictEqual(joe.inGame, false)
 
-        game.run() 
+        await awaitEnd(game)
         snapShot = game.getGameSnapShot()
-        assert.strictEqual(snapShot['game'].state,'WAITING')
+        assert.strictEqual(snapShot['game'].state, 'END')
+        assert(bob.id in snapShot)
+        assert(joe.id in snapShot)
+
+        game.run()
+        snapShot = game.getGameSnapShot()
+        assert.strictEqual(snapShot['game'].state, 'WAITING')
         assert((joe.id in snapShot) === false);
-        assert.strictEqual(server.games[bob.gameId].players.length,1)
+        assert.strictEqual(server.games[bob.gameId].players.length, 1)
 
 
         //bob.emit('message',bob.requestExit())
         bob.emit('close') //close wont emit the exit game response, as client has probablu closed their browser
-        assert.strictEqual(Object.keys(server.games).length,0)
+        assert.strictEqual(Object.keys(server.games).length, 0)
 
-        assert.strictEqual(bob.inGame,true) 
-        assert.strictEqual(joe.inGame,false)
+        assert.strictEqual(bob.inGame, true)
+        assert.strictEqual(joe.inGame, false)
 
-        assert.strictEqual(Object.keys(server.clientList).length,1)
+        assert.strictEqual(Object.keys(server.clientList).length, 1)
         joe.emit('close')
-        assert.strictEqual(Object.keys(server.clientList).length,0)
-
-
-    
-
-
-
+        assert.strictEqual(Object.keys(server.clientList).length, 0)
 
     })
 
 
-    test(`once player is in game then cant join or create other games, creating game auto joins the player`,()=>{
+    test(`once player is in game then cant join or create other games, creating game auto joins the player`, () => {
 
-        bob.emit('message',bob.requestSetName('bob'))
-        joe.emit('message',joe.requestSetName('joe'))
-        assert.strictEqual(bob.name,'bob')
-        assert.strictEqual(joe.name,'joe')
+        bob.emit('message', bob.requestSetName('bob'))
+        joe.emit('message', joe.requestSetName('joe'))
+        assert.strictEqual(bob.name, 'bob')
+        assert.strictEqual(joe.name, 'joe')
 
-        bob.emit('message',bob.requestCreate())
-        assert.strictEqual(Object.keys(server.games).length,1)
-        assert.strictEqual(server.games[bob.gameId].players.length,1)
-        joe.emit('message',joe.requestCreate())
-        assert.strictEqual(server.games[joe.gameId].players.length,1)
+        bob.emit('message', bob.requestCreate())
+        assert.strictEqual(Object.keys(server.games).length, 1)
+        assert.strictEqual(server.games[bob.gameId].players.length, 1)
+        joe.emit('message', joe.requestCreate())
+        assert.strictEqual(server.games[joe.gameId].players.length, 1)
 
 
         //bob request to create after being in game is denited idacted by gameid not changin
-        const beforeId=bob.gameId
-        bob.emit('message',bob.requestCreate())
-        assert.strictEqual(beforeId,bob.gameId)
+        const beforeId = bob.gameId
+        bob.emit('message', bob.requestCreate())
+        assert.strictEqual(beforeId, bob.gameId)
 
         //bob request to join game of joe while in game denied
-        bob.emit('message',bob.requestJoin(joe.gameId))
-        assert.strictEqual(beforeId,bob.gameId)
+        bob.emit('message', bob.requestJoin(joe.gameId))
+        assert.strictEqual(beforeId, bob.gameId)
 
     })
 
 
     test(`limit the amount of player in gamession to 4, 
         new player can join when spot in empty, 
-        new joined player is in watching state`,() =>{
-        
+        new joined player is in watching state`, () => {
+
         //get 5 player to join
 
-        let players={}
+        let players = {}
 
-        for(let i = 1; i<=5; i++){
-            players[i]=new MockingClient()
-            server.emit('connection',players[i])
-            players[i].emit('message',players[i].requestSetName(`player${i}`))
-            assert.strictEqual(players[i].name,`player${i}`)
+        for (let i = 1; i <= 5; i++) {
+            players[i] = new MockingClient()
+            server.emit('connection', players[i])
+            players[i].emit('message', players[i].requestSetName(`player${i}`))
+            assert.strictEqual(players[i].name, `player${i}`)
         }
 
-        players[1].emit('message',players[1].requestCreate())
+        players[1].emit('message', players[1].requestCreate())
         assert(players[1].inGame === true)
-        for(let i = 2; i<5; i++){   
-            players[i].emit('message',players[i].requestJoin(players[1].gameId))
+        for (let i = 2; i < 5; i++) {
+            players[i].emit('message', players[i].requestJoin(players[1].gameId))
             assert(players[i].inGame === true)
         }
 
-        assert.strictEqual(server.games[players[1].gameId].players.length,4)
+        assert.strictEqual(server.games[players[1].gameId].players.length, 4)
 
         //6th should fail
-        players[5].emit('message',players[5].requestJoin(players[1].gameId))
+        players[5].emit('message', players[5].requestJoin(players[1].gameId))
         assert(players[5].inGame === false)
 
         //make one player leave the game thats already in 
-        players[2].emit('message',players[2].requestExit())
+        players[2].emit('message', players[2].requestExit())
         assert(players[2].inGame === false)
-        assert.strictEqual(server.games[players[1].gameId].players.length,3)
+        assert.strictEqual(server.games[players[1].gameId].players.length, 3)
         //now the failed player should be in
 
-        players[5].emit('message',players[5].requestJoin(players[1].gameId))
+        players[5].emit('message', players[5].requestJoin(players[1].gameId))
         assert(players[5].inGame === true)
 
-        
+
     })
 
 
 })
 
+
+describe('handle connection loss and recovery, ensuring game state is preserved when a player reconnects from the same browser session', () => {
+
+    //mock client side local session storage memory to store the client id on intial connection, game id if game has been created or joined
+    //upon a connection loss, websocket id is changed when it reconnects, pass in the local stored id to the server to reconnect to the same session
+    //float the dangling client id wihout a websocket id mapping in a pool for a given time to allow the client to reconnect
+
+
+
+})
 
 
 describe('mocking server and clients ', () => {
