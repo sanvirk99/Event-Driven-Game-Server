@@ -7,7 +7,9 @@ const { createWebSocketServer } = require('../webSocketServer')
 const { EventEmitter } = require('events');
 
 
-class Mocking extends EventEmitter { }
+class Server extends EventEmitter { }
+
+class Mocking extends EventEmitter {}
 
 class MockingClient extends EventEmitter {
 
@@ -19,34 +21,22 @@ class MockingClient extends EventEmitter {
     send(msg) {
 
         let response = JSON.parse(msg)
-
-
         if (response.method === "connect") {
-
             this.id = response.clientId
-
         }
-
         if (response.method === "set-name") {
             this.name = response.clientName
         }
-
         if (response.method === "chat") {
-
         }
-
         if (response.method === "create") {
-
             this.gameId = response.gameId
             this.inGame = true
-
         }
 
         if (response.method === "join") {
-
             this.gameId = response.gameId
             this.inGame = true
-
         }
 
         if (response.method === 'snapshot') {
@@ -56,37 +46,29 @@ class MockingClient extends EventEmitter {
         if (response.method === 'exit-game') {
             this.inGame = false
             this.gameId = undefined
-
         }
 
     }
 
     requestCreate() {
         const req = {
-
             clientId: this.id,
             method: "create",
-
         }
-
         return JSON.stringify(req)
     }
 
     requestSetName(_name) {
-
         const req = {
             method: 'set-name',
             clientId: this.id,
             clientName: _name
         }
-
         return JSON.stringify(req)
-
     }
 
 
     requestBet() {
-
         const requestBet = {
             method: 'game-action',
             gameId: this.gameId,
@@ -94,20 +76,17 @@ class MockingClient extends EventEmitter {
             gameAction: 'bet',
             value: 2
         }
-
         return JSON.stringify(requestBet)
 
     }
 
     requestHit() {
-
         const requestStand = {
             method: 'game-action',
             gameId: this.gameId,
             clientId: this.id,
             gameAction: 'hit',
         }
-
         return JSON.stringify(requestStand)
 
 
@@ -121,40 +100,27 @@ class MockingClient extends EventEmitter {
             clientId: this.id,
             gameAction: 'stand',
         }
-
         return JSON.stringify(requestStand)
-
-
     }
 
     requestExit() {
-
-
         const request = {
-
             method: 'exit-game',
             clientId: this.id,
             gameId: this.gameId,
         }
-
         return JSON.stringify(request)
-
-
     }
 
 
     requestJoin(joinId) {
 
         const request = {
-
             method: 'join',
             clientId: this.id,
             gameId: joinId,
         }
-
         return JSON.stringify(request)
-
-
     }
 
 
@@ -162,7 +128,6 @@ class MockingClient extends EventEmitter {
 }
 
 describe('create , join and exit game, when no players in game delete game and connection   ', () => {
-
 
     let server
     let bob
@@ -183,7 +148,7 @@ describe('create , join and exit game, when no players in game delete game and c
     })
 
     beforeEach(() => {
-        server = createWebSocketServer(new Mocking())
+        server = createWebSocketServer(new Server())
         bob = new MockingClient()
         joe = new MockingClient()
 
@@ -338,21 +303,9 @@ describe('create , join and exit game, when no players in game delete game and c
 
 })
 
-
-describe('handle connection loss and recovery, ensuring game state is preserved when a player reconnects from the same browser session', () => {
-
-    //mock client side local session storage memory to store the client id on intial connection, game id if game has been created or joined
-    //upon a connection loss, websocket id is changed when it reconnects, pass in the local stored id to the server to reconnect to the same session
-    //float the dangling client id wihout a websocket id mapping in a pool for a given time to allow the client to reconnect
-
-
-
-})
-
-
 describe('mocking server and clients ', () => {
 
-    const server = createWebSocketServer(new Mocking())
+    const server = createWebSocketServer(new Server())
     assert(server.listenerCount('connection') === 1) // listening for connections
     const client = new Mocking()
     const client2 = new Mocking()

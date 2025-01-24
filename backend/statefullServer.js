@@ -1,8 +1,8 @@
-
 const crypto = require('node:crypto');
 const { Logger } = require('./utils/logger')
 const { createGameWithRandomDeck } = require('./game')
 const {sampleValidation,methodValidation} = require('./utils/inputValidation')
+const {newClient} = require('./client')
 //comminicate via json format
 
 const PLAYER_COUNT_PER_SESSION=4

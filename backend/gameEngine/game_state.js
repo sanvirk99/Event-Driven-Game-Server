@@ -1,5 +1,3 @@
-const e = require("express")
-
 //watches player states and acts accordingly
 class GameState {
     constructor(game) {
