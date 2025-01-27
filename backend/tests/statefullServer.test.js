@@ -26,6 +26,11 @@ class MockingClient extends EventEmitter {
     send(msg) {
 
         let response = JSON.parse(msg)
+
+        if (response.method === "reconnect") {
+            this.id = response.clientId
+            this.name = response.clientName
+        }
         if (response.method === "connect") {
             this.id = response.clientId
         }
@@ -54,6 +59,7 @@ class MockingClient extends EventEmitter {
         }
 
     }
+
 
     requestCreate() {
         const req = {
@@ -128,6 +134,14 @@ class MockingClient extends EventEmitter {
         return JSON.stringify(request)
     }
 
+    requestEndSession() { //delete the client resource on the server
+        const request = {
+            method: 'terminate',
+            clientId: this.id
+        }
+        return JSON.stringify(request)
+    }
+
 
 
 }
@@ -139,23 +153,70 @@ describe('handle connection loss and recovery, ensuring game state is preserved 
     //upon a connection loss, websocket id is changed when it reconnects, pass in the local stored id to the server to reconnect to the same session
     //float the dangling client id wihout a websocket id mapping in a pool for a given time to allow the client to reconnect
 
-
-    let server=createWebSocketServer(new Server())
-
+    const clients = {}
+    let server=createWebSocketServer(new Server(),clients)
     let bob = new MockingClient()
 
+
     test('obtain a client id from the server,set the name simulate disconnect and reconnect insure name is still the same', () => {
-        assert(bob.id === undefined)
-        server.emit('connection', bob)
-        assert.notDeepStrictEqual(bob.id,undefined)
+        
+        assert.strictEqual(bob.id,undefined)
+        server.emit('connection', bob, { url: 'http://test' })
+        console.log(bob.id)
+        assert.notStrictEqual(bob.id , undefined)
         bob.emit('message', bob.requestSetName('bob'))
         assert.strictEqual(bob.name,'bob')
-        server.emit('close', bob)
+        
+        bob.emit('close')
 
+        assert.strictEqual(clients[bob.id].state,'DISCONNECTED')
         //bob resouces should be floating in the server and not deleted
-        previousId = bob.id
-        server.emit('connection', bob)
-        // assert.strictEqual(bob.id,previousId)
+        let previousId = bob.id
+        let name = bob.name
+        server.emit('connection', bob, { url: `http://test?uuid=${previousId}` })
+        assert.strictEqual(clients[previousId].state,'CONNECTED')
+        assert.strictEqual(bob.id,previousId)
+        assert.strictEqual(bob.name,name)
+        bob.emit('close')
+    })
+
+
+    test('handel case where id is passed but connection is not lost, server should not create a new connection and previous connection should not be affected', () => {
+
+        let alice = new MockingClient()
+        server.emit('connection', alice, { url: 'http://test' })
+        assert.notStrictEqual(alice.id,undefined)
+
+        alice.emit('message', alice.requestSetName('alice'))
+        assert.strictEqual(alice.name,'alice')
+        
+        let hijacker = new MockingClient()
+
+        let closecount = 0
+        hijacker.close = () => {
+            closecount++
+        }    
+
+        // invalid id which may be in correct format but not in database, hijacker should immediately be closed
+        server.emit('connection', hijacker, { url: `http://test?uuid=1234` })
+        assert.strictEqual(closecount,1)    
+
+        server.emit('connection', hijacker, { url: `http://test?uuid=${alice.id}` })
+        assert.strictEqual(closecount,2)    // hijacker should be closed since alice is still connected
+        alice.emit('close')
+        assert.strictEqual(clients[alice.id].state,'DISCONNECTED')
+
+        server.emit('connection', hijacker, { url: `http://test?uuid=${alice.id}` })
+        assert.strictEqual(hijacker.id,alice.id)  //since alice disconnected, hijacker should be able to connect alice session
+        assert.strictEqual(clients[hijacker.id].state,'CONNECTED')
+        assert.strictEqual(hijacker.name,'alice')
+
+    })
+
+
+    test('if alice ends the session hijacker should not be able to connect to alice session', () => {
+
+        
 
 
     })
