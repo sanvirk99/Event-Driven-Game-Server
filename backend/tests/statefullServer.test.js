@@ -161,7 +161,7 @@ describe('handle connection loss and recovery, ensuring game state is preserved 
     test('obtain a client id from the server,set the name simulate disconnect and reconnect insure name is still the same', () => {
         
         assert.strictEqual(bob.id,undefined)
-        server.emit('connection', bob, { url: 'http://test' })
+        server.emit('connection', bob, { url: '/test' })
         console.log(bob.id)
         assert.notStrictEqual(bob.id , undefined)
         bob.emit('message', bob.requestSetName('bob'))
@@ -173,18 +173,23 @@ describe('handle connection loss and recovery, ensuring game state is preserved 
         //bob resouces should be floating in the server and not deleted
         let previousId = bob.id
         let name = bob.name
-        server.emit('connection', bob, { url: `http://test?uuid=${previousId}` })
+        server.emit('connection', bob, { url: `/test?uuid=${previousId}` })
         assert.strictEqual(clients[previousId].state,'CONNECTED')
         assert.strictEqual(bob.id,previousId)
         assert.strictEqual(bob.name,name)
         bob.emit('close')
+
+        assert.strictEqual(clients[bob.id].state,'DISCONNECTED')
+
+        server.emit('connection', bob, { url: `/test?uuid=${previousId}` })
+        assert.strictEqual(clients[previousId].state,'CONNECTED')
     })
 
 
     test('handel case where id is passed but connection is not lost, server should not create a new connection and previous connection should not be affected', () => {
 
         let alice = new MockingClient()
-        server.emit('connection', alice, { url: 'http://test' })
+        server.emit('connection', alice, { url: '/test' })
         assert.notStrictEqual(alice.id,undefined)
 
         alice.emit('message', alice.requestSetName('alice'))
@@ -198,25 +203,27 @@ describe('handle connection loss and recovery, ensuring game state is preserved 
         }    
 
         // invalid id which may be in correct format but not in database, hijacker should immediately be closed
-        server.emit('connection', hijacker, { url: `http://test?uuid=1234` })
+        server.emit('connection', hijacker, { url: `/test?uuid=1234` })
         assert.strictEqual(closecount,1)    
 
-        server.emit('connection', hijacker, { url: `http://test?uuid=${alice.id}` })
+        server.emit('connection', hijacker, { url: `/test?uuid=${alice.id}` })
         assert.strictEqual(closecount,2)    // hijacker should be closed since alice is still connected
         alice.emit('close')
         assert.strictEqual(clients[alice.id].state,'DISCONNECTED')
 
-        server.emit('connection', hijacker, { url: `http://test?uuid=${alice.id}` })
+        server.emit('connection', hijacker, { url: `/test?uuid=${alice.id}` })
         assert.strictEqual(hijacker.id,alice.id)  //since alice disconnected, hijacker should be able to connect alice session
         assert.strictEqual(clients[hijacker.id].state,'CONNECTED')
         assert.strictEqual(hijacker.name,'alice')
+
+
 
     })
 
 
     test('if alice ends the session hijacker should not be able to connect to alice session', () => {
-
         
+
 
 
     })

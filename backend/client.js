@@ -25,6 +25,7 @@ class Client {
                 },
 
                 'disconnect': ()=>{
+                    this.ws=null
                     this.changeState("DISCONNECTED")
                 }
 
@@ -39,8 +40,10 @@ class Client {
                         clientId:this.uuid
 
                     }
-                    this.send(res)
+
                     this.changeState("CONNECTED")
+                    this.send(res)
+                    
 
                 }
             }
@@ -69,6 +72,7 @@ class Client {
 
     changeState(newState) {
         // validate that newState actually exists
+        console.log(this.uuid,newState)
         if (this.transitions[newState]) {
             this.state = newState;
         } else {
