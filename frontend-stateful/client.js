@@ -237,6 +237,27 @@ document.getElementById('set-name-button').addEventListener('click', function() 
 
 
 
+document.getElementById('end-session').addEventListener('click', function() {
+    
+    console.log('end session')
+    if(myId !== undefined){
+        const requestExit = {
+            method: 'terminate',
+            clientId: sessionStorage.getItem('uuid')
+        };
+    
+        socket.send(JSON.stringify(requestExit))
+        sessionStorage.removeItem('uuid');
+
+    }
+
+    
+});
+
+
+
+
+
 document.getElementById("join-game-button").addEventListener('click', () => {
     const input = document.getElementById('gameId-input');
     const inputText = input.value.trim();
