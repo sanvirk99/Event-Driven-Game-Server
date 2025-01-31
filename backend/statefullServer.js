@@ -41,11 +41,9 @@ function createWebSocketServer(wss,clients) {
                 })
 
                 return
-            }else{ //attemp to reconnect with a id that does not exist, hijacker? close the connection
-                ws.close() 
-                return
             }
         }
+        
 
         // generate a new uuid
         uuid = crypto.randomUUID()
@@ -58,9 +56,31 @@ function createWebSocketServer(wss,clients) {
         })
 
         ws.on('message', (data) => {
-            let request = JSON.parse(data)
-
+            //validation of request
+            let request = undefined
+            try { //if formated
+                request = JSON.parse(data)
+                if (!methodValidation(request)) {
+                    console.log('invalid request')
+                    console.log(request)
+                    return
+                }
+            } catch (e) {
+                console.log('invalid request')
+                return
+            }
+            console.log(data.toString())
             //if request can be handled by server process else send to client
+            if(request.method === 'terminate'){ // only websocket assigned to client can terminate in connected state
+                //another ws not assinged should not delete the client
+                if(request.clientId in clients && clients[request.clientId].ws === ws){
+                    clients[request.clientId].dispatch('terminate')
+                    delete clients[request.clientId]
+                }
+
+                return 
+
+            }
 
             client.dispatch(request.method, request)
         })

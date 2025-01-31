@@ -16,7 +16,7 @@ const methodsSchema = {
     properties: {
         method: {
             type: "string",
-            enum: ["set-name","join","create","game-action","exit-game", "chat"]
+            enum: ["set-name","join","create","game-action","exit-game", "chat","reconnect","terminate"]
         },
         clientId: {
             type: "string",

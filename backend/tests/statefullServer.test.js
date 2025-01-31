@@ -202,12 +202,13 @@ describe('handle connection loss and recovery, ensuring game state is preserved 
             closecount++
         }    
 
-        // invalid id which may be in correct format but not in database, hijacker should immediately be closed
+        // invalid id which may be in correct format but not in database, hijacker creates a new fresh client
+        // case where tab has not cleard the cache for local session storage
         server.emit('connection', hijacker, { url: `/test?uuid=1234` })
-        assert.strictEqual(closecount,1)    
+        assert.strictEqual(closecount,0)    
 
         server.emit('connection', hijacker, { url: `/test?uuid=${alice.id}` })
-        assert.strictEqual(closecount,2)    // hijacker should be closed since alice is still connected
+        assert.strictEqual(closecount,1)    // hijacker should be closed since alice is still connected
         alice.emit('close')
         assert.strictEqual(clients[alice.id].state,'DISCONNECTED')
 
@@ -221,12 +222,35 @@ describe('handle connection loss and recovery, ensuring game state is preserved 
     })
 
 
-    test('if alice ends the session hijacker should not be able to connect to alice session', () => {
+    test('if client ends the session with terminate all client resource on server should be delete', () => {
         
+        //log out request from alice should remove the client resource from the server
+        let bob = new MockingClient()
+        server.emit('connection', bob, { url: '/test' })
+
+        bob.emit('message', bob.requestSetName('bob'))
+
+        assert.strictEqual(clients[bob.id].state,'CONNECTED')
+        assert.strictEqual(clients[bob.id].clientName,'bob')
+
+        assert.notStrictEqual(clients[bob.id],undefined)
+
+       
+        // another client not bob should not be able to delete bob resoures unitl bob is connected
+        let alice = new MockingClient() 
+        server.emit('connection', alice, { url: '/test' })
+
+        let count=Object.keys(clients).length
+        alice.emit('message', { method: 'terminate', clientId: bob.id })
+        assert.strictEqual(Object.keys(clients).length,count)
+        bob.emit('message', bob.requestEndSession())
+        assert.strictEqual(Object.keys(clients).length,count-1)
+        assert.strictEqual(clients[bob.id],undefined)
+
+    
 
 
 
     })
-
 
 })
