@@ -21,10 +21,121 @@ if (sessionStorage.getItem('uuid')) {
 
 console.log(wsUri); // Print or use the WebSocket URI
 
-const socket=new WebSocket(wsUri)
+
+let socket=undefined
 let myId=undefined
 let myGameId=undefined
 let myName='unnamed'
+
+createSocket = () => {
+
+    socket=new WebSocket(wsUri)
+
+    socket.onopen = function(event) {
+        console.log('WebSocket is open now.');
+        console.log(event)
+       
+    };
+    
+    socket.onmessage = function(event) {
+        console.log('WebSocket message received:', event.data);
+    
+        if (event.data === "close"){
+            // socket.close()
+        }
+    
+        if (event.data === "connected") {
+            console.log('Connected to the server');
+            console.log
+            return;
+        }
+    
+        let response = {
+            method: 'unknown'
+        }
+        try {
+            response = JSON.parse(event.data);
+        } catch (error) {
+            console.log(event.data)
+            console.error('Error parsing JSON:', error);
+        }
+    
+        if (response.method === "reconnect") {
+            myId = response.clientId
+            myName = response.clientName
+        }
+    
+        if(response.method === "connect"){
+    
+            sessionStorage.setItem('uuid',response.clientId)
+            myId=response.clientId
+        }
+    
+        if(response.method === "set-name"){
+            myName=response.clientName
+           // displayMsg(`myName : ${myName}`)
+        }
+    
+        if(response.method === "chat"){
+            response.clientName ??= 'unnamed';
+            displayMsg(response.clientName+' :' + response.chatMsg)
+        }
+    
+        if(response.method === "create"){
+    
+            myGameId=response.gameId
+            hideJoinGame()
+            showInGame()
+         
+        }
+    
+        if(response.method === "join"){
+            myGameId=response.gameId
+            hideJoinGame()
+            showInGame()
+        }
+    
+        if(response.method === 'snapshot'){
+    
+            displayGame(response.snapshot)
+        }
+    
+        if(response.method === 'exit-game'){
+    
+            myGameId = undefined
+            hideInGame()
+            showJoinGame()
+            
+        }
+    
+    
+        displayStatus()
+    
+    };
+    
+    socket.onclose = function(event) {
+        console.log('WebSocket is closed now.');
+    };
+    
+    socket.onerror = function(error) {
+        console.error('WebSocket error observed:', error);
+    };
+    
+
+}
+
+createSocket()
+
+document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'visible') {
+        // Tab is in focus, check if WebSocket is closed and reconnect if necessary
+        if (socket.readyState === WebSocket.CLOSED) {
+            console.log('Reconnecting WebSocket...');
+            createSocket()
+        }
+    }
+});
+
 
 const displayMsg=(msg) => {
 
@@ -92,95 +203,6 @@ const displayGameMsg=(msg) => {
 }
 
 
-socket.onopen = function(event) {
-    console.log('WebSocket is open now.');
-    console.log(event)
-   
-};
-
-socket.onmessage = function(event) {
-    console.log('WebSocket message received:', event.data);
-
-    if (event.data === "close"){
-        // socket.close()
-    }
-
-    if (event.data === "connected") {
-        console.log('Connected to the server');
-        console.log
-        return;
-    }
-
-    let response = {
-        method: 'unknown'
-    }
-    try {
-        response = JSON.parse(event.data);
-    } catch (error) {
-        console.log(event.data)
-        console.error('Error parsing JSON:', error);
-    }
-
-    if (response.method === "reconnect") {
-        myId = response.clientId
-        myName = response.clientName
-    }
-
-    if(response.method === "connect"){
-
-        sessionStorage.setItem('uuid',response.clientId)
-        myId=response.clientId
-    }
-
-    if(response.method === "set-name"){
-        myName=response.clientName
-       // displayMsg(`myName : ${myName}`)
-    }
-
-    if(response.method === "chat"){
-        response.clientName ??= 'unnamed';
-        displayMsg(response.clientName+' :' + response.chatMsg)
-    }
-
-    if(response.method === "create"){
-
-        myGameId=response.gameId
-        hideJoinGame()
-        showInGame()
-     
-    }
-
-    if(response.method === "join"){
-        myGameId=response.gameId
-        hideJoinGame()
-        showInGame()
-    }
-
-    if(response.method === 'snapshot'){
-
-        displayGame(response.snapshot)
-    }
-
-    if(response.method === 'exit-game'){
-
-        myGameId = undefined
-        hideInGame()
-        showJoinGame()
-        
-    }
-
-
-    displayStatus()
-
-};
-
-socket.onclose = function(event) {
-    console.log('WebSocket is closed now.');
-};
-
-socket.onerror = function(error) {
-    console.error('WebSocket error observed:', error);
-};
 
 function chatmsg(messageText){
 
