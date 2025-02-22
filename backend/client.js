@@ -31,7 +31,7 @@ class Client {
 
             },
 
-            DISCONNECTED:{
+            DISCONNECTED:{ //this state should trigger a timeout to delete the client and remove them from any game
                 "reconnect": (ws)=>{
                     this.ws=ws
                     let res={

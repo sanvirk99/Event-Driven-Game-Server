@@ -19,14 +19,14 @@ function createWebSocketServer(wss,clients) {
 
     wss.on('connection', (ws,request) => {
 
-        // console.log(request.url)
+        console.log(request.url)
         let reconstructUrl = `http:/${request.url}`
         const url = new URL(reconstructUrl)
         let uuid = url.searchParams.get('uuid')
         if(uuid != null){
             if (uuid in clients) {
             
-                if(clients[uuid].dispatch('reconnect',ws) === false){ //atempt to reconnect already in a connected state
+                if(clients[uuid].dispatch('reconnect',ws) === false){ //attempt to reconnect already in a connected state
                     console.log('reconnect failed',clients[uuid].state)
                     ws.close()
                 }
