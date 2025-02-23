@@ -6,16 +6,21 @@ const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
 // Get the host (domain or IP address)
 const host = window.location.hostname;
 
-// Get the port (default to 80 for ws and 443 for wss if not specified)
-const port = window.location.port ? `:${window.location.port}` : '';
 
+//const port = 8080; // use when served with node on the host
+const port = window.location.port ? `:${window.location.port}` : ''; //use this when served with docker
+let wsUri = `${protocol}//${host}:${port}/ws`;
+
+//use this when served via node running directly on the host
+
+// let wsUri = `${protocol}//${host}:${port}/ws`;
 
 //check for localstorage for uuid if found include in uri of connection stringa
 
 // Construct the WebSocket URI
-let wsUri = `${protocol}//${host}${port}/ws`;
+
 if (sessionStorage.getItem('uuid')) {
-    wsUri = `${protocol}//${host}${port}/ws?uuid=${sessionStorage.getItem('uuid')}`;
+    wsUri = `${protocol}//${host}:${port}/ws?uuid=${sessionStorage.getItem('uuid')}`;
     console.log(wsUri); // Print or use the WebSocket URI
 }
 
@@ -49,7 +54,8 @@ createSocket = () => {
             console.log
             return;
         }
-    
+
+     
         let response = {
             method: 'unknown'
         }
@@ -70,6 +76,17 @@ createSocket = () => {
             sessionStorage.setItem('uuid',response.clientId)
             myId=response.clientId
         }
+
+        if (response.method === "terminate") {
+            console.log('Session terminated');
+            sessionStorage.removeItem('uuid');
+            myId = 'you session has ended refresh page to reconnect';
+            myGameId = undefined;
+            myName = undefined;
+            displayStatus();
+            return;
+        }
+    
     
         if(response.method === "set-name"){
             myName=response.clientName

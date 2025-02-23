@@ -1,5 +1,5 @@
 services:
-  ws-server:
+  stateful-ws-server:
     build:
       dockerfile: Dockerfile.stateful
       context: ./backend
@@ -9,7 +9,7 @@ services:
 
   nginx:
     depends_on:
-      - ws-server
+      - stateful-ws-server
     build:
       dockerfile: Dockerfile
       context: ./nginx
@@ -17,5 +17,4 @@ services:
       - "80:80"
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-      - ./frontend/dist:/usr/share/nginx/html/client
       - ./frontend-stateful:/usr/share/nginx/html/frontend-stateful  # Serve the static files

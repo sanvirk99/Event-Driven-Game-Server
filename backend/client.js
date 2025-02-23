@@ -9,7 +9,7 @@ class Client {
     constructor(ws,uuid){
         this.uuid=uuid
         this.ws=ws
-        this.state="CONNECTED"
+        this.state=null
         this.clientName="unnamed"
 
         this.transitions={
@@ -28,7 +28,6 @@ class Client {
                     this.ws=null
                     this.changeState("DISCONNECTED")
                 }
-
             },
 
             DISCONNECTED:{ //this state should trigger a timeout to delete the client and remove them from any game
@@ -40,7 +39,6 @@ class Client {
                         clientId:this.uuid
 
                     }
-
                     this.changeState("CONNECTED")
                     this.send(res)
                     
@@ -51,6 +49,8 @@ class Client {
     
 
         }
+
+        this.changeState("CONNECTED")
     }
 
     send(res){

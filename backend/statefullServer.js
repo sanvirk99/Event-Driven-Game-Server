@@ -9,7 +9,10 @@ const PLAYER_COUNT_PER_SESSION=4
 const MAX_CONNECTIONS=100  //clean up inactive connections or idle connections
 
 
+
+
 let clients
+
 
 function createWebSocketServer(wss,clients) {
 
@@ -19,38 +22,31 @@ function createWebSocketServer(wss,clients) {
 
     wss.on('connection', (ws,request) => {
 
-        console.log(request.url)
         let reconstructUrl = `http:/${request.url}`
         const url = new URL(reconstructUrl)
         let uuid = url.searchParams.get('uuid')
-        if(uuid != null){
-            if (uuid in clients) {
+        let client = undefined
+
+        if(uuid != null && uuid in clients){
             
-                if(clients[uuid].dispatch('reconnect',ws) === false){ //attempt to reconnect already in a connected state
-                    console.log('reconnect failed',clients[uuid].state)
-                    ws.close()
-                }
-
-                ws.on('close', () => {
-                    clients[uuid].dispatch('disconnect')
-                })
-
-                ws.on('message', (data) => {
-                    let request = JSON.parse(data)
-                    clients[uuid].dispatch(request.method, request)
-                })
-
+            if(clients[uuid].dispatch('reconnect',ws) === false){ //attempt to reconnect already in a connected state
+                console.log('reconnect failed',clients[uuid].state)
+                ws.close()
                 return
             }
+
+            client = clients[uuid]
+
+        }else{
+                // generate a new uuid
+            uuid = crypto.randomUUID()
+            //create a client objeect
+            client = newClient(ws, uuid)
+
+            clients[uuid] = client
+
         }
         
-
-        // generate a new uuid
-        uuid = crypto.randomUUID()
-   
-        //create a client objeect
-        const client = newClient(ws, uuid)
-
         ws.on('close', () => {
             client.dispatch('disconnect')
         })
@@ -69,25 +65,26 @@ function createWebSocketServer(wss,clients) {
                 console.log('invalid request')
                 return
             }
-            console.log(data.toString())
+           
             //if request can be handled by server process else send to client
             if(request.method === 'terminate'){ // only websocket assigned to client can terminate in connected state
                 //another ws not assinged should not delete the client
                 if(request.clientId in clients && clients[request.clientId].ws === ws){
-                    clients[request.clientId].dispatch('terminate')
+                    // clients[request.clientId].dispatch('terminate')
+                    clients[request.clientId].send({method:'terminate'})
+                    ws.close()
                     delete clients[request.clientId]
+                    console.log(uuid,'TERMINATED')
+                    
                 }
 
                 return 
 
             }
-
-            client.dispatch(request.method, request)
-        })
-
+            
         
-
-        clients[uuid] = client
+            clients[uuid].dispatch(request.method, request)
+        })
 
         const res = {
             method: "connect",
@@ -98,6 +95,32 @@ function createWebSocketServer(wss,clients) {
         ws.send(JSON.stringify(res))
 
     });
+
+
+
+      //update all players in game of gamestate and run the game loop every 1 second
+      let gamesInterval = undefined
+      if (process.env.NODE_ENV !== 'test') { //run auto loop
+          
+          let prev=-1
+          gamesInterval = setInterval(() => { 
+
+            if(Object.keys(clients).length !== prev){
+                console.log('client object count :',Object.keys(clients).length)
+                prev=Object.keys(clients).length
+            }
+           
+          }, 5000)
+  
+      }
+  
+      wss.stop = () => {
+  
+          clearInterval(gamesInterval)
+      }
+  
+
+
     return wss
 }
 

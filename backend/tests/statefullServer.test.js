@@ -60,6 +60,10 @@ class MockingClient extends EventEmitter {
 
     }
 
+    close() {
+        
+    }
+
 
     requestCreate() {
         const req = {
