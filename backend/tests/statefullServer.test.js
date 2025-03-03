@@ -250,8 +250,14 @@ describe('handle connection loss and recovery, ensuring game state is preserved 
         bob.emit('message', bob.requestEndSession())
         assert.strictEqual(Object.keys(clients).length,count-1)
         assert.strictEqual(clients[bob.id],undefined)
+    })
 
-    
+
+
+    test('client is diconnected state and reconnection is not established within a given time, client resource should be deleted', () => {
+
+
+        
 
 
 

@@ -13,29 +13,22 @@ const MAX_CONNECTIONS=100  //clean up inactive connections or idle connections
 
 let clients
 
+class clientResourceManager {
+    constructor(clients = {}) {
 
-function createWebSocketServer(wss,clients) {
-
-    if(clients === undefined){
-        clients = {}
+        this.clients = clients
     }
 
-    wss.on('connection', (ws,request) => {
+    newConnection(ws,uuid) {
 
-        let reconstructUrl = `http:/${request.url}`
-        const url = new URL(reconstructUrl)
-        let uuid = url.searchParams.get('uuid')
         let client = undefined
-
-        if(uuid != null && uuid in clients){
+        if(uuid != null && uuid in this.clients){
             
-            if(clients[uuid].dispatch('reconnect',ws) === false){ //attempt to reconnect already in a connected state
-                console.log('reconnect failed',clients[uuid].state)
-                ws.close()
-                return
+            if(this.clients[uuid].dispatch('reconnect',ws) === false){ //attempt to reconnect already in a connected state
+                throw new Error('reconnect failed already in connected state',this.clients[uuid].state) 
             }
 
-            client = clients[uuid]
+            client = this.clients[uuid]
 
         }else{
                 // generate a new uuid
@@ -43,9 +36,72 @@ function createWebSocketServer(wss,clients) {
             //create a client objeect
             client = newClient(ws, uuid)
 
-            clients[uuid] = client
+            this.clients[uuid] = client
 
         }
+
+
+        return {client,uuid}
+        
+    }
+
+
+    triggerCleanUp(client) {
+        
+    }
+
+    cancelCleanUp(client) {
+
+
+    }
+
+    removeClient(uuid) {
+        delete this.clients[uuid]
+    }
+
+    terminateRequest(uuid,ws) {
+
+        if(uuid in this.clients && this.clients[uuid].ws === ws){
+            // clients[request.clientId].dispatch('terminate')
+            this.clients[uuid].send({method:'terminate'})
+            delete this.clients[uuid]
+            console.log(uuid,'TERMINATED')
+            
+        }
+
+    }
+
+
+}
+
+
+function createWebSocketServer(wss,clients) {
+
+    if (clients === undefined) {
+        clients = {}
+    }
+
+    const resouceManger= new clientResourceManager(clients)
+
+    wss.on('connection', (ws,request) => {
+
+        let reconstructUrl = `http:/${request.url}`
+        const url = new URL(reconstructUrl)
+        let extractuuid = url.searchParams.get('uuid')
+
+        
+        let identity = undefined
+        
+        try {
+            identity=resouceManger.newConnection(ws,extractuuid)
+        } catch (e) {   
+            console.log(e)
+            ws.close()
+            return
+        }
+
+        let {client,uuid} = identity
+      
         
         ws.on('close', () => {
             client.dispatch('disconnect')
@@ -69,26 +125,18 @@ function createWebSocketServer(wss,clients) {
             //if request can be handled by server process else send to client
             if(request.method === 'terminate'){ // only websocket assigned to client can terminate in connected state
                 //another ws not assinged should not delete the client
-                if(request.clientId in clients && clients[request.clientId].ws === ws){
-                    // clients[request.clientId].dispatch('terminate')
-                    clients[request.clientId].send({method:'terminate'})
-                    ws.close()
-                    delete clients[request.clientId]
-                    console.log(uuid,'TERMINATED')
-                    
-                }
-
+                resouceManger.terminateRequest(request.clientId,ws)
+                ws.close()
                 return 
 
             }
             
-        
             clients[uuid].dispatch(request.method, request)
         })
 
         const res = {
             method: "connect",
-            clientId: uuid
+            clientId: client.uuid
 
         }
 

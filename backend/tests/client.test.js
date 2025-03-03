@@ -36,6 +36,8 @@ class MockingClient extends EventEmitter {
     }
 }
 
+
+
 describe('client oject state changes', () => {
 
     let ws = undefined
@@ -74,6 +76,15 @@ describe('client oject state changes', () => {
         client.dispatch('reconnect',ws2)
         assert.strictEqual(client.state,'CONNECTED')
         assert.strictEqual(uuid,ws2.id)
+    })
+
+
+    test('client disconnect triggers call for resource clean up', () => {
+
+
+
+
+
     })
   
 
