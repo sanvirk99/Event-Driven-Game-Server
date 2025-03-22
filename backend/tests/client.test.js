@@ -36,8 +36,6 @@ class MockingClient extends EventEmitter {
     }
 }
 
-
-
 describe('client oject state changes', () => {
 
     let ws = undefined
@@ -79,13 +77,6 @@ describe('client oject state changes', () => {
     })
 
 
-    test('client disconnect triggers call for resource clean up', () => {
-
-
-
-
-
-    })
   
 
 })

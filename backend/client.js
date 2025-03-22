@@ -11,6 +11,7 @@ class Client {
         this.ws=ws
         this.state=null
         this.clientName="unnamed"
+        this.cleanMem=false
 
         this.transitions={
 
@@ -72,12 +73,29 @@ class Client {
 
     changeState(newState) {
         // validate that newState actually exists
+        
         console.log(this.uuid,newState)
+        this.resetmemflag()
         if (this.transitions[newState]) {
             this.state = newState;
         } else {
             throw new Error(`Invalid state: ${newState}`);
         }
+    }
+
+    getmemflag(){
+        return this.cleanMem
+    }
+
+    setmemflag(){
+        this.cleanMem=true
+    }
+    resetmemflag(){
+        this.cleanMem=false
+    }
+
+    getstate(){
+        return this.state
     }
 
 

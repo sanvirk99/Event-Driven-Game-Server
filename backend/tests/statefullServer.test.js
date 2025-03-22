@@ -151,6 +151,28 @@ class MockingClient extends EventEmitter {
 }
 
 
+
+garbagecollector = (clients) => {
+
+    for (const client of Object.values(clients)) {
+        
+        if (client.getstate() === 'DISCONNECTED') {
+
+            if (client.cleanMem) {
+                delete clients[client.uuid]
+            }
+            else {
+                client.cleanMem = true
+            }
+                
+            
+        }
+    }
+
+}
+
+
+
 describe('handle connection loss and recovery, ensuring game state is preserved when a player reconnects from the same browser session', () => {
 
     //mock client side local session storage memory to store the client id on intial connection, game id if game has been created or joined
@@ -256,8 +278,35 @@ describe('handle connection loss and recovery, ensuring game state is preserved 
 
     test('client is diconnected state and reconnection is not established within a given time, client resource should be deleted', () => {
 
+        //try to use a loop which increments a counter or set a flag for disconnected client and after a given time if the flag is still set 
+        //delete the client resource, 
+        //however if the client reconnects before the time is up, the flag should be reset by the state change event
+        //only the garbage collector can flag for garbage collection
 
-        
+
+        let bob = new MockingClient()
+        server.emit('connection', bob, { url: '/test' })
+        bob.emit('message', bob.requestSetName('bob'))
+        assert.strictEqual(clients[bob.id].state,'CONNECTED')
+
+        let alice = new MockingClient()
+        server.emit('connection', alice, { url: '/test' })
+        alice.emit('message', alice.requestSetName('alice'))
+        assert.strictEqual(clients[alice.id].state,'CONNECTED')
+
+
+        bob.emit('close')
+
+        let count=Object.keys(clients).length   
+        assert.strictEqual(clients[bob.id].getstate(),'DISCONNECTED')
+        assert.strictEqual(clients[bob.id].getmemflag(),false)
+        garbagecollector(clients)
+        assert.strictEqual(clients[bob.id].getmemflag(),true)
+        garbagecollector(clients)
+        assert.strictEqual(clients[bob.id],undefined)
+        assert.strictEqual(Object.keys(clients).length,count-1)   
+
+
 
 
 
