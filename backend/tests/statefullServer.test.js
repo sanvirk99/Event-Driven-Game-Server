@@ -180,7 +180,8 @@ describe('handle connection loss and recovery, ensuring game state is preserved 
     //float the dangling client id wihout a websocket id mapping in a pool for a given time to allow the client to reconnect
 
     const clients = {}
-    let server=createWebSocketServer(new Server(),clients)
+    const games = {}
+    let server=createWebSocketServer(new Server(),clients,games)
     let bob = new MockingClient()
 
 
@@ -306,7 +307,21 @@ describe('handle connection loss and recovery, ensuring game state is preserved 
         assert.strictEqual(clients[bob.id],undefined)
         assert.strictEqual(Object.keys(clients).length,count-1)   
 
+    })
 
+
+    test('client can create a game', () => {
+
+        let bob = new MockingClient()
+        server.emit('connection', bob, { url: '/test' })
+        bob.emit('message', bob.requestSetName('bob'))
+        assert.strictEqual(clients[bob.id].state,'CONNECTED')
+
+        gameCount = Object.keys(games).length 
+
+        bob.emit('message', bob.requestCreate())
+        assert.strictEqual(bob.inGame,true)
+        assert.strictEqual(Object.keys(games).length,gameCount+1)
 
 
 

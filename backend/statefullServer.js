@@ -2,7 +2,8 @@ const crypto = require('node:crypto');
 const { Logger } = require('./utils/logger')
 const { createGameWithRandomDeck } = require('./game')
 const {sampleValidation,methodValidation} = require('./utils/inputValidation')
-const {newClient} = require('./client')
+const {newClient} = require('./client');
+const { default: def } = require('ajv/dist/vocabularies/discriminator');
 //comminicate via json format
 
 const PLAYER_COUNT_PER_SESSION=4
@@ -12,11 +13,13 @@ const MAX_CONNECTIONS=100  //clean up inactive connections or idle connections
 
 
 let clients
+let games
 
 class clientResourceManager {
-    constructor(clients = {}) {
+    constructor(clients = {},games = {}) {
 
         this.clients = clients
+        this.games = games
     }
 
     newConnection(ws,uuid) {
@@ -31,8 +34,10 @@ class clientResourceManager {
             client = this.clients[uuid]
 
         }else{
-                // generate a new uuid
+
+            // generate a new uuid
             uuid = crypto.randomUUID()
+
             //create a client objeect
             client = newClient(ws, uuid)
 
@@ -45,17 +50,14 @@ class clientResourceManager {
         
     }
 
-
-    triggerCleanUp(client) {
-        
+    createGame(uuid){ //uuid creating game joins the game automatically
+        let uuidGame = crypto.randomUUID()
+        const game = createGameWithRandomDeck(this.clients[uuid], new Logger())
+        this.games[uuidGame] = game
+        this.clients[uuid].createGame(uuidGame)    
     }
 
-    cancelCleanUp(client) {
-
-
-    }
-
-    removeClient(uuid) {
+    removeClient(uuid) { //also remove from game if in game and check if game is empty and delete resouce
         delete this.clients[uuid]
     }
 
@@ -71,17 +73,24 @@ class clientResourceManager {
 
     }
 
+   
+
 
 }
 
 
-function createWebSocketServer(wss,clients) {
+function createWebSocketServer(wss,clients,games) {
 
     if (clients === undefined) {
         clients = {}
     }
 
-    const resouceManger= new clientResourceManager(clients)
+    if (games === undefined) {
+        games = {}
+    }
+
+
+    const resouceManger= new clientResourceManager(clients,games)
 
     wss.on('connection', (ws,request) => {
 
@@ -130,8 +139,19 @@ function createWebSocketServer(wss,clients) {
                 return 
 
             }
-            
-            clients[uuid].dispatch(request.method, request)
+
+            //from this point use the uuid of the connection to get the client object
+
+            switch (request.method) {
+
+                case 'create':
+                    resouceManger.createGame(uuid)
+                    break;
+                default:
+                    client.dispatch(request.method, request)
+            }
+
+
         })
 
         const res = {

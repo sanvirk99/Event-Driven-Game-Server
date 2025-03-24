@@ -12,6 +12,7 @@ class Client {
         this.state=null
         this.clientName="unnamed"
         this.cleanMem=false
+        this.ingame=false
 
         this.transitions={
 
@@ -29,6 +30,8 @@ class Client {
                     this.ws=null
                     this.changeState("DISCONNECTED")
                 }
+
+
             },
 
             DISCONNECTED:{ //this state should trigger a timeout to delete the client and remove them from any game
@@ -53,6 +56,16 @@ class Client {
 
         this.changeState("CONNECTED")
     }
+
+    createGame(gameId){
+        this.ingame=true
+        let res={
+            method:"create",
+            gameId:gameId   
+        }
+        this.send(res)
+    }
+
 
     send(res){
         let msg=JSON.stringify(res)
