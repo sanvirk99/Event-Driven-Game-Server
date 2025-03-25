@@ -11,7 +11,7 @@ class PlayerState {
         this.name=ws.clientName  //game object references
         this.clientId=ws.uuid    //game object references
         this.hand=hand
-        this.game=game
+        // this.game=game
         this.state = "WATCHING"
         this.betAmount=0
         this.net=0

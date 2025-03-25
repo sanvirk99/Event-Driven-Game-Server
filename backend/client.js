@@ -66,6 +66,15 @@ class Client {
         this.send(res)
     }
 
+    joinGame(gameId){
+        this.ingame=true
+        let res={
+            method:"join",
+            gameId:gameId
+        }
+        this.send(res)
+    }
+
 
     send(res){
         let msg=JSON.stringify(res)

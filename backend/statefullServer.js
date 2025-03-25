@@ -57,6 +57,15 @@ class clientResourceManager {
         this.clients[uuid].createGame(uuidGame)    
     }
 
+    joinGame(uuid,gameId){
+
+        if(gameId in this.games){
+            this.games[gameId].join(this.clients[uuid])
+            this.clients[uuid].joinGame(gameId)
+        }
+
+    }
+
     removeClient(uuid) { //also remove from game if in game and check if game is empty and delete resouce
         delete this.clients[uuid]
     }
@@ -104,7 +113,7 @@ function createWebSocketServer(wss,clients,games) {
         try {
             identity=resouceManger.newConnection(ws,extractuuid)
         } catch (e) {   
-            console.log(e)
+            console.log(e.message)
             ws.close()
             return
         }
@@ -146,6 +155,9 @@ function createWebSocketServer(wss,clients,games) {
 
                 case 'create':
                     resouceManger.createGame(uuid)
+                    break;
+                case 'join':
+                    resouceManger.joinGame(uuid,request.gameId)
                     break;
                 default:
                     client.dispatch(request.method, request)

@@ -21,6 +21,7 @@ class MockingClient extends EventEmitter {
     constructor() {
         super()
         this.inGame = false
+        this.gameId = undefined
     }
 
     send(msg) {
@@ -310,7 +311,7 @@ describe('handle connection loss and recovery, ensuring game state is preserved 
     })
 
 
-    test('client can create a game', () => {
+    test('client can create a game , another client can join the game using game id', () => {
 
         let bob = new MockingClient()
         server.emit('connection', bob, { url: '/test' })
@@ -323,8 +324,28 @@ describe('handle connection loss and recovery, ensuring game state is preserved 
         assert.strictEqual(bob.inGame,true)
         assert.strictEqual(Object.keys(games).length,gameCount+1)
 
+        assert.notStrictEqual(bob.gameId,undefined)
+        
+        let alice = new MockingClient()
+        server.emit('connection', alice, { url: '/test' })
+
+        alice.emit('message', alice.requestSetName('alice'))
+        
+        assert.strictEqual(alice.inGame,false)
+        alice.emit('message', alice.requestJoin(bob.gameId))
+        assert.strictEqual(alice.inGame,true)
+        assert.strictEqual(alice.gameId,bob.gameId)
+
+       // console.log(games[bob.gameId].players)  
+
+
 
 
     })
+
+
+
+
+
 
 })

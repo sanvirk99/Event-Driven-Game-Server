@@ -9,15 +9,15 @@ const {Deck,createStandardDeck} = require('./gameEngine/deck')
 
 
 
-function createGameWithCustomDeck(ws,deck,logger){
+function createGameWithCustomDeck(client,deck,logger){
 
-    return new Game(ws,deck,logger)
+    return new Game(client,deck,logger)
 
 }
 
-function createGameWithRandomDeck(ws,logger){
+function createGameWithRandomDeck(client,logger){
 
-    return new Game(ws,createStandardDeck(),logger)
+    return new Game(client,createStandardDeck(),logger)
 
 }
 
@@ -31,7 +31,7 @@ function createGameWithRandomDeck(ws,logger){
 const resolveStates=["BLACKJACK","BUSTED","LOCKED"]
 class Game {
 
-    constructor(ws,deck,logger){
+    constructor(client,deck,logger){
 
         //game needs a deck to obtain cards from
         //game needs a gamestate 
@@ -55,8 +55,8 @@ class Game {
             this.betWaitMs=10000
         } 
         
-        //this.players[ws.uuid]=new PlayerState(ws,new Hand)
-        this.join(ws)
+        //this.players[client.uuid]=new PlayerState(client,new Hand)
+        this.join(client)
 
         this.logger.log('one bet needed to start round')
 
@@ -243,20 +243,20 @@ class Game {
 
     }
 
-    join(ws){
+    join(client){
 
         //add client to game
-        this.players[ws.uuid]=new PlayerState(ws,new Hand()) 
-        this.logger.log(`${this.players[ws.uuid].getName()} joined the game`)
+        this.players[client.uuid]=new PlayerState(client,new Hand()) 
+        this.logger.log(`${this.players[client.uuid].getName()} joined the game`)
 
 
     }
 
-    remove(ws){
+    remove(client){
 
-        if(ws.uuid in this.players){
-            let player=this.players[ws.uuid]
-            //this.logger.log(`${this.players[ws.uuid].getName()} request to be removed`)
+        if(client.uuid in this.players){
+            let player=this.players[client.uuid]
+            //this.logger.log(`${this.players[client.uuid].getName()} request to be removed`)
             //set remove flag
             player.exit()
 
@@ -452,10 +452,6 @@ class Game {
         info['roundlog'] = this.logger.getMessages()
         return info
 
-    }
-
-    playerCount(){
-        return Object.keys(this.players).length
     }
 
 

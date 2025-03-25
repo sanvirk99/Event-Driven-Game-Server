@@ -15,7 +15,6 @@ const { EventEmitter } = require('events');
 const awaitTime = (ms) => {
 
     return new Promise((resolve,reject) => {
-
         setTimeout(()=>{resolve()},ms)
     })
 }
