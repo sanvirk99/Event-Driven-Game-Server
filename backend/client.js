@@ -13,6 +13,7 @@ class Client {
         this.clientName="unnamed"
         this.cleanMem=false
         this.ingame=false
+        this.gameId=undefined
 
         this.transitions={
 
@@ -29,6 +30,10 @@ class Client {
                 'disconnect': ()=>{
                     this.ws=null
                     this.changeState("DISCONNECTED")
+                },
+
+                'snapshot' : (payload) => {
+                    this.send(payload)
                 }
 
 
@@ -59,6 +64,7 @@ class Client {
 
     createGame(gameId){
         this.ingame=true
+        this.gameId=gameId
         let res={
             method:"create",
             gameId:gameId   
@@ -68,12 +74,37 @@ class Client {
 
     joinGame(gameId){
         this.ingame=true
+        this.gameId=gameId
         let res={
             method:"join",
-            gameId:gameId
+            gameId: gameId
         }
         this.send(res)
     }
+
+    terminate(){
+        let res={
+            method:"terminate",
+            clientId:this.uuid
+        }
+        this.send(res)
+    }
+
+    exitGame(){
+
+        this.ingame=false
+        
+        let res={
+            method:"exit-game", 
+            gameId: this.gameId
+        }
+        this.gameId=undefined
+        this.send(res)
+
+
+    }
+
+
 
 
     send(res){

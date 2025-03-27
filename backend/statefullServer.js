@@ -66,7 +66,29 @@ class clientResourceManager {
 
     }
 
+    exitGame(uuid){
+
+        if(this.clients[uuid].inGame === false){
+            return
+        }
+        this.games[this.clients[uuid].gameId].remove(this.clients[uuid])
+        this.clients[uuid].exitGame()
+    }
+
+
+    gameAction(uuid,action){
+
+        if(this.clients[uuid].inGame === false || this.clients[uuid].gameId !== action.gameId){
+            return
+        }
+        this.games[this.clients[uuid].gameId].gameAction(action)
+    }
+
     removeClient(uuid) { //also remove from game if in game and check if game is empty and delete resouce
+        if(this.clients[uuid].inGame){
+            let game = this.games[this.clients[uuid].gameId]
+            game.remove(ws)
+        }
         delete this.clients[uuid]
     }
 
@@ -74,8 +96,8 @@ class clientResourceManager {
 
         if(uuid in this.clients && this.clients[uuid].ws === ws){
             // clients[request.clientId].dispatch('terminate')
-            this.clients[uuid].send({method:'terminate'})
-            delete this.clients[uuid]
+            this.clients[uuid].terminate()
+            this.removeClient(uuid)
             console.log(uuid,'TERMINATED')
             
         }
@@ -159,6 +181,12 @@ function createWebSocketServer(wss,clients,games) {
                 case 'join':
                     resouceManger.joinGame(uuid,request.gameId)
                     break;
+                case 'exit-game':
+                    resouceManger.exitGame(uuid)
+                    break;
+                case 'game-action':
+                    resouceManger.gameAction(uuid,request)
+                    break;
                 default:
                     client.dispatch(request.method, request)
             }
@@ -189,8 +217,35 @@ function createWebSocketServer(wss,clients,games) {
                 console.log('client object count :',Object.keys(clients).length)
                 prev=Object.keys(clients).length
             }
+
+            for (const key in games) {
+                const game = games[key]
+                game.run()
+
+                const snapshot = JSON.stringify({
+                    method: 'snapshot',
+                    snapshot: game.getGameSnapShot()
+                })
+                
+
+                if (games[key].snapshot === snapshot) {
+                    continue
+                }
+
+                games[key].snapshot = snapshot
+
+                // console.log(game.getGameSnapShot())
+                //console.log(game.players)
+                for (const key in game.players) {
+                    game.players[key].ws.dispatch('snapshot', snapshot)
+                }
+
+            }
+
+
+         
            
-          }, 5000)
+          }, 500)
   
       }
   

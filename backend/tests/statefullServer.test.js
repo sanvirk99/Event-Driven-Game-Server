@@ -59,6 +59,11 @@ class MockingClient extends EventEmitter {
             this.gameId = undefined
         }
 
+        if (response.method === 'terminate') {
+            this.inGame = false
+            this.gameId = undefined
+        }
+
     }
 
     close() {
@@ -311,7 +316,8 @@ describe('handle connection loss and recovery, ensuring game state is preserved 
     })
 
 
-    test('client can create a game , another client can join the game using game id', () => {
+    test('client can create a game , another client can join the game using game id , client can exit the game \
+        client can end the session and it should remove them from the game as well', () => {
 
         let bob = new MockingClient()
         server.emit('connection', bob, { url: '/test' })
@@ -336,16 +342,30 @@ describe('handle connection loss and recovery, ensuring game state is preserved 
         assert.strictEqual(alice.inGame,true)
         assert.strictEqual(alice.gameId,bob.gameId)
 
-       // console.log(games[bob.gameId].players)  
+        alice.emit('message', alice.requestExit())
+        assert.strictEqual(alice.inGame,false)
+        assert.strictEqual(alice.gameId,undefined)
 
-
+        alice.emit('message', alice.requestJoin(bob.gameId))
+        assert.strictEqual(alice.inGame,true)
+        assert.strictEqual(alice.gameId,bob.gameId)
+        
+        clientcount = Object.keys(clients).length   
+        
+        const beforeTerminationId = alice.id
+        alice.emit('message', alice.requestEndSession())
+        assert.strictEqual(Object.keys(clients).length,clientcount-1)
+        assert.strictEqual(alice.inGame,false)
+        assert.strictEqual(alice.gameId,undefined)
+        assert.strictEqual(clients[alice.id],undefined)
+        
+        
+        //internal client reousrces should be deleted current it waits for reset to be called at end of round
+        //if round did not begin then it should remove the player from the game and delete the resource
+        //assert.strictEqual(this.games[bob.gameId].players[beforeTerminationId].leftTheGame(),true)
 
 
     })
-
-
-
-
 
 
 })

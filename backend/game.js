@@ -246,6 +246,12 @@ class Game {
     join(ws){
 
         //add client to game
+        if (ws.uuid in this.players){
+            let player=this.players[ws.uuid]
+            player.rejoin()
+            return
+        }
+
         this.players[ws.uuid]=new PlayerState(ws,new Hand()) 
         this.logger.log(`${this.players[ws.uuid].getName()} joined the game`)
 

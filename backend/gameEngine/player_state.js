@@ -171,6 +171,10 @@ class PlayerState {
         return this.state
     }
 
+    rejoin(){
+        this.exitFlag=false
+    }
+
     exit(){
 
         this.exitFlag=true
