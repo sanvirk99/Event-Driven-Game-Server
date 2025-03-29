@@ -131,6 +131,16 @@ class MockGame {
         this.logger.log(`dealer handed ${card.value}`)
 
     }
+
+    clearDisconnectedPlayers(){
+        
+        for(const player of Object.values(this.players)){
+            if(player.leftTheGame()){
+                this.logger.log(`${player.getName()} removed`)
+                delete this.players[player.getId()]
+            }
+        }
+    }
    
     
     handCard(player){

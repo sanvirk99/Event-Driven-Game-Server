@@ -185,8 +185,8 @@ describe('handle connection loss and recovery, ensuring game state is preserved 
     //upon a connection loss, websocket id is changed when it reconnects, pass in the local stored id to the server to reconnect to the same session
     //float the dangling client id wihout a websocket id mapping in a pool for a given time to allow the client to reconnect
 
-    const clients = {}
-    const games = {}
+    let clients = {}
+    let games = {}
     let server=createWebSocketServer(new Server(),clients,games)
     let bob = new MockingClient()
 
@@ -317,7 +317,8 @@ describe('handle connection loss and recovery, ensuring game state is preserved 
 
 
     test('client can create a game , another client can join the game using game id , client can exit the game \
-        client can end the session and it should remove them from the game as well', () => {
+        client can end the session and it should remove them from the game as well \
+        if player is removed before placing bet delete the player from the game', () => {
 
         let bob = new MockingClient()
         server.emit('connection', bob, { url: '/test' })
@@ -342,9 +343,13 @@ describe('handle connection loss and recovery, ensuring game state is preserved 
         assert.strictEqual(alice.inGame,true)
         assert.strictEqual(alice.gameId,bob.gameId)
 
+        gameplayercount = Object.keys(games[bob.gameId].players).length
+
         alice.emit('message', alice.requestExit())
         assert.strictEqual(alice.inGame,false)
         assert.strictEqual(alice.gameId,undefined)
+
+        assert.strictEqual(Object.keys(games[bob.gameId].players).length,gameplayercount-1)
 
         alice.emit('message', alice.requestJoin(bob.gameId))
         assert.strictEqual(alice.inGame,true)
@@ -358,14 +363,18 @@ describe('handle connection loss and recovery, ensuring game state is preserved 
         assert.strictEqual(alice.inGame,false)
         assert.strictEqual(alice.gameId,undefined)
         assert.strictEqual(clients[alice.id],undefined)
+        assert.strictEqual(games[bob.gameId].players[alice.beforeTerminationId],undefined)
         
+
         
-        //internal client reousrces should be deleted current it waits for reset to be called at end of round
-        //if round did not begin then it should remove the player from the game and delete the resource
-        //assert.strictEqual(this.games[bob.gameId].players[beforeTerminationId].leftTheGame(),true)
 
 
     })
+
+
+            //internal client reousrces should be deleted current it waits for reset to be called at end of round
+        //if round did not begin then it should remove the player from the game and delete the resource
+        //assert.strictEqual(this.games[bob.gameId].players[beforeTerminationId].leftTheGame(),true)
 
 
 })

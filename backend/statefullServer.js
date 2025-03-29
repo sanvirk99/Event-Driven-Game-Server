@@ -85,9 +85,10 @@ class clientResourceManager {
     }
 
     removeClient(uuid) { //also remove from game if in game and check if game is empty and delete resouce
-        if(this.clients[uuid].inGame){
+       
+        if(this.clients[uuid].ingame){ 
             let game = this.games[this.clients[uuid].gameId]
-            game.remove(ws)
+            game.remove(this.clients[uuid])
         }
         delete this.clients[uuid]
     }
@@ -98,7 +99,7 @@ class clientResourceManager {
             // clients[request.clientId].dispatch('terminate')
             this.clients[uuid].terminate()
             this.removeClient(uuid)
-            console.log(uuid,'TERMINATED')
+            console.log(uuid,'TERMINATED',)
             
         }
 

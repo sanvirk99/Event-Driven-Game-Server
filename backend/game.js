@@ -62,18 +62,22 @@ class Game {
 
     }
 
+    clearDisconnectedPlayers(){
+        
+        for(const player of Object.values(this.players)){
+            if(player.leftTheGame()){
+                this.logger.log(`${player.getName()} removed`)
+                delete this.players[player.getId()]
+            }
+        }
+    }
+
 
     //when connected to database i would transfer the round outcome here
     reset(){
         this.que.clear()
         
-        Object.keys(this.players).forEach( (key)=>{
-
-            if(this.players[key].leftTheGame()){
-                this.logger.log(`${this.players[key].getName()} removed`)
-                delete this.players[key]
-            }
-        })
+        this.clearDisconnectedPlayers()
 
         for(const player of Object.values(this.players)){
             player.clearHand()
@@ -262,9 +266,14 @@ class Game {
 
         if(ws.uuid in this.players){
             let player=this.players[ws.uuid]
-            //this.logger.log(`${this.players[ws.uuid].getName()} request to be removed`)
-            //set remove flag
-            player.exit()
+            console.log(player.getState(), ws.uuid)
+            if(player.getState() === "WATCHING"){
+                this.logger.log(`${this.players[ws.uuid].getName()} removed`)
+                delete this.players[ws.uuid]
+            }else{ // cant remove player in the middle of a round but set flag
+                player.exit() 
+            }
+           
 
         }
 

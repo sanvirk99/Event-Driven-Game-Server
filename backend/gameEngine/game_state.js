@@ -14,6 +14,7 @@ class GameState {
                     if(this.evaluating){
                         return
                     }
+                   
 
                     let ready=false
                     for(const player of Object.values(this.players)){ //should be game functions

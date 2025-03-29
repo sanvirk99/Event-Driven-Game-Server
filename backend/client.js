@@ -33,7 +33,7 @@ class Client {
                 },
 
                 'snapshot' : (payload) => {
-                    this.send(payload)
+                    this.ws.send(payload)
                 }
 
 
