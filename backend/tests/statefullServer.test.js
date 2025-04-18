@@ -9,6 +9,7 @@ const { createWebSocketServer } = require('../statefullServer');
 
 //test client creation , simulate a disconnect and recover state,( simulate new connection mapping to the same client resource)
 const { EventEmitter } = require('events');
+const { AssertionError } = require('assert');
 const assert = require('assert').strict;
 
 
@@ -22,6 +23,7 @@ class MockingClient extends EventEmitter {
         super()
         this.inGame = false
         this.gameId = undefined
+        this.restoreCount=0
     }
 
     send(msg) {
@@ -48,6 +50,14 @@ class MockingClient extends EventEmitter {
         if (response.method === "join") {
             this.gameId = response.gameId
             this.inGame = true
+        }
+
+        if (response.method === 'restore'){
+
+            this.restoreCount++
+            assert(response.gameId === this.gameId)
+            
+
         }
 
         if (response.method === 'snapshot') {
@@ -164,11 +174,11 @@ garbagecollector = (clients) => {
         
         if (client.getstate() === 'DISCONNECTED') {
 
-            if (client.cleanMem) {
+            if (client.getmemflag() >= 2) {
                 delete clients[client.uuid]
             }
             else {
-                client.cleanMem = true
+                client.incrementmemflag()
             }
                 
             
@@ -306,9 +316,9 @@ describe('handle connection loss and recovery, ensuring game state is preserved 
 
         let count=Object.keys(clients).length   
         assert.strictEqual(clients[bob.id].getstate(),'DISCONNECTED')
-        assert.strictEqual(clients[bob.id].getmemflag(),false)
+        assert.strictEqual(clients[bob.id].getmemflag(),1)
         garbagecollector(clients)
-        assert.strictEqual(clients[bob.id].getmemflag(),true)
+        assert.strictEqual(clients[bob.id].getmemflag(),2)
         garbagecollector(clients)
         assert.strictEqual(clients[bob.id],undefined)
         assert.strictEqual(Object.keys(clients).length,count-1)   
@@ -345,6 +355,7 @@ describe('handle connection loss and recovery, ensuring game state is preserved 
 
         gameplayercount = Object.keys(games[bob.gameId].players).length
 
+        
         alice.emit('message', alice.requestExit())
         assert.strictEqual(alice.inGame,false)
         assert.strictEqual(alice.gameId,undefined)
@@ -366,15 +377,77 @@ describe('handle connection loss and recovery, ensuring game state is preserved 
         assert.strictEqual(games[bob.gameId].players[alice.beforeTerminationId],undefined)
         
 
-        
+         //internal client reousrces should be deleted current it waits for reset to be called at end of round
+        //if round did not begin then it should remove the player from the game and delete the resource
+        //assert.strictEqual(this.games[bob.gameId].players[beforeTerminationId].leftTheGame(),true)
+
 
 
     })
 
 
-            //internal client reousrces should be deleted current it waits for reset to be called at end of round
-        //if round did not begin then it should remove the player from the game and delete the resource
-        //assert.strictEqual(this.games[bob.gameId].players[beforeTerminationId].leftTheGame(),true)
+    test('restore game session snapshot if disconnected while in game @restore',() => {
+        //this is needed as only difference from previous state are sent to client 
 
+        let bob = new MockingClient()
+        server.emit('connection', bob, { url: '/test' })
+        bob.emit('message', bob.requestSetName('bob'))
+        assert.strictEqual(clients[bob.id].state,'CONNECTED')
+
+        //join the game
+        bob.emit('message', bob.requestCreate())
+        assert.strictEqual(bob.inGame,true)
+        assert.notStrictEqual(bob.gameId,undefined)
+
+        //disconnect and reconnect 
+        bob.emit('close')
+        assert.strictEqual(clients[bob.id].state,'DISCONNECTED')
+
+        //intercept snapshot
+        assert.strictEqual(bob.restoreCount,0)
+        server.emit('connection', bob, { url: `/test?uuid=${bob.id}` })
+        assert.strictEqual(clients[bob.id].state,'CONNECTED')
+        assert.strictEqual(clients[bob.id].gameId,bob.gameId)
+        assert.strictEqual(clients[bob.id].isInGame(),true)
+        assert.strictEqual(bob.restoreCount,1)
+
+
+    })
+
+
+    test(`clean up games with no players, bob creates game, join the game but then disconnects, his resources are cleaned up \
+        no one is actually in the game session or the game room he created, it also needs to be cleaned up` , () => {
+
+        let bob = new MockingClient()
+        server.emit('connection', bob, { url: '/test' })
+
+        bob.emit('message', bob.requestSetName('bob'))
+        assert.strictEqual(clients[bob.id].state,'CONNECTED')
+        let gameCount = Object.keys(games).length
+        bob.emit('message', bob.requestCreate())
+        assert.strictEqual(bob.inGame,true)
+        assert.strictEqual(Object.keys(games).length,gameCount+1)
+        assert.notStrictEqual(bob.gameId,undefined)
+
+        bob.emit('close')
+        assert.strictEqual(clients[bob.id].state,'DISCONNECTED')
+        assert.strictEqual(clients[bob.id].getmemflag(),1)
+        garbagecollector(clients)
+
+        assert.strictEqual(clients[bob.id].getmemflag(),2)
+        garbagecollector(clients)
+
+        assert.strictEqual(clients[bob.id],undefined)
+
+        
+
+       // assert.strictEqual(Object.keys(games).length,gameCount) //game should be deleted since no player is in the game
+
+
+
+    })
+
+
+           
 
 })

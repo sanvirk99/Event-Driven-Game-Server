@@ -34,6 +34,18 @@ class Client {
 
                 'snapshot' : (payload) => {
                     this.ws.send(payload)
+                },
+
+                'restore' : (payload) => {
+
+                    let res={
+                        method:"restore",
+                        gameId:this.gameId,
+                        snapshot:payload
+                    }
+
+                    this.send(res)
+
                 }
 
 
@@ -51,7 +63,6 @@ class Client {
                     this.changeState("CONNECTED")
                     this.send(res)
                     
-
                 }
             }
 
@@ -126,9 +137,21 @@ class Client {
 
     changeState(newState) {
         // validate that newState actually exists
-        
         console.log(this.uuid,newState)
-        this.resetmemflag()
+
+        switch (newState) {
+            case "CONNECTED":
+                this.resetmemflag()
+                break;
+
+            case "DISCONNECTED":
+                this.incrementmemflag()
+                break;
+
+            default:
+                break;
+        }
+       
         if (this.transitions[newState]) {
             this.state = newState;
         } else {
@@ -140,15 +163,19 @@ class Client {
         return this.cleanMem
     }
 
-    setmemflag(){
-        this.cleanMem=true
+    incrementmemflag(){
+        this.cleanMem+=1
     }
     resetmemflag(){
-        this.cleanMem=false
+        this.cleanMem=0
     }
 
     getstate(){
         return this.state
+    }
+
+    isInGame(){
+        return this.ingame
     }
 
 

@@ -33,6 +33,8 @@ class clientResourceManager {
 
             client = this.clients[uuid]
 
+            this.restoreState(uuid)
+
         }else{
 
             // generate a new uuid
@@ -54,7 +56,8 @@ class clientResourceManager {
         let uuidGame = crypto.randomUUID()
         const game = createGameWithRandomDeck(this.clients[uuid], new Logger())
         this.games[uuidGame] = game
-        this.clients[uuid].createGame(uuidGame)    
+        this.clients[uuid].createGame(uuidGame) 
+        console.log('game created',uuidGame)   
     }
 
     joinGame(uuid,gameId){
@@ -68,7 +71,7 @@ class clientResourceManager {
 
     exitGame(uuid){
 
-        if(this.clients[uuid].inGame === false){
+        if(this.clients[uuid].isInGame() === false){
             return
         }
         this.games[this.clients[uuid].gameId].remove(this.clients[uuid])
@@ -78,7 +81,7 @@ class clientResourceManager {
 
     gameAction(uuid,action){
 
-        if(this.clients[uuid].inGame === false || this.clients[uuid].gameId !== action.gameId){
+        if(this.clients[uuid].isInGame() === false || this.clients[uuid].gameId !== action.gameId){
             return
         }
         this.games[this.clients[uuid].gameId].gameAction(action)
@@ -86,7 +89,7 @@ class clientResourceManager {
 
     removeClient(uuid) { //also remove from game if in game and check if game is empty and delete resouce
        
-        if(this.clients[uuid].ingame){ 
+        if(this.clients[uuid].isInGame()){ 
             let game = this.games[this.clients[uuid].gameId]
             game.remove(this.clients[uuid])
         }
@@ -102,6 +105,23 @@ class clientResourceManager {
             console.log(uuid,'TERMINATED',)
             
         }
+
+    }
+
+    restoreState(uuid){
+
+       
+
+       console.log('restoring state',uuid)
+
+       if(this.clients[uuid].isInGame()){
+
+            console.log('gameId',this.clients[uuid].gameId) 
+            let snapshot = this.games[this.clients[uuid].gameId].getGameSnapShot()
+            this.clients[uuid].dispatch('restore',snapshot)
+
+       }
+
 
     }
 
@@ -212,11 +232,16 @@ function createWebSocketServer(wss,clients,games) {
       if (process.env.NODE_ENV !== 'test') { //run auto loop
           
           let prev=-1
+          let prevgames=-1
           gamesInterval = setInterval(() => { 
 
             if(Object.keys(clients).length !== prev){
                 console.log('client object count :',Object.keys(clients).length)
                 prev=Object.keys(clients).length
+            }
+            if(Object.keys(games).length !== prevgames){
+                console.log('game count :',Object.keys(games).length)
+                prevgames=Object.keys(games).length
             }
 
             for (const key in games) {
@@ -237,8 +262,9 @@ function createWebSocketServer(wss,clients,games) {
 
                 // console.log(game.getGameSnapShot())
                 //console.log(game.players)
-                for (const key in game.players) {
+                for (const key in game.players) { //ws is client object in this context
                     game.players[key].ws.dispatch('snapshot', snapshot)
+
                 }
 
             }

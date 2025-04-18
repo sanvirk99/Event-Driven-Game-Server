@@ -266,10 +266,11 @@ class Game {
 
         if(ws.uuid in this.players){
             let player=this.players[ws.uuid]
-            console.log(player.getState(), ws.uuid)
             if(player.getState() === "WATCHING"){
                 this.logger.log(`${this.players[ws.uuid].getName()} removed`)
+                console.log(`removed ${this.players[ws.uuid].getName()} from game`)
                 delete this.players[ws.uuid]
+                
             }else{ // cant remove player in the middle of a round but set flag
                 player.exit() 
             }

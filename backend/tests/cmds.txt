@@ -5,3 +5,9 @@
 
 #testing based on test name 
     npm test -- --test-name-pattern="game state object testing"
+
+
+
+#testing with specific flag
+
+NODE_ENV=test node --test --test-name-pattern @restore
