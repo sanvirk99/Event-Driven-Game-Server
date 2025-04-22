@@ -20,6 +20,7 @@ class clientResourceManager {
 
         this.clients = clients
         this.games = games
+
     }
 
     newConnection(ws,uuid) {
@@ -122,6 +123,38 @@ class clientResourceManager {
 
        }
 
+
+    }
+
+
+    resourceCleanup() {
+
+        console.log('resource cleanup', new Date().toLocaleTimeString())
+        
+        for(const [key,client] of Object.entries(this.clients)){
+            if(client.state === 'DISCONNECTED'){
+
+                if (client.getmemflag() >= 2) {
+
+                    if(client.isInGame()){ 
+                        let game = games[client.gameId]
+                        game.remove(client)
+                    }
+                    delete clients[client.uuid]
+                }
+                else {
+                    client.incrementmemflag()
+                }
+                
+            }
+        }
+
+
+        for (const [key,game] of Object.entries(this.games)) {
+            if(game.isEmpty()){
+                delete games[key]
+            }   
+        }
 
     }
 

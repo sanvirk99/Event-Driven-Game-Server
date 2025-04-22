@@ -168,13 +168,18 @@ class MockingClient extends EventEmitter {
 
 
 
-garbagecollector = (clients) => {
+garbagecollector = (clients,games) => {
 
     for (const client of Object.values(clients)) {
         
         if (client.getstate() === 'DISCONNECTED') {
 
             if (client.getmemflag() >= 2) {
+
+                if(client.isInGame()){ 
+                    let game = games[client.gameId]
+                    game.remove(client)
+                }
                 delete clients[client.uuid]
             }
             else {
@@ -185,6 +190,15 @@ garbagecollector = (clients) => {
         }
     }
 
+}
+
+
+gameCleanUp = (games) => {
+    for (const [key,game] of Object.entries(games)) {
+        if(game.isEmpty()){
+            delete games[key]
+        }   
+    }
 }
 
 
@@ -416,7 +430,7 @@ describe('handle connection loss and recovery, ensuring game state is preserved 
 
 
     test(`clean up games with no players, bob creates game, join the game but then disconnects, his resources are cleaned up \
-        no one is actually in the game session or the game room he created, it also needs to be cleaned up` , () => {
+        no one is actually in the game session or the game room he created, it also needs to be cleaned up @cleanup` , () => {
 
         let bob = new MockingClient()
         server.emit('connection', bob, { url: '/test' })
@@ -435,9 +449,19 @@ describe('handle connection loss and recovery, ensuring game state is preserved 
         garbagecollector(clients)
 
         assert.strictEqual(clients[bob.id].getmemflag(),2)
-        garbagecollector(clients)
+        garbagecollector(clients,games)
 
-        assert.strictEqual(clients[bob.id],undefined)
+        assert.strictEqual(clients[bob.id],undefined) // cleaned up
+
+
+        gameCleanUp(games)
+
+        assert.strictEqual(Object.keys(games).length,gameCount)
+        
+        //assert.strictEqual(games[bob.gameId],undefined) //game should be deleted since no player is in the game
+
+
+    
 
         
 

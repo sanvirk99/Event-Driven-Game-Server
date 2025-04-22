@@ -474,6 +474,10 @@ class Game {
         return Object.keys(this.players).length
     }
 
+    isEmpty(){
+        return Object.keys(this.players).length === 0
+    }
+
 
 }
 
