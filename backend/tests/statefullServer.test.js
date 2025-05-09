@@ -459,19 +459,60 @@ describe('handle connection loss and recovery, ensuring game state is preserved 
         assert.strictEqual(Object.keys(games).length,gameCount)
         
         //assert.strictEqual(games[bob.gameId],undefined) //game should be deleted since no player is in the game
-
-
-    
-
-        
-
        // assert.strictEqual(Object.keys(games).length,gameCount) //game should be deleted since no player is in the game
 
-
-
     })
-
-
            
+
+})
+
+
+
+describe('testing async garbage collection', () => {
+
+    //this would automatically happen, tick time passed while instantiating the server
+
+    let clients = {}
+    let games = {}
+    let collectionIntervalMs = 100
+    let bob = new MockingClient()
+    let alice = new MockingClient()
+
+    test('simple connection close client client up after 100ms of not connecting @async', async () => {
+        
+        let server=createWebSocketServer(new Server(),clients,games,100)
+
+        server.emit('connection', bob, { url: '/test' })
+        server.emit('connection', alice, { url: '/test' })
+        bob.emit('message', bob.requestSetName('bob'))
+        alice.emit('message', alice.requestSetName('alice'))
+
+        assert.strictEqual(clients[bob.id].state,'CONNECTED')
+        assert.strictEqual(clients[alice.id].state,'CONNECTED')
+        
+        let totalClientCount = Object.keys(clients).length  
+
+        bob.emit('close')
+        alice.emit('close')
+        assert.strictEqual(totalClientCount,Object.keys(clients).length)    
+
+        await new Promise(resolve => setTimeout(resolve, collectionIntervalMs * 2));
+
+        assert.strictEqual(totalClientCount-2,Object.keys(clients).length)
+
+
+        server.stop()
+
+    }) 
+    
+
+
+
+    //client connect and disconnect clean up resources
+
+
+
+
+
 
 })

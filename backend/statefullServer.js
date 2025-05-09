@@ -4,6 +4,7 @@ const { createGameWithRandomDeck } = require('./game')
 const {sampleValidation,methodValidation} = require('./utils/inputValidation')
 const {newClient} = require('./client');
 const { default: def } = require('ajv/dist/vocabularies/discriminator');
+const { clear } = require('node:console');
 //comminicate via json format
 
 const PLAYER_COUNT_PER_SESSION=4
@@ -164,7 +165,7 @@ class clientResourceManager {
 }
 
 
-function createWebSocketServer(wss,clients,games) {
+function createWebSocketServer(wss,clients,games,cleanMemInterval) {
 
     if (clients === undefined) {
         clients = {}
@@ -258,8 +259,6 @@ function createWebSocketServer(wss,clients,games) {
 
     });
 
-
-
       //update all players in game of gamestate and run the game loop every 1 second
       let gamesInterval = undefined
       if (process.env.NODE_ENV !== 'test') { //run auto loop
@@ -308,11 +307,24 @@ function createWebSocketServer(wss,clients,games) {
           }, 500)
   
       }
-  
+
+      let memoryIntervalId = undefined
+      console.log('memory interval',cleanMemInterval)
+      if(cleanMemInterval !== undefined && cleanMemInterval > 0){
+            memoryIntervalId = setInterval(() => { 
+                resouceManger.resourceCleanup()
+            }, cleanMemInterval)
+      }
+      
       wss.stop = () => {
   
           clearInterval(gamesInterval)
+          clearInterval(memoryIntervalId)
+          console.log('stopping server')
       }
+
+
+    
   
 
 
