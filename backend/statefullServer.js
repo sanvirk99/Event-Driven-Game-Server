@@ -130,7 +130,7 @@ class clientResourceManager {
 
     resourceCleanup() {
 
-        console.log('resource cleanup', new Date().toLocaleTimeString())
+       // console.log('resource cleanup', new Date().toLocaleTimeString())
         
         for(const [key,client] of Object.entries(this.clients)){
             if(client.state === 'DISCONNECTED'){
@@ -141,7 +141,7 @@ class clientResourceManager {
                         let game = games[client.gameId]
                         game.remove(client)
                     }
-                    delete clients[client.uuid]
+                    delete this.clients[client.uuid]
                 }
                 else {
                     client.incrementmemflag()
@@ -309,7 +309,6 @@ function createWebSocketServer(wss,clients,games,cleanMemInterval) {
       }
 
       let memoryIntervalId = undefined
-      console.log('memory interval',cleanMemInterval)
       if(cleanMemInterval !== undefined && cleanMemInterval > 0){
             memoryIntervalId = setInterval(() => { 
                 resouceManger.resourceCleanup()

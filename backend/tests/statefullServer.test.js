@@ -203,7 +203,7 @@ gameCleanUp = (games) => {
 
 
 
-describe('handle connection loss and recovery, ensuring game state is preserved when a player reconnects from the same browser session', () => {
+describe('handle connection loss and recovery, ensuring game state is preserved when a player reconnects from the same browser session @nonasync', () => {
 
     //mock client side local session storage memory to store the client id on intial connection, game id if game has been created or joined
     //upon a connection loss, websocket id is changed when it reconnects, pass in the local stored id to the server to reconnect to the same session
@@ -462,6 +462,9 @@ describe('handle connection loss and recovery, ensuring game state is preserved 
        // assert.strictEqual(Object.keys(games).length,gameCount) //game should be deleted since no player is in the game
 
     })
+
+
+  
            
 
 })
@@ -472,15 +475,15 @@ describe('testing async garbage collection', () => {
 
     //this would automatically happen, tick time passed while instantiating the server
 
-    let clients = {}
-    let games = {}
-    let collectionIntervalMs = 100
-    let bob = new MockingClient()
-    let alice = new MockingClient()
+   
 
     test('simple connection close client client up after 100ms of not connecting @async', async () => {
-        
-        let server=createWebSocketServer(new Server(),clients,games,100)
+        let clients = {}
+        let games = {}
+        let collectionIntervalMs = 100
+        let bob = new MockingClient()
+        let alice = new MockingClient()
+        let server=createWebSocketServer(new Server(),clients,games,collectionIntervalMs)
 
         server.emit('connection', bob, { url: '/test' })
         server.emit('connection', alice, { url: '/test' })
@@ -496,10 +499,9 @@ describe('testing async garbage collection', () => {
         alice.emit('close')
         assert.strictEqual(totalClientCount,Object.keys(clients).length)    
 
-        await new Promise(resolve => setTimeout(resolve, collectionIntervalMs * 2));
+        await new Promise(resolve => setTimeout(resolve, collectionIntervalMs * 5)); //should be enough time for 2 cleaning events to occur
 
         assert.strictEqual(totalClientCount-2,Object.keys(clients).length)
-
 
         server.stop()
 
