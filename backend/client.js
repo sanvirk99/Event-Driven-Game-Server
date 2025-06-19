@@ -178,6 +178,10 @@ class Client {
         return this.ingame
     }
 
+    getGameId(){
+        return this.gameId
+    }
+
 
 }
 

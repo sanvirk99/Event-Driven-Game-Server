@@ -13,8 +13,6 @@ const MAX_CONNECTIONS=100  //clean up inactive connections or idle connections
 
 
 
-let clients
-let games
 
 class clientResourceManager {
     constructor(clients = {},games = {}) {
@@ -55,6 +53,11 @@ class clientResourceManager {
     }
 
     createGame(uuid){ //uuid creating game joins the game automatically
+
+        if(this.clients[uuid].isInGame()){
+            return
+        }
+
         let uuidGame = crypto.randomUUID()
         const game = createGameWithRandomDeck(this.clients[uuid], new Logger())
         this.games[uuidGame] = game
@@ -63,6 +66,10 @@ class clientResourceManager {
     }
 
     joinGame(uuid,gameId){
+
+        if(this.clients[uuid].isInGame()){
+            return
+        }
 
         if(gameId in this.games){
             this.games[gameId].join(this.clients[uuid])
@@ -138,7 +145,7 @@ class clientResourceManager {
                 if (client.getmemflag() >= 2) {
 
                     if(client.isInGame()){ 
-                        let game = games[client.gameId]
+                        let game = this.games[client.getGameId()]
                         game.remove(client)
                     }
                     delete this.clients[client.uuid]
@@ -153,7 +160,7 @@ class clientResourceManager {
 
         for (const [key,game] of Object.entries(this.games)) {
             if(game.isEmpty()){
-                delete games[key]
+                delete this.games[key]
             }   
         }
 
@@ -322,17 +329,8 @@ function createWebSocketServer(wss,clients,games,cleanMemInterval) {
           console.log('stopping server')
       }
 
-
-    
-  
-
-
     return wss
 }
-
-   
-    
-
 
 
 module.exports = {

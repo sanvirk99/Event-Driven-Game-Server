@@ -74,6 +74,7 @@ class MockingClient extends EventEmitter {
             this.gameId = undefined
         }
 
+
     }
 
     close() {
@@ -160,6 +161,13 @@ class MockingClient extends EventEmitter {
             clientId: this.id
         }
         return JSON.stringify(request)
+    }
+
+    getGameId() {
+        return this.gameId
+    }
+    getId() {
+        return this.id
     }
 
 
@@ -279,7 +287,7 @@ describe('handle connection loss and recovery, ensuring game state is preserved 
     })
 
 
-    test('if client ends the session with terminate all client resource on server should be delete', () => {
+    test('if client ends the session with terminate all client resource on server should be deleted', () => {
         
         //log out request from alice should remove the client resource from the server
         let bob = new MockingClient()
@@ -471,13 +479,13 @@ describe('handle connection loss and recovery, ensuring game state is preserved 
 
 
 
-describe('testing async garbage collection', () => {
+describe('testing async garbage collection @async', () => {
 
     //this would automatically happen, tick time passed while instantiating the server
 
    
 
-    test('simple connection close client client up after 100ms of not connecting @async', async () => {
+    test('simple connection close client client up after 100ms of not connecting ', async () => {
         let clients = {}
         let games = {}
         let collectionIntervalMs = 100
@@ -506,6 +514,111 @@ describe('testing async garbage collection', () => {
         server.stop()
 
     }) 
+
+
+
+    test('client disconets but comes back before the garbage collection time is up, if after then deleted, client should be restored and not deleted @async', async () => {
+        let clients = {}
+        let games = {}
+        let collectionIntervalMs = 100
+        let bob = new MockingClient()
+        let alice = new MockingClient()
+        let server=createWebSocketServer(new Server(),clients,games,collectionIntervalMs)
+
+        server.emit('connection', bob, { url: '/test' })
+        server.emit('connection', alice, { url: '/test' })
+        bob.emit('message', bob.requestSetName('bob'))
+        alice.emit('message', alice.requestSetName('alice'))
+
+        assert.strictEqual(clients[bob.id].state,'CONNECTED')
+        assert.strictEqual(clients[alice.id].state,'CONNECTED')
+        
+        let totalClientCount = Object.keys(clients).length  
+
+        bob.emit('close')
+
+        assert.strictEqual(clients[bob.id].state,'DISCONNECTED')    
+        
+        await new Promise(resolve => setTimeout(resolve, collectionIntervalMs)); // only one cycle occurs
+
+        assert.strictEqual(totalClientCount,Object.keys(clients).length)    
+        
+        server.emit('connection', bob, { url: `/test?uuid=${bob.id}` })
+        
+        assert.strictEqual(clients[bob.id].state,'CONNECTED')
+        assert.strictEqual(totalClientCount,Object.keys(clients).length)    
+
+
+        bob.emit('close')
+
+        await new Promise(resolve => setTimeout(resolve, collectionIntervalMs * 3)); //should be enough time for 2 cleaning events to occur
+
+        assert.strictEqual(totalClientCount-1,Object.keys(clients).length)
+
+        server.stop()
+
+    })
+
+
+
+    test('client resource in relation to game resources, if client is disconnected while in game @ingame', async () => { 
+
+        //client as a whole exists in the server, within a game resides the client game state, when the main client resources are cleaned up
+        //the game should also clean up client resources
+
+        let clients = {}
+        let games = {}
+        let collectionIntervalMs = 100
+        let bob = new MockingClient()
+        let alice = new MockingClient()
+        let server=createWebSocketServer(new Server(),clients,games,collectionIntervalMs)
+
+        server.emit('connection', bob, { url: '/test' })
+        server.emit('connection', alice, { url: '/test' })
+        bob.emit('message', bob.requestSetName('bob'))
+        alice.emit('message', alice.requestSetName('alice'))
+
+        assert.strictEqual(clients[bob.id].state,'CONNECTED')
+        assert.strictEqual(clients[alice.id].state,'CONNECTED')
+        
+        let totalClientCount = Object.keys(clients).length  
+
+        bob.emit('close')
+
+        assert.strictEqual(clients[bob.id].state,'DISCONNECTED')    
+        
+        await new Promise(resolve => setTimeout(resolve, collectionIntervalMs)); // only one cycle occurs
+
+        assert.strictEqual(totalClientCount,Object.keys(clients).length)    
+        
+        server.emit('connection', bob, { url: `/test?uuid=${bob.id}` })
+        
+        assert.strictEqual(clients[bob.id].state,'CONNECTED')
+        assert.strictEqual(totalClientCount,Object.keys(clients).length)    
+
+        assert.strictEqual(bob.inGame,false)
+        assert.strictEqual(Object.keys(games).length,0)
+        bob.emit('message', bob.requestCreate())
+        
+        assert.strictEqual(Object.keys(games).length,1)
+
+
+        bob.emit('close')
+
+        await new Promise(resolve => setTimeout(resolve, collectionIntervalMs * 3)); //should be enough time for 2 cleaning events to occur
+
+        assert.strictEqual(totalClientCount-1,Object.keys(clients).length)
+
+        assert.strictEqual(Object.keys(games).length,0) //game should be deleted since no player is in the game
+
+        server.stop()
+
+
+
+
+
+
+    })
     
 
 
